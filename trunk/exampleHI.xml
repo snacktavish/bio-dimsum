@@ -1,0 +1,237 @@
+<!--
+
+This is a sample DIM SUM XML settings file 
+
+Explantions of options and commands are given between the "<!-" and "->" tags.  These tags specify
+XML comments and are not used by DIM SUM.  They can be deleted or modified without changing the
+behavior of the simulation.
+
+This XML settings file uses an image file (.png) as input to specify carrying capacity and the 
+placement of borders.  The image input used in this example (ExampleHI.png) is provided in the 
+"ExampleInputs" folder of the default DIM SUM download (from http://code.google.com/p/bio-dimsum/).
+
+Each simulation must specify the following parameters:
+	generations
+	min and max, lat and lon
+	carrying capacity
+	hardborders
+	softborders
+	reproductiveability
+	dispersalradius
+	initialpopulation
+	output
+	
+    
+See section IV of the DIM SUM manual for further explanation of the parameters.
+
+An overview of general XML structure is available on Wikipedia: http://en.wikipedia.org/wiki/Xml
+
+Here are highly informal descriptions of a few XML terms:
+
+- Tags are things inside < and >.
+- Start tags begin by giving the tag type (e.g., <generations>).
+- Each start tag has a corresponding end tag.  The end tag always starts with a /, followed by the 
+    tag type (e.g., </generations>).
+- Empty tags start with a tag type and end with a / (e.g., <edges type="impenetrable"/>).  
+    Essentially, empty tags are a start and end tag compressed into one.
+- Attributes are options set within a start tag. For example, "type" is an attribute set within the 
+    "edges" empty tag (<edges type="impenetrable"/>).
+- Elements are constructs defined by start and end tags.  For instance, this example
+	<generations>10000</generations>
+	defines a "generations" element whose content is "10000".  If elements are nested within other
+	elements, the lower-level element is referred to as a child element.
+
+--> 
+
+
+<!-- Enter a name for your simulation in the start tag. This simulation is named "HawaiiExample" -->
+
+<simulation name="HawaiiExample">
+
+<!-- The "seed" element allows the user to specify a seed for the pseudo-random number generator.
+	 Simulations begun with the same seed will always produce the same output.  If no seed is given,
+	 DIM SUM will seed the random number generator with the time of the system clock. -->
+
+	<seed> 3451 </seed>
+
+<!-- Enter the number of generations for which the simulation should run between 
+	 <generations> and </generations> -->
+	 
+	<generations>100</generations>
+	
+	
+<!-- Because DIM SUM incorporates the curvature on the earth into calculations, it is neccessary to 
+	 input the latitudes and longitudes of the borders of your map. Enter the maximum and minimum of 
+	 your latitude and longitude in quotation marks following each "=". For hypothetical maps not 
+	 associated with real coordinates a square centered on 0.0, 0.0 works well (i.e. setting a 
+	 maximum of 1.0 and a minimum of -1.0 for both latitude and longitude). -->
+
+	<latitude minimum="18.5" maximum="22.5"/>
+	<longitude minimum="-160.5" maximum="-154.5"/>
+
+
+<!-- Enter either "impenetrable" or "deadly" (in quotation marks) following the "=".  This value 
+ 	 sets the edge type for the borders of your map.  If set to "impenetrable", individuals who 
+ 	 attempt to disperse outside of the map area are reflected back towards the center of the map. 
+ 	 If set to "deadly", these individuals die.  -->
+ 	 
+	<edges type="impenetrable"/>
+
+
+<!-- The carrying capacity and position of borders (soft and hard) must be specified across the 
+	 landscape on which you are simulating.  These values are specified in an input file(s), which 
+	 may be either an image (.png) or text (a matrix of numerical values).  Hard borders will kill 
+	 any individuals who fail to cross the border, while soft borders redirect (randomly) 
+	 individuals who fail to cross.
+
+	 The example below uses an image file as input. The program reads the color from each pixel in 
+	 the image file (.png) as a matrix of values. The user can define which color (red, green, or 
+	 blue) corresponds to each parameter. Thus, you can use the same file for carrying capacity, 
+	 hard borders, and  soft borders.  It is also possible to import a matrix of values for each 
+	 parameter from a text file, by using the data type "file".  Matrix values in a file should be 
+	 saved as a plain text file, with whitespace between each column.
+
+	 For each parameter below, set the type of input file (e.g., type="image" or type="file") as an 
+	 attribute of the corresponding "data" element and the name of the input file as the data 
+	 element's content. Each "data" element is a child of a "carryingcapacity", "hardborders", or 
+	 "softborders" element. Generally when using an image file, the file is the same for all 
+	 three parameters and each of the three RGB color channels is set to correspond to a different
+	 parameter.  However, three different files may be used.
+
+	 The "maxvalue" attribute also needs to be set for each data element when using an image.  This
+	 value tells DIM SUM how to scale the color intensities, by defining the relevant parameter
+	 value for the maximum possible color intensity. DIM SUM then interprets color intensities
+	 linearly from 0 to maxvalue.  For instance, in the example below "maxvalue" for the 
+	 carrying capacity is set to 10.  Thus, a pixel whose green intensity is fully saturated [e.g.,
+	 RGB(x,255,x)] would have a carrying capacity of 10.
+	 
+	 The parameter value for borders (either hard or soft) gives the "strength" of the border.  The
+	 probability of an individual passing through a border is (1-strength). Thus, a border strength
+	 of 1 means that the probability of an individual passing through the border is 0.  Border
+	 strengths should always take values in the following range: 1 >= strength > 0.  The behavior
+	 of DIM SUM when values fall outside this range is undefined.  Border strengths are also scaled 
+	 linearly between 0 and the user-defined maxvalue.
+
+	 Insert the appropriate filename as the content of the data tag (i.e., in between the start and 
+	 end data tags) for each parameter type. Note that you will need to provide the relative path to
+	 the input file if it is not located in the same directory as the DIM SUM jar. For this example,
+	 the input image file ("ExampleHI.png") is stored in another folder ("ExampleInputs"). -->
+
+	<carryingcapacity xsize="1024" ysize="768">
+		<data type="image" color="green" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+    </carryingcapacity>
+
+	<hardborders xsize="1024" ysize="768">
+		<data type="image" color="red" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+	</hardborders>
+
+	<softborders xsize="1024" ysize="768">		
+    	<data type="image" color="blue" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+    </softborders>
+	
+<!-- Example XML code is given below for the use of a text file as input.  Note that in this case,
+	 "color" and "maxvalue" attributes are not necessary. Ensure that the matrix contained in each 
+	 of your files includes the same number of cells to avoid errors.
+
+	EXAMPLE:
+	
+	<carryingcapacity>
+		<data type="file">ExampleInputs/ExampleCarryingCapacity.txt</data>
+    </carryingcapacity>
+
+	<hardborders>
+		<data type="file">ExampleInputs/ExampleHardBorders.txt</data>
+	</hardborders>
+
+	<softborders>		
+        <data type="file">ExampleInputs/ExampleSoftBorders.txt</data>	
+    </softborders>  -->    
+
+    
+<!-- The "reproductiveability" element specifies the possible numbers of offspring that a single
+	 individual may have, and the probabilities associated with each number of offspring.  These 
+	 values are given as two different attributes to an empty "distribution" tag.  The "offspring"
+	 attribute should be a list of integers separated by spaces.  These values should all be >=0. 
+	 The "p" attribute specifies the probabilities associated with the different possible numbers of 
+	 offspring.  This should be a list of decimal values of the same length as the list of offspring 
+	 values.  The values given for "p" should sum to 1.  In the example below, there is a 20% chance
+	 that an individual will have 1 offspring and an 80% chance that they will have 2 offspring. The
+	 same distributions are used for all individuals in the simulation. The lists can be of any 
+	 length (as long as it is the same length for both), so continuous distributions can be 
+	 approximated quite closely, if desired.  -->
+    
+	<reproductiveability size="2">
+		<distribution offspring="1 2" p=".3 .7"/>
+	</reproductiveability>
+	
+<!-- The "dispersalradius" element specifies the possible distances that an offspring can disperse
+	 from its place of birth.  Possible distances (radii) and probabilities are listed as attributes
+	 in an empty "distribution" tag, as above for numbers of offspring.  However, this 
+	 "distribution" tag is nested in a "dispersalradius" element. -->
+	
+	<dispersalradius size="4">
+		<distribution radii="1 7 50 70 " p=".8 .1 .05 .05"/>
+	</dispersalradius>
+	
+<!-- The "initialpopulation" element gives the locations and numbers of individuals at the very
+	 beginning of the simulation.  No genealogical relationships are assumed between these 
+	 individuals.  "node" elements specify unique starting locations and an arbitrary number of them
+	 can be listed within an "initialpopulation" element.  "node" elements are empty, but require
+	 a series of attributes.  The "lat" and "lon" attributes specify a unique starting location by 
+	 its latitude and longitude.  Note that these values must fall inside the boundaries of the map 
+	 that you have specified.  The "n" attribute specifies the number of individuals that occur at 
+	 this location at the start of the simulation.  The "r", "g", and "b" attributes all determine
+	 how individuals starting at this location (and their descendants) will be colored, by giving
+	 the strengths of the red (r), green (g), and blue (b) color channels.  The maximum value that
+	 each of these channels can take is 255.  Hence, to specify individuals that are colored red,
+	 one would use: "r"=255 g="0" b="0".  Other colors may be specified as combinations of r, g, and
+	 b.  For instance, yellow could be: "r"=255 "g"=255 b="0".  -->	
+	
+	<initialpopulation>
+        <node lat="21.9" lon="-159.5" n="1" r="255" g="255" b="0"/>
+        <node lat="21.4" lon="-158" n="1" r="255" g="0" b="0"/>
+        <node lat="20.8" lon="-156.3" n="1" r="255" g="90" b="255"/>
+        <node lat="19.5" lon="-155.5" n="1" r="30" g="144" b="255"/>
+	</initialpopulation>
+	
+<!-- The "output" element contains daughter elements that specify different kinds of output from the
+	 simulations.  Full details on possible output are given in the user's manual.  Here is a brief
+	 explanation of some kinds of output:
+	 
+	 - "visual": Tags are empty and have no attributes.  If listed, images of the map and all 
+	 			 individuals will be written to file each generation.
+	 			 
+	 - "treestructure":  Tags are empty, but have several attributes.  In general, two types of
+	 					 trees can be output that either label internal nodes with the name of the
+	 					 ancestor corresponding to that node or with the length of the branch 
+	 					 subtending that node. The type of character that delimits this label, the 
+	 					 scaling of the tree, the name of the output file, and the frequency of file
+	 					 output can all be specified.  See the manual for more details.
+	 					 
+	 - "locations": Tags are empty, but have several attributes.  This option will cause the lat/lon
+	 				locations of all individuals to be written to file.  Possible options specify
+	 				how often locations are written to file, which generations are included in the
+	 				output, and the name of the output file.  See the user's manual for more 
+	 				information.
+	 
+	 - "samples": Tags are empty, but have several attributes.  This output type simulates the way
+	 			  in which an investigator might sample individuals from across a range.  Several
+	 			  options are available to specify just how this sampling is done.  Full details are
+	 			  provided in the user's manual.  The frequency of sampling output and the output
+	 			  file name can also be specified as attributes in the "samples" tag.   -->	
+		
+	<output>
+		<visual output_every='10'/>
+	<!--	<treestructure delimeter='#' output='parent' trim='false' file='anc_phylo.tre' output_every='10' resolve='true'/>
+		<treestructure delimeter=':' output='distance' mutationrate='0.1' trim='false' file='dist_phylo.tre'  output_every='10' resolve='true'/>
+		<locations generation='all' file='locs.txt'  output_every='10'/>
+		<sample type="grid" dlat="1.0" dlon="1.0" n="10" file='grid_samps.txt' output_every='10'>
+			<treestructure delimeter='#' output='parent' mutationrate='0.1' trim='false' resolve='true' file='pruned_anc_phylo.tre'/>
+			<locations file='pruned_locs.txt'/>
+		</sample>-->
+	</output>
+	
+<!-- A "simulation" end tag is required at the end of the file. -->
+	
+</simulation>
+

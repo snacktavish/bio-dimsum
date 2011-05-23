@@ -1,0 +1,56 @@
+<simulation name="DIM SUM Test">
+	<!-- each simulation must have:
+	generations
+	min and max, lat and lon
+	carrying capacity
+	hardborders
+	softborders
+	reproductiveability
+	dispersalradius
+	initialpopulation
+	output
+	-->
+
+	<generations>200</generations>
+	
+	<threads>4</threads>
+	
+	<latitude minimum="-10.0" maximum="10.0"/>
+	<longitude minimum="-10.0" maximum="10.0"/>
+	
+	<edges type="deadly"/>
+
+	<carryingcapacity>
+		<data type="image" color="green" maxvalue="1">xchamber.png</data>
+	</carryingcapacity>
+
+	<hardborders>
+		<data type="image" color="blue" maxvalue="1">xchamber.png</data>
+	</hardborders>
+
+	<softborders>
+		<data type="image" color="red" maxvalue="1">xchamber.png</data>
+	</softborders>
+	
+	<reproductiveability>
+		<distribution offspring="0 1 2 3" p="0.25 0.3 0.3 0.15"/>
+	</reproductiveability>
+	
+	<dispersalradius>
+		<distribution radii="5 10 20" p="0.6 0.3 0.1"/>
+	</dispersalradius>
+	
+	<initialpopulation>
+		<node lat="0" lon="0" n="5" r="255" g="255" b="0"/>
+	</initialpopulation>
+	
+	
+		
+	<output>
+		<visual/>
+		<treestructure delimeter='#' output='parent' trim='true' file='mixphylogeny.txt' output_every='50'/>
+		<treestructure delimeter=':' output='distance' mutationrate='0.5' trim='true' file='mixphylogenymutationdistance.txt'  output_every='50'/>
+		<locations generation='all' file='mixlocations.txt'  output_every='50'/>
+		<sample type="grid" dlat="1.0" dlon="1.0" n="10" file='mixsamples.txt' output_every='50'/>
+	</output>
+</simulation>
