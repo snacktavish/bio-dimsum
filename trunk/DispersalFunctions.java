@@ -170,42 +170,56 @@ class DispersalFunctions {
 		
 		return checkCarryingCapacity(children,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
 	}
-
+	
 	public ArrayList<Node> checkCarryingCapacity(ArrayList<Node> children, int end_gen) throws Exception {
 		settings.cCCTimer.start();
+		ArrayList<Node> children2 = new ArrayList<Node>(children.size());
 		if( children.size() > 0 ) {
 			XYFunction ccap = settings.getCarryingCapacity(children.get(0).generation);
 			if (children.get(0).generation-1 == end_gen)
 				ccap = settings.getCarryingCapacity(children.get(0).generation-1);
 			int[][] count = new int[ccap.getMaxY()][ccap.getMaxX()];
+			int max_count =0;
+			int x,y;
 			for(int i=0; i<children.size(); i++) {
-				count[ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat())][ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon())] += 1;
+				y = ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
+				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
+				count[y][x] += 1;
+				if(count[y][x]>max_count)
+					max_count = count[y][x];
 			}
-/*			for(int r=0; r<ccap.getMaxY(); r++, System.out.println())
+	/*			for(int r=0; r<ccap.getMaxY(); r++, System.out.println())
 				for(int c=0; c<ccap.getMaxX(); c++)
 					System.out.print(count[r][c]+" ");
 			System.out.println();*/ //this outputs the count to console
-			for(int x=0;x<ccap.getMaxX();x++) {
-				for(int y=0;y<ccap.getMaxY();y++) {
-					if( count[y][x] >= ccap.f(x,y) ) {
-						ArrayList<Node> occupants = new ArrayList<Node>();
-						for(int i=0; i<children.size(); i++) {
-							if( y==ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat()) && x==ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon()) )
-								occupants.add( children.get(i) );
-						}
-						while( occupants.size() > ccap.f(x,y) ) {
-							int r = (int)Math.floor(rand.nextDouble() * occupants.size());		// Modified by JMB -- 4.5.10
-							if( occupants.get(r).parent.children.indexOf( occupants.get(r) ) != -1 )
-								occupants.get(r).parent.children.remove( occupants.get(r).parent.children.indexOf( occupants.get(r) ) );
-							children.remove(occupants.get(r));
-							occupants.remove(occupants.get(r));
-						}
+		
+			boolean rmchild[][][] = new boolean[ccap.getMaxY()][ccap.getMaxX()][max_count];
+			
+			int r;
+			for(x=0;x<ccap.getMaxX();x++) {
+				for(y=0;y<ccap.getMaxY();y++) { // this could be parallelized
+					for(int i =0; i<count[y][x]-ccap.f(x,y); i++) {
+						r = (int)(rand.nextDouble() * count[y][x]);
+						while(rmchild[y][x][r])
+							r = (int)(rand.nextDouble() * count[y][x]);
+						rmchild[y][x][r] = true;
 					}
 				}
 			}
+			
+			for(int i=0;i<children.size();i++) {
+				y = ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
+				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
+				count[y][x]--;
+				if(rmchild[y][x][count[y][x]]) {
+					if( children.get(i).parent.children.indexOf( children.get(i) ) != -1 )
+						children.get(i).parent.children.remove( children.get(i).parent.children.indexOf( children.get(i) ));
+				} else
+					children2.add(children.get(i));
+			}
 		}
 		settings.cCCTimer.stop();
-		return children;
+		return children2;
 	}
 
 	public void prune(ArrayList<Node> thisGeneration) {
