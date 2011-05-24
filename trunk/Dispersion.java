@@ -49,7 +49,19 @@ public class Dispersion {
 		System.out.println("Running Simulation: "+settings.getSimName() );
 		
 		// Pass the initial population to simulate, which will return the final population after n generations; n is set by settings.
+		settings.simulateTimer.start();
 		ArrayList<Node> lastGeneration = simulate( (ArrayList<Node>)settings.getInitialPopulation().clone(), rand);
+		settings.simulateTimer.stop();
+		
+		System.out.println("");
+		System.out.println("");
+		System.out.println(settings.pAmTTimer);
+		System.out.println(settings.cCCTimer);
+		System.out.println(settings.pruneTimer);
+		System.out.println(settings.outputTimer);
+		System.out.println(settings.simulateTimer);
+		System.out.println("");
+		System.out.println("");
 		
 		settings.doOutput(lastGeneration,-1,rand);
 
@@ -73,7 +85,8 @@ public class Dispersion {
 		Node root = initialGeneration.get(0);				// Added by JMB -- 10.19.09 -- Retains a pointer to the root if started with one individual -- arbitrarily selects the first individual if
 															//								population is started with more than one individual.
 		// For each generation
-		for(;generation<=settings.getNGenerations() && thisGeneration.size() != 0;generation++) {
+		for(;generation<= settings.getNGenerations() && thisGeneration.size() != 0;generation++) {
+			settings.outputTimer.start();
 			System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
 			if( display != null )
 			{
@@ -94,6 +107,7 @@ public class Dispersion {
 			}
 			
 			settings.doOutput(thisGeneration,generation,rand);
+			settings.outputTimer.stop();
 			
 			ArrayList<Node> nextGeneration = new ArrayList<Node>();
 
@@ -107,9 +121,9 @@ public class Dispersion {
 			// Now generate latitudes and longitudes for the next generation.
 			nextGeneration = functions.migrate(nextGeneration,settings.getNGenerations());
 */
-			
+			settings.pruneTimer.start();
 			functions.prune(thisGeneration);
-			
+			settings.pruneTimer.stop();
 			
 			//functions.debug_prune(thisGeneration,generation,root);	// ADDED BY JMB -- 10.19.09 -- FOR DEBUGGING WEIRD PRUNING PROBLEM
 			
@@ -118,10 +132,14 @@ public class Dispersion {
 			thisGeneration = nextGeneration; // prepare for the next loop
 		}//End For each generation
 		
+
+
+		
 		System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
 		if( display != null && generation <= settings.getNGenerations())
 				display.update(thisGeneration,generation);
-				
+
+		
 		return thisGeneration;
     }
 }
