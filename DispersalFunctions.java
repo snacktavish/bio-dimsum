@@ -30,7 +30,7 @@ class DispersalFunctions {
 	}
 
 	public ArrayList<Node> populateAndMigrateThreaded(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
-		
+		settings.pAmTTimer.start();
 		ArrayList<DispersalThread> dthreads = new ArrayList<DispersalThread>();
 		ArrayList<Thread> threads = new ArrayList<Thread>();
 		
@@ -55,7 +55,7 @@ class DispersalFunctions {
 		for(int i=0; i<dthreads.size(); i++) {
 			nextGeneration.addAll( dthreads.get(i).nextGeneration );
 		}
-		
+		settings.pAmTTimer.stop();
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
 		return checkCarryingCapacity(nextGeneration,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
 	}
@@ -172,6 +172,7 @@ class DispersalFunctions {
 	}
 
 	public ArrayList<Node> checkCarryingCapacity(ArrayList<Node> children, int end_gen) throws Exception {
+		settings.cCCTimer.start();
 		if( children.size() > 0 ) {
 			XYFunction ccap = settings.getCarryingCapacity(children.get(0).generation);
 			if (children.get(0).generation-1 == end_gen)
@@ -203,6 +204,7 @@ class DispersalFunctions {
 				}
 			}
 		}
+		settings.cCCTimer.stop();
 		return children;
 	}
 
