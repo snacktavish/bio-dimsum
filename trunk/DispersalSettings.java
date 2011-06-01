@@ -26,16 +26,18 @@ import java.awt.*;
 import javax.swing.*;
 
 class DispersalSettings {
-	public Timer pAmTTimer = new Timer("populateAndMigrateThreaded");
-	public Timer cCCTimer = new Timer("checkCarryingCapacity");
-	public Timer outputTimer = new Timer("Output");
-	public Timer pruneTimer = new Timer ("prune");
-	public Timer simulateTimer = new Timer("Simulate");
-	
+    public Timer pAmTTimer = new Timer("populateAndMigrateThreaded");
+    public Timer cCCTimer = new Timer("checkCarryingCapacity");
+    public Timer outputTimer = new Timer("Output");
+    public Timer pruneTimer = new Timer ("prune");
+    public Timer simulateTimer = new Timer("Simulate");
+    public Timer outputTimer2 = new Timer("Output2");
+
+
 	
 	Document document;
-	ArrayList<XYFunction> carryingcapacity, hardborders, softborders;
-	ArrayList<PFunction> noffspring, dispersalradius;
+	XYFunction carryingcapacity, hardborders, softborders;
+	PFunction noffspring, dispersalradius;
 	ArrayList<Node> initialpopulation;
 	int seed; // Added by JMB -- 4.5.10
 	int visualfreq; // Added by JMB -- 4.8.10
@@ -45,6 +47,28 @@ class DispersalSettings {
 	
 	public String simulationname = "";
 	
+	int _nGenerations;
+	double _minLat;
+	double _maxLat;
+	double _minLon;
+	double _maxLon;
+	
+	public double getMinLat()  {
+		return _minLat;
+	}
+
+	public double getMaxLat()  {
+		return _maxLat;
+	}
+
+	public double getMinLon()  {
+		return _minLon;
+	}
+
+	public double getMaxLon()  {
+		return _maxLon; 
+	}
+	
 	public boolean visualoutput = false;
 	public ArrayList<OutputFunction> outputfunctors = new ArrayList<OutputFunction>();
 	
@@ -52,22 +76,22 @@ class DispersalSettings {
 		SAXBuilder builder = new SAXBuilder();
         document = builder.build(new File(filename));
         try {
-        	this.getNGenerations();
-        	this.getMinLat();
-        	this.getMaxLat();
-        	this.getMinLon();
-        	this.getMaxLon();
+        	_nGenerations = this.getNGenerations();
+        	_minLat = document.getRootElement().getChild("latitude").getAttribute("minimum").getDoubleValue();
+        	_maxLat = document.getRootElement().getChild("latitude").getAttribute("maximum").getDoubleValue();
+        	_minLon = document.getRootElement().getChild("longitude").getAttribute("minimum").getDoubleValue();
+        	_maxLon = document.getRootElement().getChild("longitude").getAttribute("maximum").getDoubleValue();
         }
         catch( Exception e ) {
         	System.out.println("Either unable to load config file, or tags are missing (generations, latitude, or longitude).");
         	throw e;
         }
         
-        carryingcapacity = new ArrayList<XYFunction>();
+       /* carryingcapacity = new ArrayList<XYFunction>();
         hardborders = new ArrayList<XYFunction>();
-        softborders = new ArrayList<XYFunction>();
-        noffspring = new ArrayList<PFunction>();
-        dispersalradius = new ArrayList<PFunction>();
+        softborders = new ArrayList<XYFunction>();*/
+    //    noffspring = new ArrayList<PFunction>();
+      //  dispersalradius = new ArrayList<PFunction>();
         initialpopulation = new ArrayList<Node>();
         samplerects = new ArrayList<Double>();
         n = new ArrayList<Integer>();
@@ -96,19 +120,28 @@ class DispersalSettings {
 		}
 		
 		java.util.List dataelem = document.getRootElement().getChild("carryingcapacity").getChildren("data");
+		int xsize = document.getRootElement().getChild("carryingcapacity").getAttribute("xsize").getIntValue();
+		int ysize = document.getRootElement().getChild("carryingcapacity").getAttribute("ysize").getIntValue();
+		 carryingcapacity = new XYFunction(dataelem.size(), xsize,ysize); //todo
 		for(int i=0; i<dataelem.size(); i++) {
 			Element e = (Element)dataelem.get(i);
 			if( e.getAttribute("type").getValue().equalsIgnoreCase("image") ) {
 				try {
 					Image image = new ImageIcon( e.getText() ).getImage();
-					XYFunction xyf = new XYFunction(image,
-													e.getAttribute("color").getValue(),
-													e.getAttribute("maxvalue").getDoubleValue(), -1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
+					}
+					carryingcapacity.add(image,
+													e.getAttribute("color").getValue(),
+													e.getAttribute("maxvalue").getDoubleValue(), -1.0, startgeneration, endgeneration );
+					/*if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
 						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
 						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					carryingcapacity.add( xyf );
+					carryingcapacity.add( xyf );*/
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading carrying capacity map.");
@@ -117,12 +150,13 @@ class DispersalSettings {
 			}
 			else if( e.getAttribute("type").getValue().equalsIgnoreCase("file") ) {
 				try {
-					XYFunction xyf = new XYFunction( e.getText(), -1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					carryingcapacity.add( xyf );
+					carryingcapacity.add( e.getText(), -1.0,startgeneration,endgeneration );
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading carrying capacity map.");
@@ -134,19 +168,23 @@ class DispersalSettings {
 		
 		
 		dataelem = document.getRootElement().getChild("hardborders").getChildren("data");
+		 xsize = document.getRootElement().getChild("hardborders").getAttribute("xsize").getIntValue();
+		 ysize = document.getRootElement().getChild("hardborders").getAttribute("ysize").getIntValue();
+		 hardborders = new XYFunction(dataelem.size(), xsize,ysize); //todo
 		for(int i=0; i<dataelem.size(); i++) {
 			Element e = (Element)dataelem.get(i);
 			if( e.getAttribute("type").getValue().equalsIgnoreCase("image") ) {
 				try {
 					Image image = new ImageIcon( e.getText() ).getImage();
-					XYFunction xyf = new XYFunction(image,
-													e.getAttribute("color").getValue(),
-													e.getAttribute("maxvalue").getDoubleValue(), (isEdgeDeadly())?1.0:-1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					hardborders.add( xyf );
+					hardborders.add(image,
+							e.getAttribute("color").getValue(),
+							e.getAttribute("maxvalue").getDoubleValue(), (isEdgeDeadly())?1.0:-1.0,startgeneration,endgeneration );
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading hard borders map.");
@@ -155,12 +193,13 @@ class DispersalSettings {
 			}
 			else if( e.getAttribute("type").getValue().equalsIgnoreCase("file") ) {
 				try {
-					XYFunction xyf = new XYFunction( e.getText(), (isEdgeDeadly())?1.0:-1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					hardborders.add( xyf );
+					hardborders.add( e.getText(), (isEdgeDeadly())?1.0:-1.0 ,startgeneration,endgeneration);
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading hard borders map.");
@@ -170,19 +209,24 @@ class DispersalSettings {
 		}
 		
 		dataelem = document.getRootElement().getChild("softborders").getChildren("data");
+		 xsize = document.getRootElement().getChild("softborders").getAttribute("xsize").getIntValue();
+		 ysize = document.getRootElement().getChild("softborders").getAttribute("ysize").getIntValue();
+		 softborders = new XYFunction(dataelem.size(), xsize,ysize); //todo
 		for(int i=0; i<dataelem.size(); i++) {
 			Element e = (Element)dataelem.get(i);
 			if( e.getAttribute("type").getValue().equalsIgnoreCase("image") ) {
 				try {
 					Image image = new ImageIcon( e.getText() ).getImage();
-					XYFunction xyf = new XYFunction(image,
-													e.getAttribute("color").getValue(),
-													e.getAttribute("maxvalue").getDoubleValue(), (isEdgeDeadly())?-1.0:1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					softborders.add( xyf );
+					softborders.add(image,
+							e.getAttribute("color").getValue(),
+							e.getAttribute("maxvalue").getDoubleValue(), (isEdgeDeadly())?-1.0:1.0,startgeneration,endgeneration );
+		
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading soft borders capacity map.");
@@ -191,12 +235,13 @@ class DispersalSettings {
 			}
 			else if( e.getAttribute("type").getValue().equalsIgnoreCase("file") ) {
 				try {
-					XYFunction xyf = new XYFunction( e.getText(), (isEdgeDeadly())?-1.0:1.0 );
+					int startgeneration = -1;
+					int endgeneration = -1;
 					if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-						xyf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-						xyf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+						startgeneration = e.getAttribute("startgeneration").getIntValue();
+						endgeneration = e.getAttribute("endgeneration").getIntValue();
 					}
-					softborders.add( xyf );
+					softborders.add( e.getText(), (isEdgeDeadly())?-1.0:1.0 ,startgeneration,endgeneration );
 				}
 				catch( Exception e2 ) {
 					System.out.println("Fatal error while loading soft borders map.");
@@ -206,6 +251,9 @@ class DispersalSettings {
 		}
 		
 		dataelem = document.getRootElement().getChild("reproductiveability").getChildren("distribution");
+		int size = document.getRootElement().getChild("dispersalradius").getAttribute("size").getIntValue();
+		noffspring = new PFunction(dataelem.size(), size); //todo
+		boolean first = true;
 		for(int i=0; i<dataelem.size(); i++) {
 			Element e = (Element)dataelem.get(i);
 			String x = "";
@@ -215,32 +263,37 @@ class DispersalSettings {
 				p = e.getAttribute("p").getValue();
 			}
 			
-			PFunction pf = new PFunction(x,p);
 			
+			int sg=-1,eg=-1;
+
 			if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-				pf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-				pf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+				sg = e.getAttribute("startgeneration").getIntValue();
+				eg = e.getAttribute("endgeneration").getIntValue();
 			}
-			noffspring.add( pf );
+			noffspring.add(x,p,sg,eg);
+			//noffspring.add( pf );
 		}
 		
 		dataelem = document.getRootElement().getChild("dispersalradius").getChildren("distribution");
+		size = document.getRootElement().getChild("dispersalradius").getAttribute("size").getIntValue();
+		dispersalradius = new PFunction(dataelem.size(), size); //todo
 		for(int i=0; i<dataelem.size(); i++) {
 			Element e = (Element)dataelem.get(i);
 			String x = "";
 			String p = "";
+			int sg=-1,eg=-1;
 			if( e.getAttribute("radii") != null && e.getAttribute("p") != null ) {
 				x = e.getAttribute("radii").getValue();
 				p = e.getAttribute("p").getValue();
 			}
-			
-			PFunction pf = new PFunction(x,p);
-			
 			if( e.getAttribute("startgeneration") != null && e.getAttribute("startgeneration") != null ) {
-				pf.startgeneration = e.getAttribute("startgeneration").getIntValue();
-				pf.endgeneration = e.getAttribute("endgeneration").getIntValue();
+				sg = e.getAttribute("startgeneration").getIntValue();
+				eg = e.getAttribute("endgeneration").getIntValue();
 			}
-			dispersalradius.add( pf );
+			//PFunction pf = new PFunction(x,p,sg,eg);
+			
+			
+			dispersalradius.add(x,p,sg,eg);
 		}
 		
 		dataelem = document.getRootElement().getChild("initialpopulation").getChildren("node");
@@ -290,28 +343,14 @@ class DispersalSettings {
 		return 1;
 	}
 	
-	public double getMinLat() throws Exception {
-		return document.getRootElement().getChild("latitude").getAttribute("minimum").getDoubleValue();
-	}
 
-	public double getMaxLat() throws Exception {
-		return document.getRootElement().getChild("latitude").getAttribute("maximum").getDoubleValue();
-	}
-
-	public double getMinLon() throws Exception {
-		return document.getRootElement().getChild("longitude").getAttribute("minimum").getDoubleValue();
-	}
-
-	public double getMaxLon() throws Exception {
-		return document.getRootElement().getChild("longitude").getAttribute("maximum").getDoubleValue();
-	}
 	
 	public boolean isEdgeDeadly() throws Exception {
 		return document.getRootElement().getChild("edges").getAttribute("type").getValue().equalsIgnoreCase("deadly");
 	}
 	
 	public int getNOffspring(int generation, java.util.Random rand) {
-		PFunction thefunc=null;
+		/*PFunction thefunc=null;
 		for(int i=0;i<noffspring.size(); i++)
 			if( noffspring.get(i).startgeneration <= generation && noffspring.get(i).endgeneration >= generation )	// MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
 				thefunc = noffspring.get(i);
@@ -322,11 +361,13 @@ class DispersalSettings {
 					break;
 				}
 		}
-		return (int)thefunc.draw(rand);
+		return (int)thefunc.draw(rand);*/
+		return (int)noffspring.getP(generation, rand);
+
 	}
 	
 	public double getDispersalRadius(int generation, java.util.Random rand) {
-		PFunction thefunc=null;
+		/*PFunction thefunc=null;
 		for(int i=0;i<dispersalradius.size(); i++)
 			if( dispersalradius.get(i).startgeneration <= generation && dispersalradius.get(i).endgeneration >= generation )	// MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
 				thefunc = dispersalradius.get(i);
@@ -336,10 +377,10 @@ class DispersalSettings {
 					thefunc = dispersalradius.get(i);
 					break;
 				}
-		}
-		return thefunc.draw(rand);
+		}*/
+		return dispersalradius.getP(generation, rand);
 	}
-	
+	/*
 	public XYFunction getCarryingCapacity(int generation) {
 		XYFunction thefunc=null;
 		for(int i=0;i<carryingcapacity.size(); i++)
@@ -383,7 +424,7 @@ class DispersalSettings {
 				}
 		}
 		return thefunc;
-	}
+	}*/
 	
 	public ArrayList<Node> getInitialPopulation() {
 		return initialpopulation;
