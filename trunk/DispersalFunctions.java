@@ -58,7 +58,7 @@ class DispersalFunctions {
 		}
 		settings.pAmTTimer.stop();
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
-		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
+		return checkCarryingCapacity(nextGeneration,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
 	}
 	
 
