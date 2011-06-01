@@ -18,6 +18,7 @@
 
 
 import java.util.*;
+
 import static java.lang.Math.*;
 
 class DispersalFunctions {
@@ -57,8 +58,10 @@ class DispersalFunctions {
 		}
 		settings.pAmTTimer.stop();
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
-		return checkCarryingCapacity(nextGeneration,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
+		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
+	
+
 
 	public ArrayList<Node> populateNextGeneration(ArrayList<Node> thisGeneration) {
 		ArrayList<Node> nextGeneration = new ArrayList<Node>();
@@ -76,7 +79,7 @@ class DispersalFunctions {
 		
 		return nextGeneration;
 	}
-
+/*
 	public ArrayList<Node> migrate(ArrayList<Node> children, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
 		
 		childrenloop:
@@ -169,21 +172,21 @@ class DispersalFunctions {
 		}
 		
 		return checkCarryingCapacity(children,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
-	}
+	}*/
 	
 	public ArrayList<Node> checkCarryingCapacity(ArrayList<Node> children, int end_gen) throws Exception {
 		settings.cCCTimer.start();
 		ArrayList<Node> children2 = new ArrayList<Node>(children.size());
 		if( children.size() > 0 ) {
-			XYFunction ccap = settings.getCarryingCapacity(children.get(0).generation);
+			Index ccap = settings.carryingcapacity.calcIndex(children.get(0).generation);
 			if (children.get(0).generation-1 == end_gen)
-				ccap = settings.getCarryingCapacity(children.get(0).generation-1);
-			int[][] count = new int[ccap.getMaxY()][ccap.getMaxX()];
+				ccap = settings.carryingcapacity.calcIndex(children.get(0).generation-1);
+			int[][] count = new int[settings.carryingcapacity.getMaxY(ccap)][settings.carryingcapacity.getMaxX(ccap)];
 			int max_count =0;
 			int x,y;
 			for(int i=0; i<children.size(); i++) {
-				y = ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
-				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
+				y = settings.carryingcapacity.toY(ccap,children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
+				x = settings.carryingcapacity.toX(ccap,children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
 				count[y][x] += 1;
 				if(count[y][x]>max_count)
 					max_count = count[y][x];
@@ -193,12 +196,12 @@ class DispersalFunctions {
 					System.out.print(count[r][c]+" ");
 			System.out.println();*/ //this outputs the count to console
 		
-			boolean rmchild[][][] = new boolean[ccap.getMaxY()][ccap.getMaxX()][max_count];
+			boolean rmchild[][][] = new boolean[settings.carryingcapacity.getMaxY(ccap)][settings.carryingcapacity.getMaxX(ccap)][max_count];
 			
 			int r;
-			for(x=0;x<ccap.getMaxX();x++) {
-				for(y=0;y<ccap.getMaxY();y++) { // this could be parallelized
-					for(int i =0; i<count[y][x]-ccap.f(x,y); i++) {
+			for(x=0;x<settings.carryingcapacity.getMaxX(ccap);x++) {
+				for(y=0;y<settings.carryingcapacity.getMaxY(ccap);y++) { // this could be parallelized
+					for(int i =0; i<count[y][x]-settings.carryingcapacity.f(ccap,x,y); i++) {
 						r = (int)(rand.nextDouble() * count[y][x]);
 						while(rmchild[y][x][r])
 							r = (int)(rand.nextDouble() * count[y][x]);
@@ -208,8 +211,8 @@ class DispersalFunctions {
 			}
 			
 			for(int i=0;i<children.size();i++) {
-				y = ccap.toY(children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
-				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
+				y = settings.carryingcapacity.toY(ccap,children.get(i).lat,settings.getMinLat(),settings.getMaxLat());
+				x = settings.carryingcapacity.toX(ccap,children.get(i).lon,settings.getMinLon(),settings.getMaxLon());
 				count[y][x]--;
 				if(rmchild[y][x][count[y][x]]) {
 					if( children.get(i).parent.children.indexOf( children.get(i) ) != -1 )

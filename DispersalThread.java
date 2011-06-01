@@ -344,17 +344,17 @@ public class DispersalThread implements Runnable
 		
 		if (n.generation-1 == end_gen)	// To properly get soft borders for the children of individuals in the final generation
 		{
-			sb_lonspace = (maxlon-minlon)/(settings.getSoftBorders(n.generation-1).getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
-			sb_latspace = (maxlat-minlat)/(settings.getSoftBorders(n.generation-1).getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
-			hb_lonspace = (maxlon-minlon)/(settings.getHardBorders(n.generation-1).getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
-			hb_latspace = (maxlat-minlat)/(settings.getHardBorders(n.generation-1).getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES												
+			sb_lonspace = (maxlon-minlon)/(settings.softborders.getMaxX(settings.softborders.calcIndex(n.generation-1)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
+			sb_latspace = (maxlat-minlat)/(settings.softborders.getMaxY(settings.softborders.calcIndex(n.generation-1)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
+			hb_lonspace = (maxlon-minlon)/(settings.hardborders.getMaxX(settings.hardborders.calcIndex(n.generation-1)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
+			hb_latspace = (maxlat-minlat)/(settings.hardborders.getMaxY(settings.hardborders.calcIndex(n.generation-1)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES												
 		}
 		else
 		{
-			sb_lonspace = (maxlon-minlon)/(settings.getSoftBorders(n.generation).getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
-			sb_latspace = (maxlat-minlat)/(settings.getSoftBorders(n.generation).getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
-			hb_lonspace = (maxlon-minlon)/(settings.getHardBorders(n.generation).getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
-			hb_latspace = (maxlat-minlat)/(settings.getHardBorders(n.generation).getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
+			sb_lonspace = (maxlon-minlon)/(settings.softborders.getMaxX(settings.softborders.calcIndex(n.generation)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
+			sb_latspace = (maxlat-minlat)/(settings.softborders.getMaxY(settings.softborders.calcIndex(n.generation)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
+			hb_lonspace = (maxlon-minlon)/(settings.hardborders.getMaxX(settings.hardborders.calcIndex(n.generation)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
+			hb_latspace = (maxlat-minlat)/(settings.hardborders.getMaxY(settings.hardborders.calcIndex(n.generation)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
 		}
 							
 		double crs = rand.nextDouble() * 2 * Math.PI;	// Modified by JMB -- 4.5.10
@@ -480,13 +480,13 @@ public class DispersalThread implements Runnable
 					// I arbitrarily chose to check hard borders first
 					dprint("*** Checking Hard Border");
 														
-					XYFunction hb = null;
+					Index hb = null;
 					if (n.generation-1 == end_gen)								// JMB -- Added to make sure that children of the final generation get the right hard borders
-						hb = settings.getHardBorders(n.generation-1);
+						hb = settings.hardborders.calcIndex(n.generation-1);
 					else
-						hb = settings.getHardBorders(n.generation);
+						hb = settings.hardborders.calcIndex(n.generation);
 					
-					if( rand.nextDouble() <= hb.f(hb.toX(lon1,minlon,maxlon)+hb_dx,hb.toY(lat1,minlat,maxlat)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE
+					if( rand.nextDouble() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE
 						dprint("failed");																				//								AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
 						if (debug)
 							System.out.println("Hard border death!");				// ADDED BY JMB -- FOR DEBUGGING
@@ -510,13 +510,13 @@ public class DispersalThread implements Runnable
 					
 					//ldd.d = sb_dd;
 					//lld.llffromdcrs();
-					XYFunction sb = null;
+					Index sb = null;
 					if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
-						sb = settings.getSoftBorders(n.generation-1);
+						sb = settings.softborders.calcIndex(n.generation-1);
 					else
-						sb = settings.getSoftBorders(n.generation);
-					dprint("I\'m at ("+sb.toX(lon1,minlon,maxlon)+","+sb.toY(lat1,minlat,maxlat)+")");
-					dprint("I\'m checking ("+(sb.toX(lon1,minlon,maxlon)+sb_dx)+","+(sb.toY(lat1,minlat,maxlat)+sb_dy)+")");
+						sb = settings.softborders.calcIndex(n.generation);
+					dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
+					dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
 					if (debug)
 					{
 						System.out.println("");
@@ -524,19 +524,19 @@ public class DispersalThread implements Runnable
 						System.out.println("Current Lat (y): "+lat1);
 						System.out.println("crs: "+crs);																						// JMB - Debugging
 						System.out.println("d: "+d);																							// JMB - Debugging
-						System.out.println("I\'m at ("+sb.toX(lon1,minlon,maxlon)+","+sb.toY(lat1,minlat,maxlat)+")");							// JMB - Debugging
-						System.out.println("I\'m checking ("+(sb.toX(lon1,minlon,maxlon)+sb_dx)+","+(sb.toY(lat1,minlat,maxlat)+sb_dy)+")");	// JMB - Debugging
+						System.out.println("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");							// JMB - Debugging
+						System.out.println("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");	// JMB - Debugging
 					}
 					double ran_num = rand.nextDouble();
 					if (debug)
 					{
 						System.out.println("Random number is: "+ran_num);
-						System.out.println("Border value being tested: "+sb.f(sb.toX(lon1,minlon,maxlon)+sb_dx, sb.toY(lat1,minlat,maxlat)+sb_dy));
+						System.out.println("Border value being tested: "+settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy));
 						System.out.println("sb_dx: "+sb_dx);
 						System.out.println("sb_dy: "+sb_dy);
 						System.out.println("");
 					}
-					if( ran_num <= sb.f(sb.toX(lon1,minlon,maxlon)+sb_dx, sb.toY(lat1,minlat,maxlat)+sb_dy) ) {
+					if( ran_num <= settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy) ) {
 						// failed the soft border-- stop before border, reflect back, update d, and continue
 						dprint("failed");
 						lld.d = (sb_dd-step_d);
@@ -567,9 +567,9 @@ public class DispersalThread implements Runnable
 							nextGeneration.add( n );															
 							n.added_nextgen=true;	// ADDED BY JMB
 							n.sb_final_1=true;
-							n.last_at="I\'m at ("+sb.toX(lon1,minlon,maxlon)+","+sb.toY(lat1,minlat,maxlat)+")";
-							n.last_check="I\'m checking ("+(sb.toX(lon1,minlon,maxlon)+sb_dx)+","+(sb.toY(lat1,minlat,maxlat)+sb_dy)+")";
-							n.last_value=sb.f(sb.toX(lon1,minlon,maxlon)+sb_dx, sb.toY(lat1,minlat,maxlat)+sb_dy);
+							n.last_at="I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")";
+							n.last_check="I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")";
+							n.last_value=settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy);
 							d=0;										
 						}
 															
@@ -579,14 +579,14 @@ public class DispersalThread implements Runnable
 				}
 				else if( sb_dd < hb_dd ) {
 					dprint("*** Checking Soft Border");
-					XYFunction sb = null;
+					Index sb = null;
 					if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
-						sb = settings.getSoftBorders(n.generation-1);
+						sb = settings.softborders.calcIndex(n.generation-1);
 					else
-						sb = settings.getSoftBorders(n.generation);
-					dprint("I\'m at ("+sb.toX(lon1,minlon,maxlon)+","+sb.toY(lat1,minlat,maxlat)+")");
-					dprint("I\'m checking ("+(sb.toX(lon1,minlon,maxlon)+sb_dx)+","+(sb.toY(lat1,minlat,maxlat)+sb_dy)+")");
-					if( rand.nextDouble() <= sb.f(sb.toX(n.lon,minlon,maxlon)+sb_dx, sb.toY(n.lat,minlat,maxlat)+sb_dy) ) {
+						sb = settings.softborders.calcIndex(n.generation);
+					dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
+					dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
+					if( rand.nextDouble() <= settings.softborders.f(sb,settings.softborders.toX(sb,n.lon,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,n.lat,minlat,maxlat)+sb_dy) ) {
 						// failed the soft border-- stop before border, reflect back, update d, and continue
 						dprint("failed");
 						lld.d = (sb_dd-step_d);
@@ -627,12 +627,12 @@ public class DispersalThread implements Runnable
 				}
 				else {
 					dprint("*** Checking Hard Border");
-					XYFunction hb = null;
+					Index hb = null;
 					if (n.generation-1 == end_gen)
-						hb = settings.getHardBorders(n.generation-1);
+						hb = settings.hardborders.calcIndex(n.generation-1);
 					else
-						hb = settings.getHardBorders(n.generation);
-					if( rand.nextDouble() <= hb.f(hb.toX(lon1,minlon,maxlon)+hb_dx,hb.toY(lat1,minlat,maxlat)+hb_dy) ) {
+						hb = settings.hardborders.calcIndex(n.generation);
+					if( rand.nextDouble() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {
 						dprint("failed");
 						n.failed_two = true;   // ADDED BY JMB -- 10.19.09
 					

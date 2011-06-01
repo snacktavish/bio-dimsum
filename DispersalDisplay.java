@@ -130,7 +130,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 		this.show();*/
 	}
 	
-	public void drawBackground(XYFunction cc, XYFunction hb, XYFunction sb)
+	public void drawBackground(Index cc, Index hb, Index sb)
 	{
 		background = new BufferedImage(800,600,BufferedImage.TYPE_INT_ARGB);
 				
@@ -138,38 +138,38 @@ public class DispersalDisplay extends Thread implements ItemListener
 		g2d.setColor(new Color(0,0,0,255));
 		g2d.fillRect(0,0,background.getWidth(),background.getHeight());
 		
-		
+		ds.outputTimer2.start();
 		for(int x=0;x<background.getWidth();x++) {
 			for(int y=0;y<background.getHeight();y++) {
 				int r=0,g=0,b=0;
 				if( bcc ) {
-					g = (int)Math.floor(255.0*cc.f((int)Math.floor((double)cc.getMaxX()*x/background.getWidth()),(int)Math.floor((double)cc.getMaxY()*y/background.getHeight()))/cc.fmax());
+					g = (int)Math.floor(255.0*ds.carryingcapacity.f(cc,(int)Math.floor((double)ds.carryingcapacity.getMaxX(cc)*x/background.getWidth()),(int)Math.floor((double)ds.carryingcapacity.getMaxY(cc)*y/background.getHeight()))/ds.carryingcapacity.fmax(cc));
 				}
 				if( bhb ) {
-					r = (int)Math.floor(255.0*hb.f((int)Math.floor((double)hb.getMaxX()*x/background.getWidth()),(int)Math.floor((double)hb.getMaxY()*y/background.getHeight()))/hb.fmax());
+					r = (int)Math.floor(255.0*ds.hardborders.f(hb,(int)Math.floor((double)ds.hardborders.getMaxX(hb)*x/background.getWidth()),(int)Math.floor((double)ds.hardborders.getMaxY(hb)*y/background.getHeight()))/ds.hardborders.fmax(hb));
 				}
 				if( bsb ) {
-					b = (int)Math.floor(255.0*sb.f((int)Math.floor((double)sb.getMaxX()*x/background.getWidth()),(int)Math.floor((double)sb.getMaxY()*y/background.getHeight()))/sb.fmax());
+					b = (int)Math.floor(255.0*ds.softborders.f(sb,(int)Math.floor((double)ds.softborders.getMaxX(sb)*x/background.getWidth()),(int)Math.floor((double)ds.softborders.getMaxY(sb)*y/background.getHeight()))/ds.softborders.fmax(sb));
 				}
 				
 				g2d.setColor(new Color(r,g,b,100));
 				g2d.drawLine( x,y,x,y);
 			}
 		}
-
+		ds.outputTimer2.stop();
 	}
 	
-	XYFunction lcc=null, lsb=null, lhb=null;
+	Index lcc=null, lsb=null, lhb=null;
 	
 	public void process(ArrayList<Node> population, int genNumber) throws Exception
 	{
 		thisGeneration = population;
 		//Dispersion.generation = genNumber;
 		
-		if( lcc != ds.getCarryingCapacity(genNumber) || lsb != ds.getSoftBorders(genNumber) || lhb != ds.getHardBorders(genNumber) ) {
-			lcc = ds.getCarryingCapacity(genNumber);
-			lhb = ds.getHardBorders(genNumber);
-			lsb = ds.getSoftBorders(genNumber);
+		if( lcc != ds.carryingcapacity.calcIndex(genNumber) || lsb != ds.softborders.calcIndex(genNumber) || lhb != ds.hardborders.calcIndex(genNumber) ) {
+			lcc = ds.carryingcapacity.calcIndex(genNumber);
+			lhb = ds.hardborders.calcIndex(genNumber);
+			lsb = ds.softborders.calcIndex(genNumber);
 			
 			drawBackground(lcc,lhb,lsb);
 		}
