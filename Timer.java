@@ -2,7 +2,7 @@
 public class Timer {
 	
 	private final static boolean ENABLED = true;
-	private final static boolean VERBOSE = true;
+	private final static boolean VERBOSE = false;
 	
 	private String name;
 	private long tmpTime = 0;
