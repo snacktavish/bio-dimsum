@@ -138,7 +138,6 @@ public class DispersalDisplay extends Thread implements ItemListener
 		g2d.setColor(new Color(0,0,0,255));
 		g2d.fillRect(0,0,background.getWidth(),background.getHeight());
 		
-		ds.outputTimer2.start();
 		for(int x=0;x<background.getWidth();x++) {
 			for(int y=0;y<background.getHeight();y++) {
 				int r=0,g=0,b=0;
@@ -156,7 +155,8 @@ public class DispersalDisplay extends Thread implements ItemListener
 				g2d.drawLine( x,y,x,y);
 			}
 		}
-		ds.outputTimer2.stop();
+
+
 	}
 	
 	Index lcc=null, lsb=null, lhb=null;
