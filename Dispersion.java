@@ -19,6 +19,9 @@
 import java.util.*;
 
 public class Dispersion {
+	public final static int[] genSize = {4, 5, 6, 9, 11, 13, 18, 26, 29, 33, 42, 53, 64, 81, 103, 130, 167, 201, 255, 305, 377, 444, 555, 663, 766, 905, 1040, 1196, 1313, 1464, 1621, 1732, 1853, 1875, 1966, 2059, 2132, 2182, 2168, 2235, 2291, 2310, 2330, 2361, 2410, 2416, 2404, 2454, 2435, 2434, 2425, 2454, 2453, 2451, 2459, 2434, 2429, 2433, 2449, 2469, 2474, 2509, 2533, 2523, 2499, 2486, 2488, 2467, 2488, 2461, 2488, 2496, 2489, 2491, 2554, 2543, 2567, 2567, 2512, 2529, 2485, 2509, 2530, 2506, 2520, 2508, 2500, 2496, 2526, 2555, 2531, 2482, 2487, 2473, 2476, 2476, 2471, 2457, 2461, 2496, 0 };
+;
+	
 	static DispersalSettings settings;
 	static DispersalFunctions functions;
 	static DispersalDisplay display;
@@ -74,6 +77,7 @@ public class Dispersion {
 		//System.out.println("Done! Press any key to continue...");
 		//System.in.read();
 		//System.in.read();
+		
 		System.exit(0);
     }
     
@@ -88,6 +92,11 @@ public class Dispersion {
 		for(;generation<= settings.getNGenerations() && thisGeneration.size() != 0;generation++) {
 			settings.outputTimer.start();
 			System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
+			
+			if(thisGeneration.size() != genSize[generation-1]) {
+				System.err.println("simulate: generation size mismatch: "+ "size: " + thisGeneration.size()+" should be: "+genSize[generation-1]);
+			}
+			
 			if( display != null )
 			{
 				ArrayList<Node>thisGenCopy = OutputFunction.deepTreeCopy(thisGeneration);
@@ -111,8 +120,12 @@ public class Dispersion {
 			
 			ArrayList<Node> nextGeneration = new ArrayList<Node>();
 
-			// Threaded			
-			nextGeneration = functions.populateAndMigrateThreaded(thisGeneration,settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
+			// Threaded
+		//	Prepared4GPU p4g = new Prepared4GPU(settings, settings.getNGenerations(), rand.nextInt());
+		//	nextGeneration = p4g.populateAndMigrateThreaded(thisGeneration,settings.getNGenerations());
+			nextGeneration = functions.checkCarryingCapacity(functions.populateAndMigrate4GPU(thisGeneration,settings.getNGenerations()),settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
+
+		//	nextGeneration = functions.checkCarryingCapacity(functions.populateAndMigrateThreaded(thisGeneration,settings.getNGenerations()),settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
 			
 /*			// Unthreaded
 			// nextGeneration uninitialized in lat,lon

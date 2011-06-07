@@ -31,8 +31,6 @@ class DispersalSettings {
     public Timer outputTimer = new Timer("Output");
     public Timer pruneTimer = new Timer ("prune");
     public Timer simulateTimer = new Timer("Simulate");
-    public Timer outputTimer2 = new Timer("Output2");
-
 
 	
 	Document document;

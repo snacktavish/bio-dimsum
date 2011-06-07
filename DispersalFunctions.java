@@ -58,10 +58,46 @@ class DispersalFunctions {
 		}
 		settings.pAmTTimer.stop();
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
-		return checkCarryingCapacity(nextGeneration,end_gen);	// END_GEN ADDED BY JMB -- 10.20.09
+		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
 	
+	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
+		settings.pAmTTimer.start();
 
+		
+		Prepared4GPU dt =  new Prepared4GPU(settings, end_gen, rand.nextInt()) ;
+		ArrayList<Node> children = dt.populate(thisGeneration);
+		Node childrenX[] = new Node[children.size()];
+		for(int i=0;i<childrenX.length;i++)
+			childrenX[i] = children.get(i);
+		
+		
+		boolean rm[] = dt.migrate(childrenX);
+		
+		int length=0;
+		for(int i=0;i<rm.length;i++) 
+			if(!rm[i]) length++;
+		
+		Node nextGen[] = new Node[length];
+		int j=0;
+		for(int i=0;i<childrenX.length;i++) {
+			if(!rm[i]) {
+				nextGen[j] = childrenX[i];
+				j++;
+			}
+			//System.out.println(children.get(i)+ " "+ rm[i]+" ");
+
+		}
+
+		
+		
+		ArrayList<Node> nextGeneration = new ArrayList<Node>();
+		for(int i=0;i<nextGen.length;i++)
+			nextGeneration.add(nextGen[i]);
+		settings.pAmTTimer.stop();
+		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
+		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
+	}
 
 	public ArrayList<Node> populateNextGeneration(ArrayList<Node> thisGeneration) {
 		ArrayList<Node> nextGeneration = new ArrayList<Node>();
