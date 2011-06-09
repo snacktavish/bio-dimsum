@@ -1,9 +1,3 @@
-import static java.lang.Math.PI;
-import static java.lang.Math.abs;
-import static java.lang.Math.min;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 
 
 public class Prepared4GPU
@@ -16,70 +10,64 @@ public class Prepared4GPU
 	public final static String modename[] = {"northeast","southeast","northwest","southwest"};
 	public final int northORsouth[] = {1,-1,1,-1};
 	public final int eastORwest[] = {1,1,-1,-1};
+	public final static int numRand = 100000;
 	
+	private double[] randArray;
+	private int _index;
+	
+	
+	public double PI = Math.PI;
+
+	
+	public double abs(double i) {
+		return Math.abs(i);
+	}
+	
+	public double min(double a, double b) {
+		return Math.min(a, b);
+	}
 
 	public DispersalSettings settings;
 
-	public int threadNum =-1;
-
 	public int end_gen = -1;	// Added by JMB
 	
-	public java.util.Random rand;	// Added by JMB -- 4.5.10
+//	public java.util.Random rand;	// Added by JMB -- 4.5.10
 	
-	public Prepared4GPU(DispersalSettings ds, int end_generation, int ran_seed)	// Modified by JMB -- 4.5.10
+	public Prepared4GPU(DispersalSettings ds, int end_generation, double[] randArray)	// Modified by JMB -- 4.5.10
 	{
 		settings = ds;
 		//thisGeneration = thisGen;
 		//nextGeneration = new ArrayList<Node>();
 		end_gen = end_generation;
-		rand = new java.util.Random(ran_seed);		// Added by JMB -- 4.5.10
+		 //java.util.Random rand = new java.util.Random(ran_seed);		// Added by JMB -- 4.5.10
+		_index = 0;
+		this.randArray = randArray;
 	}
 	
 	
-	
-	public ArrayList<Node> populate(ArrayList<Node> thisGeneration) {
-		ArrayList<Node> children = new ArrayList<Node>();
-		
-		for(int i=0; i<thisGeneration.size(); i++) {
-			// Decide how many offspring and add to the next generation (uninitialized in lat, lon)
-			int numberOfChildren = settings.getNOffspring(Dispersion.generation, rand);
-			for(int j=0 ; j < numberOfChildren ; j++ )
-			{
-				Node child = new Node(Dispersion.generation+1, thisGeneration.get(i)); // generation, parent	JMB COMMENT -- CREATES NEXT GEN NODE BY PASSING NEXT GEN # AND PARENT TO CONSTRUCTOR
-				thisGeneration.get(i).children.add(child);
-				children.add(child);
-			}
+	private double nextRand() {
+		if(_index>numRand) {
+			System.err.println("nextRand(): index>numRand");
+			System.exit(-1);
 		}
-		return children;
+		double r =  randArray[_index];
+		_index++;
+		
+		return r;
 	}
+	
+	
+	
+	
 
-	public boolean[] migrate(Node[] children)
+	public void migrate(Node[] children,boolean rm[], double d[])
 	{
-		
-		
-		try {
-			//Iterator childItr = children.iterator();	// Added by JMB -- 4.13.10
-			boolean rm[] = new boolean[children.length];
-			int length =0;
-			for(int i=0; i<children.length; i++) {
-				// System.out.println("Thread Number "+threadNum);
-				 Node n = children[i];
-				//Node n = (Node)childItr.next();		// Added by JMB -- 4.13.10
-				double d = settings.getDispersalRadius(n.generation,rand);
-				rm[i] = migrate(n,d);
-				
-			}
-			
-			return rm;
+		for(int i=0; i<children.length; i++) {
+			 Node n = children[i];
+			double di = settings.getDispersalRadius(n.generation,nextRand());
+			rm[i] = migrate(n,di);
 			
 		}
-		catch( Exception e ) {
-			System.out.println("Exception!!!");
-			System.out.println(e.toString());
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return null;
 	}
 	
 
@@ -150,7 +138,7 @@ public class Prepared4GPU
 
 		if (lat1 == ilat)	// Checking to see if individual is starting RIGHT ON a lat line. 
 		{					// If so, pushes it barely off in a random direction.
-			if (rand.nextDouble() > 0.5)
+			if (nextRand() > 0.5)
 				lat1 += 0.000000001;
 			else
 				lat1 -= 0.000000001;
@@ -159,7 +147,7 @@ public class Prepared4GPU
 		
 		if (lon1 == ilon)	// Same nudging, if individual RIGHT ON a lon line.
 		{
-			if (rand.nextDouble() > 0.5)
+			if (nextRand() > 0.5)
 				lon1 += 0.000000001;
 			else
 				lon1 -= 0.000000001;
@@ -219,7 +207,7 @@ public class Prepared4GPU
 
 		if (lat1 == ilat)	// Checking to see if individual is starting RIGHT ON a lat line. 
 		{					// If so, pushes it barely off in a random direction.
-			if (rand.nextDouble() > 0.5)
+			if (nextRand() > 0.5)
 				lat1 += 0.000000001;
 			else
 				lat1 -= 0.000000001;
@@ -229,7 +217,7 @@ public class Prepared4GPU
 		
 		if (lon1 == ilon)	// Same nudging, if individual RIGHT ON a lon line.
 		{
-			if (rand.nextDouble() > 0.5)
+			if (nextRand() > 0.5)
 				lon1 += 0.000000001;
 			else
 				lon1 -= 0.000000001;
@@ -320,7 +308,7 @@ public class Prepared4GPU
 	}
 
 	
-	private boolean migrate(Node n, double d) throws Exception {
+	private boolean migrate(Node n, double d) {
 		// this next chunk should be moved...
 		double sb_lonspace = 0.0;
 		double sb_latspace = 0.0;
@@ -352,7 +340,7 @@ public class Prepared4GPU
 			hb_latspace = (maxlat-minlat)/(settings.hardborders.getMaxY(settings.hardborders.calcIndex(n.generation)));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
 		}
 							
-		double crs = rand.nextDouble() * 2 * Math.PI;	// Modified by JMB -- 4.5.10
+		double crs = nextRand() * 2 * Math.PI;	// Modified by JMB -- 4.5.10
 		
 		double lat1 = n.parent.lat;
 		double lon1 = n.parent.lon;
@@ -373,305 +361,297 @@ public class Prepared4GPU
 		
 		lldataf lld = new lldataf();		// JMB -- lldataf CLASS STORES LAT/LON DATA AND DOES CONVERSIONS	
 	
-		try {
 		travelloop:
-			while( d >= 0.000001 ) {
+		while( d >= 0.000001 ) {
+			
+			double sb_lat_bt = 0.0;		// JMB -- Using this to keep track of lat/lon value for border reflections and adjusting inexact positions, if necessary
+			double sb_lon_bt = 0.0;
+			double hb_lat_bt = 0.0;
+			double hb_lon_bt = 0.0;
+			double border_buffer = 0.001;
+			
+			if (debug)
+			{
+				System.out.println("");
+				System.out.println("d: "+d);			// JMB -- FOR DEBUGGING
+				System.out.println("crs: "+crs);		// JMB -- FOR DEBUGGING
+				System.out.println("lat1: "+lat1);		// JMB -- FOR DEBUGGING
+				System.out.println("lon1: "+lon1);		// JMB -- FOR DEBUGGING
+			}
+			n.moved = true;					// ADDED BY JMB -- TO MAKE SURE THAT NODE MADE IT TO THIS PART OF THE CODE
+			n.end_move_lat = n.lat;		// ADDED BY JMB
+			n.end_move_lon = n.lon;		// ADDED BY JMB							
+			
+			lld.d = d;					// JMB COMMENT -- SETS D INTERNALLY IN LLD OBJECT
+			lld.R = 6371;				// radius of spherical earth in km (TODO: use value(# or units?) from xml)
+			lld.setLatSDDeg(lat1);		// JMB COMMENT -- CONVERTS LATITUDE FROM DECIMAL DEGREES TO RADIANS
+			lld.setLonSDDeg(lon1);		// JMB COMMENT -- CONVERTS LONGITUDE FROM DECIMAL DEGREES TO RADIANS
+			lld.crs = crs;				// JMB COMMENT -- SETS CRS INTERNALLY WITHIN LLD OBJECT
+			lld.llffromdcrs();			// JMB COMMENT -- GETS ENDING LAT/LON FROM DISTANCE AND COURSE AND STORES INTERNALLY IN LLD OBJECT
+
+			dprint("initial -- start: lat="+lld.lats()+" lon="+lld.lons());
+			dprint("initial --        crs="+lld.crs()+" d="+lld.d);
+			dprint("initial --   end: lat="+lld.latf()+" lon="+lld.lonf());
+
+			double hb_dd=100000000,sb_dd=100000000;
+			int hb_dx=0,hb_dy=0,sb_dx=0,sb_dy=0;
+			double result[] = new double[10];
+
+			if( crs >= 0 && crs <= PI/2 ) {		// JMB COMMENT -- DETERMINES IF COURSE IS NORTHEAST...OR IS THIS SOUTHEAST, SINCE INPUT MAPS ARE FLIPPED??
+				result = ka(northeast,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);
+			}
+			else if( crs > PI/2 && crs <= PI ) {			// JMB COMMENT -- Determines if course is southeast.  Note that this coordinate system is upside down relative to the standard.
+				result = ka(southeast,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
+			}
+			else if( crs > PI && crs <= 3*PI/2 ) {  // JMB COMMENT -- DETERMINES IF COURSE IS SOUTHWEST
+				result = ka(southwest,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
+			}
+			else if( crs > 3*PI/2 && crs <= 2*PI ) {   // JMB COMMENT -- 10.19.09 -- DETERMINES IF COURSE IS NORTHWEST
+				result = ka(northwest,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
+			}
+			
+			sb_lat_bt = result[0];
+			sb_lon_bt = result[1];
+			hb_lat_bt = result[2];
+			hb_lon_bt = result[3];
+			hb_dx = (int) result[4];
+			hb_dd = result[5];
+			hb_dy = (int) result[6];
+			sb_dx = (int) result[7];
+			sb_dd = result[8];
+			sb_dy = (int) result[9];
+			
+			if( d < min(sb_dd,hb_dd) ) {	// JMB COMMENT -- 10.20.09 -- DISPERSAL OCCURS BEFORE PIXEL BOUNDARY IS CROSSED, 
+				dprint("Case 1");			//								SO INDIVIDUAL IS ADDED TO THE NEXT GENERATION
+				// System.out.println("Moving done. d: "+d+"  sb_dd: "+sb_dd+"  hb_dd: "+hb_dd);	// ADDED BY JMB
+				//for (int z=0; z<4; z++)
+					//System.out.println("");	// ADDED BY JMB
 				
-				double sb_lat_bt = 0.0;		// JMB -- Using this to keep track of lat/lon value for border reflections and adjusting inexact positions, if necessary
-				double sb_lon_bt = 0.0;
-				double hb_lat_bt = 0.0;
-				double hb_lon_bt = 0.0;
-				double border_buffer = 0.001;
+				lld.d = d;
+				lld.llffromdcrs();
 				
+				//*********************** Fudging to keep poorly estimated positions (due to step_d alterations) from crossing border boundaries inadvertently ***********************
+				
+				// IS THIS CHECK NECESSARY AT THIS POINT IN THE LOOP?  PERHAPS NOT, BUT SHOULD MAKE SURE BEFORE REMOVING IT.
+				
+				
+		        n.lat = lld.getLatFDDeg();
+		        n.lon = lld.getLonFDDeg();
+				n.lat = setX(n.lat,sb_lat_bt,geq(lat1,sb_lat_bt),debug);
+				n.lon = setX(n.lon,sb_lon_bt,geq(lon1,sb_lon_bt),debug);		
+				n.lat = setX(n.lat,hb_lat_bt,geq(lat1,hb_lat_bt),debug);
+				n.lon = setX(n.lon,hb_lon_bt,geq(lon1,hb_lon_bt),debug);
+				
+				
+			
+				if (debug)
+					System.out.println("Just before being added to next gen -- lat: "+n.lat+" lon: "+n.lon);
+									
+				//nextGeneration.add( n );
+				n.added_nextgen=true;	// ADDED BY JMB -- 10.19.09
+				d=0;
+				
+				/*if (n.generation ==  && n.unique == )
+					System.out.println(" ADDED TO NEXT GEN");*/
+				
+				return false; //continue childrenloop;
+			}
+			else if( abs(sb_dd-hb_dd) < step_d ) {	// JMB COMMENT -- 10.20.09 -- BOTH SOFT AND HARD PIXEL BOUNDARIES WILL BE CROSSED 
+				//d = 0;
+				// both soft & hard must be checked at the same time -- but the order is up to you
+				// I arbitrarily chose to check hard borders first
+				dprint("*** Checking Hard Border");
+													
+				Index hb = null;
+				if (n.generation-1 == end_gen)								// JMB -- Added to make sure that children of the final generation get the right hard borders
+					hb = settings.hardborders.calcIndex(n.generation-1);
+				else
+					hb = settings.hardborders.calcIndex(n.generation);
+				
+				if( nextRand() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE
+					dprint("failed");																				//								AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
+					if (debug)
+						System.out.println("Hard border death!");				// ADDED BY JMB -- FOR DEBUGGING
+					n.failed_one = true;	// ADDED BY JMB
+													
+					n.parent.children.remove( n.parent.children.indexOf( n ) ); // Added by JMB -- 4.14.10 -- Child needs to be removed from parent's children vector if it is not added to the next generation.
+					
+					/*if (n.generation ==  && n.unique == )
+						System.out.println(" DIED AT HARD BORDER CHECK 1");*/
+					
+					return true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
+				}
+				else {
+					// don't "travel" the distance, as that will be done by soft border check
+					//							lld.d = hb_dd+step_d;
+					//							d-=(hb_dd+step_d);
+					dprint("passed");
+				}
+
+				dprint("*** Checking Soft Border");
+				
+				//ldd.d = sb_dd;
+				//lld.llffromdcrs();
+				Index sb = null;
+				if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
+					sb = settings.softborders.calcIndex(n.generation-1);
+				else
+					sb = settings.softborders.calcIndex(n.generation);
+				dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
+				dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
 				if (debug)
 				{
 					System.out.println("");
-					System.out.println("d: "+d);			// JMB -- FOR DEBUGGING
-					System.out.println("crs: "+crs);		// JMB -- FOR DEBUGGING
-					System.out.println("lat1: "+lat1);		// JMB -- FOR DEBUGGING
-					System.out.println("lon1: "+lon1);		// JMB -- FOR DEBUGGING
+					System.out.println("Current Lon (x): "+lon1);
+					System.out.println("Current Lat (y): "+lat1);
+					System.out.println("crs: "+crs);																						// JMB - Debugging
+					System.out.println("d: "+d);																							// JMB - Debugging
+					System.out.println("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");							// JMB - Debugging
+					System.out.println("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");	// JMB - Debugging
 				}
-				n.moved = true;					// ADDED BY JMB -- TO MAKE SURE THAT NODE MADE IT TO THIS PART OF THE CODE
-				n.end_move_lat = n.lat;		// ADDED BY JMB
-				n.end_move_lon = n.lon;		// ADDED BY JMB							
-				
-				lld.d = d;					// JMB COMMENT -- SETS D INTERNALLY IN LLD OBJECT
-				lld.R = 6371;				// radius of spherical earth in km (TODO: use value(# or units?) from xml)
-				lld.setLatSDDeg(lat1);		// JMB COMMENT -- CONVERTS LATITUDE FROM DECIMAL DEGREES TO RADIANS
-				lld.setLonSDDeg(lon1);		// JMB COMMENT -- CONVERTS LONGITUDE FROM DECIMAL DEGREES TO RADIANS
-				lld.crs = crs;				// JMB COMMENT -- SETS CRS INTERNALLY WITHIN LLD OBJECT
-				lld.llffromdcrs();			// JMB COMMENT -- GETS ENDING LAT/LON FROM DISTANCE AND COURSE AND STORES INTERNALLY IN LLD OBJECT
-	
-				dprint("initial -- start: lat="+lld.lats()+" lon="+lld.lons());
-				dprint("initial --        crs="+lld.crs()+" d="+lld.d);
-				dprint("initial --   end: lat="+lld.latf()+" lon="+lld.lonf());
-	
-				double hb_dd=100000000,sb_dd=100000000;
-				int hb_dx=0,hb_dy=0,sb_dx=0,sb_dy=0;
-				double result[] = new double[10];
-	
-				if( crs >= 0 && crs <= PI/2 ) {		// JMB COMMENT -- DETERMINES IF COURSE IS NORTHEAST...OR IS THIS SOUTHEAST, SINCE INPUT MAPS ARE FLIPPED??
-					result = ka(northeast,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);
+				double ran_num = nextRand();
+				if (debug)
+				{
+					System.out.println("Random number is: "+ran_num);
+					System.out.println("Border value being tested: "+settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy));
+					System.out.println("sb_dx: "+sb_dx);
+					System.out.println("sb_dy: "+sb_dy);
+					System.out.println("");
 				}
-				else if( crs > PI/2 && crs <= PI ) {			// JMB COMMENT -- Determines if course is southeast.  Note that this coordinate system is upside down relative to the standard.
-					result = ka(southeast,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
-				}
-				else if( crs > PI && crs <= 3*PI/2 ) {  // JMB COMMENT -- DETERMINES IF COURSE IS SOUTHWEST
-					result = ka(southwest,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
-				}
-				else if( crs > 3*PI/2 && crs <= 2*PI ) {   // JMB COMMENT -- 10.19.09 -- DETERMINES IF COURSE IS NORTHWEST
-					result = ka(northwest,lat1,lon1,minlat,minlon,sb_latspace,sb_lonspace,hb_latspace,hb_lonspace,lld,debug,d);							
-				}
-				
-				sb_lat_bt = result[0];
-				sb_lon_bt = result[1];
-				hb_lat_bt = result[2];
-				hb_lon_bt = result[3];
-				hb_dx = (int) result[4];
-				hb_dd = result[5];
-				hb_dy = (int) result[6];
-				sb_dx = (int) result[7];
-				sb_dd = result[8];
-				sb_dy = (int) result[9];
-				
-				if( d < min(sb_dd,hb_dd) ) {	// JMB COMMENT -- 10.20.09 -- DISPERSAL OCCURS BEFORE PIXEL BOUNDARY IS CROSSED, 
-					dprint("Case 1");			//								SO INDIVIDUAL IS ADDED TO THE NEXT GENERATION
-					// System.out.println("Moving done. d: "+d+"  sb_dd: "+sb_dd+"  hb_dd: "+hb_dd);	// ADDED BY JMB
-					//for (int z=0; z<4; z++)
-						//System.out.println("");	// ADDED BY JMB
-					
-					lld.d = d;
+				if( ran_num <= settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy) ) {
+					// failed the soft border-- stop before border, reflect back, update d, and continue
+					dprint("failed");
+					lld.d = (sb_dd-step_d);
+					d-= (sb_dd-step_d);								
+					crs = nextRand() * 2 * PI;// / 4+3*PI/4;
 					lld.llffromdcrs();
+					// Fudging to keep poorly estimated positions from crossing boundaries
+					lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug);
+					lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug);	
+					lld.dcrsfromll();
 					
-					//*********************** Fudging to keep poorly estimated positions (due to step_d alterations) from crossing border boundaries inadvertently ***********************
-					
-					// IS THIS CHECK NECESSARY AT THIS POINT IN THE LOOP?  PERHAPS NOT, BUT SHOULD MAKE SURE BEFORE REMOVING IT.
-					
-					
-			        n.lat = lld.getLatFDDeg();
-			        n.lon = lld.getLonFDDeg();
-					n.lat = setX(n.lat,sb_lat_bt,geq(lat1,sb_lat_bt),debug);
-					n.lon = setX(n.lon,sb_lon_bt,geq(lon1,sb_lon_bt),debug);		
-					n.lat = setX(n.lat,hb_lat_bt,geq(lat1,hb_lat_bt),debug);
-					n.lon = setX(n.lon,hb_lon_bt,geq(lon1,hb_lon_bt),debug);
-					
-					
-				
-					if (debug)
-						System.out.println("Just before being added to next gen -- lat: "+n.lat+" lon: "+n.lon);
-										
-					//nextGeneration.add( n );
-					n.added_nextgen=true;	// ADDED BY JMB -- 10.19.09
-					d=0;
-					
-					/*if (n.generation ==  && n.unique == )
-						System.out.println(" ADDED TO NEXT GEN");*/
-					
-					return false; //continue childrenloop;
-				}
-				else if( abs(sb_dd-hb_dd) < step_d ) {	// JMB COMMENT -- 10.20.09 -- BOTH SOFT AND HARD PIXEL BOUNDARIES WILL BE CROSSED 
-					//d = 0;
-					// both soft & hard must be checked at the same time -- but the order is up to you
-					// I arbitrarily chose to check hard borders first
-					dprint("*** Checking Hard Border");
-														
-					Index hb = null;
-					if (n.generation-1 == end_gen)								// JMB -- Added to make sure that children of the final generation get the right hard borders
-						hb = settings.hardborders.calcIndex(n.generation-1);
-					else
-						hb = settings.hardborders.calcIndex(n.generation);
-					
-					if( rand.nextDouble() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE
-						dprint("failed");																				//								AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
-						if (debug)
-							System.out.println("Hard border death!");				// ADDED BY JMB -- FOR DEBUGGING
-						n.failed_one = true;	// ADDED BY JMB
-														
-						n.parent.children.remove( n.parent.children.indexOf( n ) ); // Added by JMB -- 4.14.10 -- Child needs to be removed from parent's children vector if it is not added to the next generation.
-						
-						/*if (n.generation ==  && n.unique == )
-							System.out.println(" DIED AT HARD BORDER CHECK 1");*/
-						
-						return true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
-					}
-					else {
-						// don't "travel" the distance, as that will be done by soft border check
-						//							lld.d = hb_dd+step_d;
-						//							d-=(hb_dd+step_d);
-						dprint("passed");
-					}
-	
-					dprint("*** Checking Soft Border");
-					
-					//ldd.d = sb_dd;
-					//lld.llffromdcrs();
-					Index sb = null;
-					if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
-						sb = settings.softborders.calcIndex(n.generation-1);
-					else
-						sb = settings.softborders.calcIndex(n.generation);
-					dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
-					dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
-					if (debug)
-					{
-						System.out.println("");
-						System.out.println("Current Lon (x): "+lon1);
-						System.out.println("Current Lat (y): "+lat1);
-						System.out.println("crs: "+crs);																						// JMB - Debugging
-						System.out.println("d: "+d);																							// JMB - Debugging
-						System.out.println("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");							// JMB - Debugging
-						System.out.println("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");	// JMB - Debugging
-					}
-					double ran_num = rand.nextDouble();
-					if (debug)
-					{
-						System.out.println("Random number is: "+ran_num);
-						System.out.println("Border value being tested: "+settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy));
-						System.out.println("sb_dx: "+sb_dx);
-						System.out.println("sb_dy: "+sb_dy);
-						System.out.println("");
-					}
-					if( ran_num <= settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy) ) {
-						// failed the soft border-- stop before border, reflect back, update d, and continue
-						dprint("failed");
-						lld.d = (sb_dd-step_d);
-						d-= (sb_dd-step_d);								
-						crs = rand.nextDouble() * 2 * PI;// / 4+3*PI/4;
-						lld.llffromdcrs();
-						// Fudging to keep poorly estimated positions from crossing boundaries
-						lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug);
-						lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug);	
-						lld.dcrsfromll();
-						
-					}
-					else {
-						// passed the soft border-- stop after border, no reflection, update d, and continue
-						dprint("passed");
-						lld.d = sb_dd+step_d;
-						d-=(sb_dd+step_d);
-						lld.llffromdcrs();
-						lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug,sb_dy);	
-						lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug,sb_dx);
-						lld.dcrsfromll();
-						
-						if (d <= 0.000001)			// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
-						{
-							lld.d = d;
-							n.lat = lat1;
-							n.lon = lon1;
-						//	nextGeneration.add( n );															
-							n.added_nextgen=true;	// ADDED BY JMB
-							n.sb_final_1=true;
-							n.last_at="I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")";
-							n.last_check="I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")";
-							n.last_value=settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy);
-							d=0;										
-						}
-															
-					}
-	
-					continue travelloop;
-				}
-				else if( sb_dd < hb_dd ) {
-					dprint("*** Checking Soft Border");
-					Index sb = null;
-					if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
-						sb = settings.softborders.calcIndex(n.generation-1);
-					else
-						sb = settings.softborders.calcIndex(n.generation);
-					dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
-					dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
-					if( rand.nextDouble() <= settings.softborders.f(sb,settings.softborders.toX(sb,n.lon,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,n.lat,minlat,maxlat)+sb_dy) ) {
-						// failed the soft border-- stop before border, reflect back, update d, and continue
-						dprint("failed");
-						lld.d = (sb_dd-step_d);
-						d-= (sb_dd-step_d);
-						crs = rand.nextDouble() * 2 * PI;// / 4+3*PI/4;
-						lld.llffromdcrs();
-						// Fudging to keep poorly estimated positions from crossing boundaries
-						lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug);	
-						lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug);
-						lld.dcrsfromll();
-						
-					}
-					else {
-						// passed the soft border-- stop after border, no reflection, update d, and continue
-						dprint("passed");
-						lld.d = sb_dd+step_d;
-						d-=(sb_dd+step_d);
-						lld.llffromdcrs();									
-						lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug,sb_dy);	
-						lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug,sb_dx);	
-						lld.dcrsfromll();
-						
-						if (d <= 0.000001)		// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
-						{
-							lld.d = d;
-							lld.llffromdcrs();
-							n.lat = lat1;
-							n.lon = lon1;
-							//nextGeneration.add( n );
-							n.added_nextgen=true;	// ADDED BY JMB
-							n.sb_final_2=true;
-							d=0;										
-						}									
-															
-					}
-	
-					continue travelloop;
 				}
 				else {
-					dprint("*** Checking Hard Border");
-					Index hb = null;
-					if (n.generation-1 == end_gen)
-						hb = settings.hardborders.calcIndex(n.generation-1);
-					else
-						hb = settings.hardborders.calcIndex(n.generation);
-					if( rand.nextDouble() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {
-						dprint("failed");
-						n.failed_two = true;   // ADDED BY JMB -- 10.19.09
+					// passed the soft border-- stop after border, no reflection, update d, and continue
+					dprint("passed");
+					lld.d = sb_dd+step_d;
+					d-=(sb_dd+step_d);
+					lld.llffromdcrs();
+					lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug,sb_dy);	
+					lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug,sb_dx);
+					lld.dcrsfromll();
 					
-						n.parent.children.remove( n.parent.children.indexOf( n ) );  // Added by JMB -- 4.14.10 -- Child needs to be removed from parent's children vector if it is not added to the next generation.
-						
-						/*if (n.generation ==  && n.unique == )
-							System.out.println(" DIED AT HARD BORDER CHECK 2");*/
-							
-						return true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
-												// JMB -- Would this lead to pruning problems?
+					if (d <= 0.000001)			// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
+					{
+						lld.d = d;
+						n.lat = lat1;
+						n.lon = lon1;
+					//	nextGeneration.add( n );															
+						n.added_nextgen=true;	// ADDED BY JMB
+						n.sb_final_1=true;
+						n.last_at="I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")";
+						n.last_check="I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")";
+						n.last_value=settings.softborders.f(sb,settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy);
+						d=0;										
 					}
-					else {
-						dprint("passed");
-						lld.d = hb_dd+step_d;
-						d-=(hb_dd+step_d);
-						double latV = geq(lat1,hb_lat_bt);
-						double lonV = geq(lon1,hb_lon_bt);
-						lat1 = lld.latf();
-						lon1 = lld.lonf();									
-						lat1 = setX(lld.latf(),hb_lat_bt,latV,debug,hb_dy);	
-						lon1 = setX(lld.lonf(),hb_lon_bt,lonV,debug,hb_dx);
-						lld.dcrsfromll();
+														
+				}
+
+				continue travelloop;
+			}
+			else if( sb_dd < hb_dd ) {
+				dprint("*** Checking Soft Border");
+				Index sb = null;
+				if (n.generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
+					sb = settings.softborders.calcIndex(n.generation-1);
+				else
+					sb = settings.softborders.calcIndex(n.generation);
+				dprint("I\'m at ("+settings.softborders.toX(sb,lon1,minlon,maxlon)+","+settings.softborders.toY(sb,lat1,minlat,maxlat)+")");
+				dprint("I\'m checking ("+(settings.softborders.toX(sb,lon1,minlon,maxlon)+sb_dx)+","+(settings.softborders.toY(sb,lat1,minlat,maxlat)+sb_dy)+")");
+				if( nextRand() <= settings.softborders.f(sb,settings.softborders.toX(sb,n.lon,minlon,maxlon)+sb_dx, settings.softborders.toY(sb,n.lat,minlat,maxlat)+sb_dy) ) {
+					// failed the soft border-- stop before border, reflect back, update d, and continue
+					dprint("failed");
+					lld.d = (sb_dd-step_d);
+					d-= (sb_dd-step_d);
+					crs = nextRand() * 2 * PI;// / 4+3*PI/4;
+					lld.llffromdcrs();
+					// Fudging to keep poorly estimated positions from crossing boundaries
+					lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug);	
+					lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug);
+					lld.dcrsfromll();
+					
+				}
+				else {
+					// passed the soft border-- stop after border, no reflection, update d, and continue
+					dprint("passed");
+					lld.d = sb_dd+step_d;
+					d-=(sb_dd+step_d);
+					lld.llffromdcrs();									
+					lat1 = setX(lld.latf(),sb_lat_bt,geq(lat1,sb_lat_bt),debug,sb_dy);	
+					lon1 = setX(lld.lonf(),sb_lon_bt,geq(lon1,sb_lon_bt),debug,sb_dx);	
+					lld.dcrsfromll();
+					
+					if (d <= 0.000001)		// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
+					{
+						lld.d = d;
+						lld.llffromdcrs();
+						n.lat = lat1;
+						n.lon = lon1;
+						//nextGeneration.add( n );
+						n.added_nextgen=true;	// ADDED BY JMB
+						n.sb_final_2=true;
+						d=0;										
+					}									
+														
+				}
+
+				continue travelloop;
+			}
+			else {
+				dprint("*** Checking Hard Border");
+				Index hb = null;
+				if (n.generation-1 == end_gen)
+					hb = settings.hardborders.calcIndex(n.generation-1);
+				else
+					hb = settings.hardborders.calcIndex(n.generation);
+				if( nextRand() <= settings.hardborders.f(hb,settings.hardborders.toX(hb,lon1,minlon,maxlon)+hb_dx,settings.hardborders.toY(hb,lat1,minlat,maxlat)+hb_dy) ) {
+					dprint("failed");
+					n.failed_two = true;   // ADDED BY JMB -- 10.19.09
+				
+					n.parent.children.remove( n.parent.children.indexOf( n ) );  // Added by JMB -- 4.14.10 -- Child needs to be removed from parent's children vector if it is not added to the next generation.
+					
+					/*if (n.generation ==  && n.unique == )
+						System.out.println(" DIED AT HARD BORDER CHECK 2");*/
 						
-						if (d <= 0.000001)		// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
-						{
-							lld.d = d;
-							// lld.llffromdcrs();
-							n.lat = lat1;
-							n.lon = lon1;
-						//	nextGeneration.add( n );
-							n.added_nextgen=true;	// ADDED BY JMB -- 10.19.09
-							n.sb_final_2=true;
-							d=0;																				
-						}
-						continue travelloop;
+					return true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
+											// JMB -- Would this lead to pruning problems?
+				}
+				else {
+					dprint("passed");
+					lld.d = hb_dd+step_d;
+					d-=(hb_dd+step_d);
+					double latV = geq(lat1,hb_lat_bt);
+					double lonV = geq(lon1,hb_lon_bt);
+					lat1 = lld.latf();
+					lon1 = lld.lonf();									
+					lat1 = setX(lld.latf(),hb_lat_bt,latV,debug,hb_dy);	
+					lon1 = setX(lld.lonf(),hb_lon_bt,lonV,debug,hb_dx);
+					lld.dcrsfromll();
+					
+					if (d <= 0.000001)		// ADDED BY JMB -- in case this individual would not go through another iteration of the travel loop
+					{
+						lld.d = d;
+						// lld.llffromdcrs();
+						n.lat = lat1;
+						n.lon = lon1;
+					//	nextGeneration.add( n );
+						n.added_nextgen=true;	// ADDED BY JMB -- 10.19.09
+						n.sb_final_2=true;
+						d=0;																				
 					}
+					continue travelloop;
 				}
 			}
-		}
-		catch( Exception e ) {
-			System.out.println("Someone tried to fall off the border.");
-						System.out.println(e.toString());
-						e.printStackTrace();
-						System.exit(1);
 		}
 		return false;
 	}
