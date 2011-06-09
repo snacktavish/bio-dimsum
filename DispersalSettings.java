@@ -348,81 +348,23 @@ class DispersalSettings {
 	}
 	
 	public int getNOffspring(int generation, java.util.Random rand) {
-		/*PFunction thefunc=null;
-		for(int i=0;i<noffspring.size(); i++)
-			if( noffspring.get(i).startgeneration <= generation && noffspring.get(i).endgeneration >= generation )	// MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
-				thefunc = noffspring.get(i);
-		if( thefunc == null ) {
-			for(int i=0;i<noffspring.size();i++)
-				if( noffspring.get(i).startgeneration == -1 && noffspring.get(i).endgeneration == -1 ) {
-					thefunc = noffspring.get(i);
-					break;
-				}
-		}
-		return (int)thefunc.draw(rand);*/
+		return (int)noffspring.getP(generation, rand);
+
+	}
+	
+	public int getNOffspring(int generation, double rand) {
 		return (int)noffspring.getP(generation, rand);
 
 	}
 	
 	public double getDispersalRadius(int generation, java.util.Random rand) {
-		/*PFunction thefunc=null;
-		for(int i=0;i<dispersalradius.size(); i++)
-			if( dispersalradius.get(i).startgeneration <= generation && dispersalradius.get(i).endgeneration >= generation )	// MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
-				thefunc = dispersalradius.get(i);
-		if( thefunc == null ) {
-			for(int i=0;i<dispersalradius.size();i++)
-				if( dispersalradius.get(i).startgeneration == -1 && dispersalradius.get(i).endgeneration == -1 ) {
-					thefunc = dispersalradius.get(i);
-					break;
-				}
-		}*/
 		return dispersalradius.getP(generation, rand);
 	}
-	/*
-	public XYFunction getCarryingCapacity(int generation) {
-		XYFunction thefunc=null;
-		for(int i=0;i<carryingcapacity.size(); i++)
-			if( carryingcapacity.get(i).startgeneration <= generation && carryingcapacity.get(i).endgeneration >= generation )
-				thefunc = carryingcapacity.get(i);
-		if( thefunc == null ) {
-			for(int i=0;i<carryingcapacity.size();i++)
-				if( carryingcapacity.get(i).startgeneration == -1 && carryingcapacity.get(i).endgeneration == -1 ) {
-					thefunc = carryingcapacity.get(i);
-					break;
-				}
-		}
-		return thefunc;
-	}
 	
-	public XYFunction getHardBorders(int generation) {
-		XYFunction thefunc=null;
-		for(int i=0;i<hardborders.size(); i++)
-			if( hardborders.get(i).startgeneration <= generation && hardborders.get(i).endgeneration >= generation )
-				thefunc = hardborders.get(i);
-		if( thefunc == null ) {
-			for(int i=0;i<hardborders.size();i++)
-				if( hardborders.get(i).startgeneration == -1 && hardborders.get(i).endgeneration == -1 ) {
-					thefunc = hardborders.get(i);
-					break;
-				}
-		}
-		return thefunc;
+	public double getDispersalRadius(int generation, double rand) {
+		return dispersalradius.getP(generation, rand);
 	}
-	
-	public XYFunction getSoftBorders(int generation) {
-		XYFunction thefunc=null;
-		for(int i=0;i<softborders.size(); i++)
-			if( softborders.get(i).startgeneration <= generation && softborders.get(i).endgeneration >= generation ) // MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
-				thefunc = softborders.get(i);
-		if( thefunc == null ) {
-			for(int i=0;i<softborders.size();i++)
-				if( softborders.get(i).startgeneration == -1 && softborders.get(i).endgeneration == -1 ) {
-					thefunc = softborders.get(i);
-					break;
-				}
-		}
-		return thefunc;
-	}*/
+
 	
 	public ArrayList<Node> getInitialPopulation() {
 		return initialpopulation;

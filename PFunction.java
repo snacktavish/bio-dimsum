@@ -70,6 +70,11 @@ class PFunction {
 	}
 	
 	public double getP(int generation, java.util.Random rand) {
+		double p = rand.nextDouble();
+		return getP(generation, p);
+	}
+	
+	public double getP(int generation, double p) {
 		//PFunction thefunc=null;
 		int ind=-1;
 		for(int i=0;i<_outcomes_probabilities.xsize(); i++)
@@ -87,11 +92,12 @@ class PFunction {
 			System.exit(-1);
 		}
 			
-		return draw(ind, rand);
+		return draw(ind, p);
 	}
 	
-	public double draw(int x, java.util.Random rand) {
-		double p = rand.nextDouble();
+
+	private double draw(int x, double p) {
+	
 		double c = 0.0;
 		int i=0;
 		for(i=0; i<_size_gen.get(x, _outcomes); i++) {

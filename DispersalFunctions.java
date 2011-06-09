@@ -61,18 +61,49 @@ class DispersalFunctions {
 		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
 	
+	public ArrayList<Node> populate4GPU(ArrayList<Node> thisGeneration,java.util.Random rand2) {
+		ArrayList<Node> children = new ArrayList<Node>();
+		
+		for(int i=0; i<thisGeneration.size(); i++) {
+			// Decide how many offspring and add to the next generation (uninitialized in lat, lon)
+			int numberOfChildren = settings.getNOffspring(Dispersion.generation, rand2);
+			for(int j=0 ; j < numberOfChildren ; j++ )
+			{
+				Node child = new Node(Dispersion.generation+1, thisGeneration.get(i)); // generation, parent	JMB COMMENT -- CREATES NEXT GEN NODE BY PASSING NEXT GEN # AND PARENT TO CONSTRUCTOR
+				thisGeneration.get(i).children.add(child);
+				children.add(child);
+			}
+		}
+		return children;
+	}
+	
 	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
 		settings.pAmTTimer.start();
+		
+		double randArray[] = new double[Prepared4GPU.numRand];
+		java.util.Random rand2 = new java.util.Random(rand.nextInt());		// Added by JMB -- 4.5.10
 
 		
-		Prepared4GPU dt =  new Prepared4GPU(settings, end_gen, rand.nextInt()) ;
-		ArrayList<Node> children = dt.populate(thisGeneration);
+		
+		
+		Prepared4GPU dt =  new Prepared4GPU(settings, end_gen, randArray) ;
+		ArrayList<Node> children = populate4GPU(thisGeneration,rand2);
+		
+		
 		Node childrenX[] = new Node[children.size()];
-		for(int i=0;i<childrenX.length;i++)
+		boolean rm[] = new boolean[childrenX.length];
+		double[] d = new double[childrenX.length];
+		
+
+		for(int i=0;i<childrenX.length;i++) {
 			childrenX[i] = children.get(i);
+			//d[i] = settings.getDispersalRadius(childrenX[i].generation,rand2);
+		}
+		for(int i=0;i<Prepared4GPU.numRand;i++) {
+			randArray[i] = rand2.nextDouble();
+		}
 		
-		
-		boolean rm[] = dt.migrate(childrenX);
+		 dt.migrate(childrenX,rm,d);
 		
 		int length=0;
 		for(int i=0;i<rm.length;i++) 
