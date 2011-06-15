@@ -222,10 +222,10 @@ Here are highly informal descriptions of a few XML terms:
 		
 	<output>
 		<visual output_every='10'/>
-	<!--	<treestructure delimeter='#' output='parent' trim='false' file='anc_phylo.tre' output_every='10' resolve='true'/>
+		<treestructure delimeter='#' output='parent' trim='false' file='anc_phylo.tre' output_every='10' resolve='true'/>
 		<treestructure delimeter=':' output='distance' mutationrate='0.1' trim='false' file='dist_phylo.tre'  output_every='10' resolve='true'/>
 		<locations generation='all' file='locs.txt'  output_every='10'/>
-		<sample type="grid" dlat="1.0" dlon="1.0" n="10" file='grid_samps.txt' output_every='10'>
+		<!--<sample type="grid" dlat="1.0" dlon="1.0" n="10" file='grid_samps.txt' output_every='10'>
 			<treestructure delimeter='#' output='parent' mutationrate='0.1' trim='false' resolve='true' file='pruned_anc_phylo.tre'/>
 			<locations file='pruned_locs.txt'/>
 		</sample>-->

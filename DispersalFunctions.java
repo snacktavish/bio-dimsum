@@ -38,7 +38,7 @@ class DispersalFunctions {
 		for(int i=0; i<settings.getNThreads(); i++) {						// JMB COMMENT -- 10.19.09 -- CREATES # OF DTHREADS SPECIFIED BY SETTINGS FILE
 			dthreads.add( new DispersalThread(settings, end_gen, rand.nextInt()) );
 			for(int j=i;j<thisGeneration.size(); j+=settings.getNThreads())		// JMB COMMENT -- 10.19.09 -- ADDS EVERY #DTHREADS INDIVIDUAL TO A PARTICULAR THREAD
-				dthreads.get(i).add( thisGeneration.get(j) );
+//TODO				dthreads.get(i).add( thisGeneration.get(j) );
 
 			threads.add( new Thread( dthreads.get(i) ) );		// JMB COMMENT -- 10.19.09 -- PLACES EACH DTHREADS OBJECT IN A THREADS OBJECT...MORE GENERAL IMPLEMENTATION OF A RUNNABLE OBJECT
 			if( i != settings.getNThreads()-1 )
@@ -103,7 +103,7 @@ class DispersalFunctions {
 			randArray[i] = rand2.nextDouble();
 		}
 		
-		 dt.migrate(childrenX,rm,d);
+		dt.migrate(childrenX,rm,d);
 		
 		int length=0;
 		for(int i=0;i<rm.length;i++) 
@@ -345,7 +345,7 @@ class DispersalFunctions {
 	
 	// ***************	ADDED BY JMB -- 10.19.09 **************************************
 	
-	public void debug_prune(ArrayList<Node> thisGeneration, int generation, Node root)
+	/*public void debug_prune(ArrayList<Node> thisGeneration, int generation, Node root)
 	{
 		Node problem = null;
 		
@@ -378,15 +378,15 @@ class DispersalFunctions {
 			System.out.println("Added to next gen flag: "+problem.added_nextgen);
 			System.out.println("Problematic dispersal distance: "+problem.last_d);
 			System.out.println("Problematic course: "+problem.last_crs);
-			System.out.println("HB final flag: "+problem.hb_final);
-			System.out.println("SB final 1 flag: "+problem.sb_final_1);
-			System.out.println("SB final 2 flag: "+problem.sb_final_2);
-			System.out.println("Last at: "+problem.last_at);
-			System.out.println("Last check: "+problem.last_check);
-			System.out.println("Last value: "+problem.last_value);
+//			System.out.println("HB final flag: "+problem.hb_final);
+//			System.out.println("SB final 1 flag: "+problem.sb_final_1);
+//			System.out.println("SB final 2 flag: "+problem.sb_final_2);
+//			System.out.println("Last at: "+problem.last_at);
+//			System.out.println("Last check: "+problem.last_check);
+//			System.out.println("Last value: "+problem.last_value);
 			System.exit(1);
 		}
-	}
+	}*/
 	
 	private Node flag_prune(Node node, int generation)
 	{
