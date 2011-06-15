@@ -1,131 +1,144 @@
-import static java.lang.Math.PI;
-import static java.lang.Math.abs;
-import static java.lang.Math.acos;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.pow;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
+
 
 
 
 public class lldataf
 {
+	public final static int _lats = 0;
+	public final static int _lons = 1;
+	public final static int _latf = 2;
+	public final static int _lonf = 3;
+	public final static int _d = 4;
+	public final static int _crs = 5;
+	public final static int _R = 6;
+	public final static int _lldataSize = 7;
+	public final static float _stdR = 6371f;
+	
+
+	public static double lats(double[] lldata) {return lldata[_lats]*180/PI;}
+	public static double latf(double[] lldata) {return lldata[_latf]*180/PI;}
+	public static double lons(double[] lldata) {return lldata[_lons]*180/PI;}
+	public static double lonf(double[] lldata) {return lldata[_lonf]*180/PI;}
+	public static double crs(double[] lldata) {return lldata[_crs]*180/PI;}
+	
 	public final static double PI = (double)Math.PI; 
 	
-	public double floorf(double f) {
+	
+	
+	public static double min(double a, double b) {
+		return Math.min(a, b);
+	}
+	
+	public static double floorf(double f) {
 		return (double)Math.floor(f);
 	}
 	
-	public double sinf(double f) {
+	public static double sinf(double f) {
 		return (double)Math.sin(f);
 	}
 	
-	public double cosf(double f) {
+	public static double cosf(double f) {
 		return (double)Math.cos(f);
 	}
 	
-	public double acosf(double f) {
+	public static double acosf(double f) {
 		return (double)Math.acos(f);
 	}
 	
-	public double asinf(double f) {
+	public static double asinf(double f) {
 		return (double)Math.asin(f);
 	}
 
-	public double atan2f(double A , double B) {
+	public static double atan2f(double A , double B) {
 		return (double)Math.atan2(A,B);
 	}
 	
-	public double atanf(double A ) {
+	public static double atanf(double A ) {
 		return (double)Math.atan(A);
 	}
 	
-	public double powf(double A, double e) {
+	public static double powf(double A, double e) {
 		return (double)Math.pow(A, e);
 	}
 	
-	public double lats=0.0f, lons=0.0f;
-	public double latf=0.0f, lonf=0.0f;
-	public double d=0.0f, crs=0.0f;
-	public double R=6371f; // radius of the earth in the same units as d (default: km)
+	public static double sqrtf(double A) {
+		return (double)Math.sqrt(A);
+	}
+	
+	public static double absf(double A) {
+		return (double)Math.abs(A);
+	}
 
-	public double lats() {return lats*180/PI;}
-	public double latf() {return latf*180/PI;}
-	public double lons() {return lons*180/PI;}
-	public double lonf() {return lonf*180/PI;}
-	public double crs() {return crs*180/PI;}
-
-	public void setLatSDDeg(double ddeg) //set start lat from decimal degrees
+	public static void setLatSDDeg(double[] lldata,double ddeg) //set start lat from decimal degrees
 	{
-		lats = ddeg / 180.0f * PI;
+		lldata[_lats] = ddeg / 180.0f * PI;
 	}
-	public void setLatFDDeg(double ddeg) //set final lat from decimal degrees
+	/*public void setLatFDDeg(double ddeg) //set final lat from decimal degrees
 	{
-		latf = ddeg / 180 * PI;
+		lldata[_latf] = ddeg / 180 * PI;
+	}*/
+	public static void setLonSDDeg(double[] lldata,double ddeg) //set start lon from decimal degrees
+	{
+		lldata[_lons] = ddeg / 180 * PI;
 	}
-	public void setLonSDDeg(double ddeg) //set start lon from decimal degrees
+	/*public void setLonFDDeg(double ddeg) //set final lon from decimal degrees
 	{
-		lons = ddeg / 180 * PI;
+		lldata[_lonf] = ddeg / 180 * PI;
 	}
-	public void setLonFDDeg(double ddeg) //set final lon from decimal degrees
+	/*public void setR(double Ro) //set radius of the earth (must be same units as d)
 	{
-		lonf = ddeg / 180 * PI;
-	}
-	public void setR(double Ro) //set radius of the earth (must be same units as d)
+		lldata[_R] = Ro;
+	}*/
+	/*public void setCrsDDeg(double crso) //set course from decimal degrees
 	{
-		R = Ro;
-	}
-	public void setCrsDDeg(double crso) //set course from decimal degrees
-	{
-		crs = crso / 180 * PI;
+		lldata[_crs] = crso / 180 * PI;
 	}
 	public double getLatSDDeg() //get start lon from decimal degrees
 	{
-		return (lats / PI * 180);
+		return (lldata[_lats] / PI * 180);
+	}*/
+	/*public double getLonSDDeg() //get final lon from decimal degrees
+	{
+		return (lldata[_lons] / PI * 180);
+	}*/	
+	public static double getLatFDDeg(double[] lldata) //get start lon from decimal degrees
+	{
+		return (lldata[_latf] / PI * 180);
 	}
-	public double getLonSDDeg() //get final lon from decimal degrees
+	public static double getLonFDDeg(double[] lldata) //get final lon from decimal degrees
 	{
-		return (lons / PI * 180);
-	}	
-	public double getLatFDDeg() //get start lon from decimal degrees
-	{
-		return (latf / PI * 180);
+		return (lldata[_lonf] / PI * 180);
 	}
-	public double getLonFDDeg() //get final lon from decimal degrees
+	/*public double getCrsDDeg() //get start lon from decimal degrees
 	{
-		return (lonf / PI * 180);
-	}
-	public double getCrsDDeg() //get start lon from decimal degrees
-	{
-		return (crs / PI * 180);
+		return (lldata[_crs] / PI * 180);
 	}
 	public double getD() //get distance
 	{
-		return d;
-	}
+		return lldata[_d];
+	}*/
 
-	public double mod(double y, double x)
+	public static double mod(double y, double x)
 	{
 		return (y - (x*floorf(y/x)));
 	}
 
-	public void dcrsfromll()			// JMB COMMENT -- 10.19.09 -- DETERMINES DISTANCE (D) AND COURSE (CRS) FROM ENDING LAT/LON
+	public static void dcrsfromll(double[] lldata)			// JMB COMMENT -- 10.19.09 -- DETERMINES DISTANCE (D) AND COURSE (CRS) FROM ENDING LAT/LON
 	{
-		double dlat = latf - lats;
-		double dlon = lonf - lons;
-		double a = powf(sinf(dlat/2),2) + cosf(lats)*cosf(latf)*powf(sinf(dlon/2),2);
+		double dlat = lldata[_latf] - lldata[_lats];
+		double dlon = lldata[_lonf] - lldata[_lons];
+		double a = powf(sinf(dlat/2),2) + cosf(lldata[_lats])*cosf(lldata[_latf])*powf(sinf(dlon/2),2);
 
-		this.d = R * 2 * atan2f(Math.sqrt(a),Math.sqrt(1-a));
+		lldata[_d] = lldata[_R] * 2 * atan2f(Math.sqrt(a),Math.sqrt(1-a));
 		// this.d = R * 2 * asinf(Math.sqrt(a)); //	Implemented by JMB from formula given at http://williams.best.vwh.net/avform.htm#Par
 		// this.crs = this.mod(Math.atan2(sinf(dlon)*cosf(latf),cosf(lats)*sinf(latf)-sinf(lats)*cosf(latf)*cosf(dlon)),2*PI);  //	Implemented by JMB from formula given at http://williams.best.vwh.net/avform.htm#Par
-		this.crs = this.mod(atan2f(sinf(dlon)*cosf(latf),cosf(lats)*sinf(latf)-sinf(lats)*cosf(latf)*cosf(dlon)),2*PI);
+		lldata[_crs] = mod(atan2f(sinf(dlon)*cosf(lldata[_latf]),cosf(lldata[_lats])*sinf(lldata[_latf])-sinf(lldata[_lats])*cosf(lldata[_latf])*cosf(dlon)),2*PI);
 	}
 
-	public void llffromdcrs()			// JMB COMMENT -- 10.19.09 -- DETERMINES ENDING LAT/LON FROM DISTANCE (D) AND COURSE (CRS)
+	public static void llffromdcrs(double[] lldata)			// JMB COMMENT -- 10.19.09 -- DETERMINES ENDING LAT/LON FROM DISTANCE (D) AND COURSE (CRS)
 	{
-		this.latf = asinf(sinf(lats)*cosf(d/R)+cosf(lats)*sinf(d/R)*cosf(crs));
-		this.lonf = lons + atan2f(sinf(crs)*sinf(d/R)*cosf(lats),cosf(d/R)-sinf(lats)*sinf(latf));
+		lldata[_latf] = asinf(sinf(lldata[_lats])*cosf(lldata[_d]/lldata[_R])+cosf(lldata[_lats])*sinf(lldata[_d]/lldata[_R])*cosf(lldata[_crs]));
+		lldata[_lonf] = lldata[_lons] + atan2f(sinf(lldata[_crs])*sinf(lldata[_d]/lldata[_R])*cosf(lldata[_lats]),cosf(lldata[_d]/lldata[_R])-sinf(lldata[_lats])*sinf(lldata[_latf]));
 	}
 	
 	/*public void llffromdcrs()		// Implemented by JMB using formulae from http://williams.best.vwh.net/avform.htm#Par
@@ -196,23 +209,23 @@ public class lldataf
 	}*/
 
 	
-	public lldataf latdfromlon3(double lon3o) // // Implementation by JMB from http://williams.best.vwh.net/avform.htm#Par  -- lat=atan(  (sin(lat1)*cosf(lat2)*sin(lon-lon2)-sin(lat2)*cosf(lat1)*sin(lon-lon1))  /  (cosf(lat1)*cosf(lat2)*sin(lon1-lon2))  )
+	public static double[] latdfromlon3(double[] lldata, double lon3o) // // Implementation by JMB from http://williams.best.vwh.net/avform.htm#Par  -- lat=atan(  (sin(lat1)*cosf(lat2)*sin(lon-lon2)-sin(lat2)*cosf(lat1)*sin(lon-lon1))  /  (cosf(lat1)*cosf(lat2)*sin(lon1-lon2))  )
 	{
 		double lon3 = lon3o*PI/180;
 		
-		lldataf ret =  new lldataf();
-		ret.lats = this.lats;
-		ret.lons = this.lons;
-		ret.R = this.R;
+		double[] ret =  new double[_lldataSize];
+		ret[_lats] = lldata[_lats];
+		ret[_lons] = lldata[_lons];
+		ret[_R] = lldata[_R];
 		
-		double lat1 = this.lats;
-		double lon1 = this.lons;
-		double lat2 = this.latf;
-		double lon2 = this.lonf;
+		double lat1 = lldata[_lats];
+		double lon1 = lldata[_lons];
+		double lat2 = lldata[_latf];
+		double lon2 = lldata[_lonf];
 		
-		ret.latf = atanf(((sinf(lat1)*cosf(lat2)*sinf(lon3-lon2))-(sinf(lat2)*cosf(lat1)*sinf(lon3-lon1)))/(cosf(lat1)*cosf(lat2)*sinf(lon1-lon2)));
+		ret[_latf] = atanf(((sinf(lat1)*cosf(lat2)*sinf(lon3-lon2))-(sinf(lat2)*cosf(lat1)*sinf(lon3-lon1)))/(cosf(lat1)*cosf(lat2)*sinf(lon1-lon2)));
 		
-		ret.lonf = lon3;
+		ret[_lonf] = lon3;
 		
 		/*if( !((ret.latf >= lat1 && ret.latf <= lat2) || (ret.latf <= lat1 && ret.latf >= lat2)) ) // Checks to make sure predicted value is in range of movement...if not, sets d to arbirarily large value (1,000,000)
 		{
@@ -220,73 +233,76 @@ public class lldataf
 			return ret;
 		}*/		
 		
-		ret.dcrsfromll();
+		lldataf.dcrsfromll(ret);
 		
 		return ret;
 	}
 
 	
-	public lldataf londfromlat3(double lat3o) // in degrees		JMB COMMENT -- 10.19.09 -- FINDS LONGITUDE AT WHICH NEAREST LAT IS CROSSED W/
+	public static double[] londfromlat3(double[] lldata, double lat3o) // in degrees		JMB COMMENT -- 10.19.09 -- FINDS LONGITUDE AT WHICH NEAREST LAT IS CROSSED W/
 	{														//								GREAT CIRCLE DISTANCE
 		// from http://williams.best.vwh.net/avform.htm#Par
 		double lat3 = lat3o * PI / 180;
-		lldataf ret = new lldataf();
-		ret.lats = this.lats;
-		ret.lons = this.lons;
+		double[] ret = new double[_lldataSize];
+		ret[_lats] = lldata[_lats];
+		ret[_lons] = lldata[_lons];
 		//ret.latf = this.latf;
 		//ret.lonf = this.lonf;
-		ret.crs = this.crs;
-		ret.d = this.d;
-		ret.R = this.R;
+		ret[_crs] = lldata[_crs];
+		ret[_d] = lldata[_d];
+		ret[_R] = lldata[_R];
 
-		double lat1 = this.lats;
-		double lat2 = this.latf;
-		double lon1 = this.lons;
-		double lon2 = this.lonf;
+		double lat1 = lldata[_lats];
+		double lat2 = lldata[_latf];
+		double lon1 = lldata[_lons];
+		double lon2 = lldata[_lonf];
 
 		double l12 = lon1-lon2;
 		double A = sinf(lat1)*cosf(lat2)*cosf(lat3)*sinf(l12);
 		double B = sinf(lat1)*cosf(lat2)*cosf(lat3)*cosf(l12) - cosf(lat1)*sinf(lat2)*cosf(lat3);
 		double C = cosf(lat1)*cosf(lat2)*sinf(lat3)*sinf(l12);
 		double lon = atan2f(B,A);
-		if (abs(C) >sqrt(pow(A,2) + pow(B,2)))
+		if (absf(C) >sqrtf(powf(A,2) + powf(B,2)))
 		{
 			//System.out.println("never crosses");
-			ret.d = 10000000;
+			ret[_d] = 10000000;
 		}
 		else if( lat1 == lat3 ) {
-			ret.latf = lat1;
-			ret.lonf = lon1;
-			ret.d = 0;
-			ret.crs = 0;
+			ret[_latf] = lat1;
+			ret[_lonf] = lon1;
+			ret[_d] = 0;
+			ret[_crs] = 0;
 		}
 		else {
-			double dlon = acosf(C/sqrt(pow(A,2)+pow(B,2)));
-			double lon3_1=(this.mod((lon1+dlon+lon+PI),(2*PI))-PI);
-			double lon3_2=(this.mod((lon1-dlon+lon+PI),(2*PI))-PI);
+			double dlon = acosf(C/sqrtf(powf(A,2)+powf(B,2)));
+			double lon3_1=(mod((lon1+dlon+lon+PI),(2*PI))-PI);
+			double lon3_2=(mod((lon1-dlon+lon+PI),(2*PI))-PI);
 
-			ret.latf = lat3;
+			ret[_latf] = lat3;
 			//System.out.println(lat3*180/PI);
 			//System.out.println(lon3_1*180/PI);
 			//System.out.println(lon3_2*180/PI);
-			lldata lon3_1_d = new lldata();
-			lon3_1_d.lats = ret.lats;
-			lon3_1_d.lons = ret.lons;
-			lon3_1_d.latf = ret.latf;
-			lon3_1_d.lonf = lon3_1;
-			lon3_1_d.dcrsfromll();
+			double[] lon3_1_d = new double[_lldataSize];
+			lon3_1_d[_R] = _stdR;
+			lon3_1_d[_lats] = ret[_lats];
+			lon3_1_d[_lons] = ret[_lons];
+			lon3_1_d[_latf] = ret[_latf];
+			lon3_1_d[_lonf] = lon3_1;
 			
-			lldata lon3_2_d = new lldata();
-			lon3_2_d.lats = ret.lats;
-			lon3_2_d.lons = ret.lons;
-			lon3_2_d.latf = ret.latf;
-			lon3_2_d.lonf = lon3_2;
-			lon3_2_d.dcrsfromll();					
+			lldataf.dcrsfromll(lon3_1_d);
 			
-			if( ((lon3_1 >= lon1 && lon3_1 <= lon2) || (lon3_1 <= lon1 && lon3_1 >= lon2)) && (lon3_1_d.d < lon3_2_d.d) )
-				ret.lonf = lon3_1;
+			double[] lon3_2_d = new double[_lldataSize];
+			lon3_2_d[_R] = _stdR;
+			lon3_2_d[_lats] = ret[_lats];
+			lon3_2_d[_lons] = ret[_lons];
+			lon3_2_d[_latf] = ret[_latf];
+			lon3_2_d[_lonf] = lon3_2;
+			lldataf.dcrsfromll(lon3_2_d);					
+			
+			if( ((lon3_1 >= lon1 && lon3_1 <= lon2) || (lon3_1 <= lon1 && lon3_1 >= lon2)) && (lon3_1_d[_d] < lon3_2_d[_d]) )
+				ret[_lonf] = lon3_1;
 			else
-				ret.lonf = lon3_2;
+				ret[_lonf] = lon3_2;
 			
 			/*if( !((ret.lonf >= lon1 && ret.lonf <= lon2) || (ret.lonf <= lon1 && ret.lonf >= lon2)) )		// Checks to make sure predicted value is in range of movement...if not, sets d to arbirarily large value (1,000,000)
 			{
@@ -294,7 +310,7 @@ public class lldataf
 				return ret;
 			}*/
 				
-			ret.dcrsfromll();				// JMB COMMENT -- 10.19.09 -- SETS D AND CRS FOR RET
+			lldataf.dcrsfromll(ret);				// JMB COMMENT -- 10.19.09 -- SETS D AND CRS FOR RET
 		}
 
 		return ret;

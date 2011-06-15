@@ -31,8 +31,8 @@ public class DispersalThread implements Runnable
 	public final int northORsouth[] = {1,-1,1,-1};
 	public final int eastORwest[] = {1,1,-1,-1};
 	
-	public ArrayList<Node> thisGeneration = null;
-	public ArrayList<Node> nextGeneration = null;
+	public ArrayList<FatNode> thisGeneration = null;
+	public ArrayList<FatNode> nextGeneration = null;
 
 	public DispersalSettings settings;
 
@@ -45,13 +45,13 @@ public class DispersalThread implements Runnable
 	public DispersalThread(DispersalSettings ds, int end_generation, int ran_seed)	// Modified by JMB -- 4.5.10
 	{
 		settings = ds;
-		thisGeneration = new ArrayList<Node>();
-		nextGeneration = new ArrayList<Node>();
+		thisGeneration = new ArrayList<FatNode>();
+		nextGeneration = new ArrayList<FatNode>();
 		end_gen = end_generation;
 		rand = new java.util.Random(ran_seed);		// Added by JMB -- 4.5.10
 	}
 
-	public void add(Node n)
+	public void add(FatNode n)
 	{
 		thisGeneration.add(n);
 	}
@@ -293,7 +293,7 @@ public class DispersalThread implements Runnable
 
 	public void run()
 	{
-		ArrayList<Node> children = new ArrayList<Node>();
+		ArrayList<FatNode> children = new ArrayList<FatNode>();
 		try {
 
 			for(int i=0; i<thisGeneration.size(); i++) {
@@ -301,7 +301,7 @@ public class DispersalThread implements Runnable
 				int numberOfChildren = settings.getNOffspring(Dispersion.generation, rand);
 				for(int j=0 ; j < numberOfChildren ; j++ )
 				{
-					Node child = new Node(Dispersion.generation+1, thisGeneration.get(i)); // generation, parent	JMB COMMENT -- CREATES NEXT GEN NODE BY PASSING NEXT GEN # AND PARENT TO CONSTRUCTOR
+					FatNode child = new FatNode(Dispersion.generation+1, thisGeneration.get(i)); // generation, parent	JMB COMMENT -- CREATES NEXT GEN FatNode BY PASSING NEXT GEN # AND PARENT TO CONSTRUCTOR
 					thisGeneration.get(i).children.add(child);
 					children.add(child);
 				}
@@ -312,7 +312,7 @@ public class DispersalThread implements Runnable
 			for(int i=0; i<children.size(); i++) {
 				// System.out.println("Thread Number "+threadNum);
 				// Node n = children.get(i);
-				Node n = (Node)childItr.next();		// Added by JMB -- 4.13.10
+				FatNode n = (FatNode)childItr.next();		// Added by JMB -- 4.13.10
 				double d = settings.getDispersalRadius(n.generation,rand);
 				migrate(n,d);
 			}
@@ -325,7 +325,7 @@ public class DispersalThread implements Runnable
 		}
 	}
 	
-	public void migrate(Node n, double d) throws Exception {
+	public void migrate(FatNode n, double d) throws Exception {
 		// this next chunk should be moved...
 		double sb_lonspace = 0.0;
 		double sb_latspace = 0.0;
