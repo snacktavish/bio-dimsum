@@ -25,6 +25,10 @@ public class IntArray2D {
 		_data[x+y*_xsize] = val;
 	}
 	
+	
+	public int[] getData() {
+		return _data;
+	}
 
 	
 	public void add(int x, int[] data) {

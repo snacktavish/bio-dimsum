@@ -61,6 +61,10 @@ public class FloatArray3D {
 		return tmp;
 	}
 	
+	public float[] getData() {
+		return _data;
+	}
+	
 	
 
 }
