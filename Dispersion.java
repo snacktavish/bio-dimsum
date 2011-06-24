@@ -29,6 +29,8 @@ public class Dispersion {
 	static Random rand;			// Added by JMB -- 4.5.10
 	
     public static void main(String[] args) throws Exception {
+    	
+    	System.loadLibrary("DispersalFunctionC");
     	if( args.length < 1 )
     		throw new Exception("No XML input file specified!");
     	if( args.length > 1 )
@@ -40,6 +42,7 @@ public class Dispersion {
 			rand = new Random();
 		else
 			rand = new Random(settings.seed);
+		
 		
 		functions = new DispersalFunctions(settings,rand);
 		Thread dispthread=null;

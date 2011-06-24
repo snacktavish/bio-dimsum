@@ -37,11 +37,38 @@ class XYFunction {
 	public final static int _endgeneration = 3;
 	
 	//private int maxX, maxY;
-	private double _fmax=-1;
+	private double _fmax[];
+	
+	int lastgen=-1 ;
+	int lastindex=-1;
+	
+	
+	/**
+	 * 
+	 * 
+	 * 	ONLY CPU
+	 * 
+	 */
+	
+	
+	public int getMaxX(Index i) {
+		return _size_gen.get(i.value(), _xsize) ;
+	}
+	
+	public int getMaxY(Index i) {
+		return _size_gen.get(i.value(), _ysize) ;
+	}
+	
+
+	public double fmax(Index i) {
+		return _fmax[i.value()];
+	}
+	
 	
 	public XYFunction(int numGenerations, int xmax, int ymax) {
 		_f = new FloatArray3D(numGenerations, xmax, ymax);
 		_size_gen = new IntArray2D(numGenerations, 4);
+		_fmax = new double[numGenerations];
 		_index = 0;
 	}
 	
@@ -83,7 +110,7 @@ class XYFunction {
 			//		System.out.println((double)pixel/255.0+" "+_f.get(index,r,c));
 			}
 		}
-		_fmax = fmax;
+		_fmax[_index] = fmax;
 		_index++;
 	//	System.out.println(_f);
 	}
@@ -125,18 +152,11 @@ class XYFunction {
 					fmax = _f.get(_index,r,c);
 			}
 		}
-		_fmax = (int)fmax;
+		_fmax[_index] = (int)fmax;
 		_index++;
 	}
 	
-	public double f(Index i, int x,int y) {
-		//System.out.println(generation +" "+ calcIndex(generation));
-		return _f.get(i.value(), y, x);
-	}
 	
-	
-	int lastgen=-1 ;
-	int lastindex=-1;
 	public Index calcIndex(int generation) {
 		if(generation== lastgen)
 			return new Index(lastindex);
@@ -157,20 +177,15 @@ class XYFunction {
 		lastindex = ind;
 		return new Index(ind);
 	}
+
 	
-	public int getMaxX(Index i) {
-		return _size_gen.get(i.value(), _xsize) ;
-	}
+
 	
-	public int getMaxY(Index i) {
-		return _size_gen.get(i.value(), _ysize) ;
-	}
+
 	
-	public double fmax(Index i) {
-		return _fmax;
-	}
 	
-	public ArrayList<Integer> getWalk(Index index, double slat, double slon, double elat, double elon, double minlat, double maxlat, double minlon, double maxlon) {
+	
+	/*public ArrayList<Integer> getWalk(Index index, double slat, double slon, double elat, double elon, double minlat, double maxlat, double minlon, double maxlon) {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 		//int index = calcIndex(gen);
 		
@@ -189,7 +204,7 @@ class XYFunction {
 		return ret;
 	}
 	
-	public int getWalkLength(Index index, double slat, double slon, double elat, double elon, double minlat, double maxlat, double minlon, double maxlon) {
+/*	public int getWalkLength(Index index, double slat, double slon, double elat, double elon, double minlat, double maxlat, double minlon, double maxlon) {
 	//	ArrayList<Integer> ret = new ArrayList<Integer>();
 		//int index = calcIndex(gen);
 		
@@ -205,9 +220,9 @@ class XYFunction {
 			ret.add(toY(index,slat,minlat,maxlat)+(int)Math.floor(i*dy));
 		}*/
 		
-		return nsteps;
+/*		return nsteps;
 	}
-	
+	/*
 	public int getWalkX(int i, float length, Index index, double slat, double slon, double elat, double elon, double minlat, double maxlat, double minlon, double maxlon) {
 		//	int index = calcIndex(gen);
 			
@@ -227,23 +242,25 @@ class XYFunction {
 		return toX(index,slon,minlon,maxlon)+(int)(i*dx);
 	}
 
-	
+	*/
 
+	/**
+	 * 
+	 * 
+	 * GPU AND CPU
+	 */
+	public float f(Index i, int x,int y) {
+		//System.out.println(generation +" "+ calcIndex(generation));
+		return _f.get(i.value(), y, x);
+	}
 	
-	public int toX(Index i,double lon, double minlon, double maxlon) {
+	public int toX(Index i,double lon, double minlon, double maxlon, int _size) {
 	
 		if( lon >= maxlon )
-			return _size_gen.get(i.value(), _xsize) -1;
+			return _size_gen.get(i.value(), _size) -1;
 		if( lon <= minlon )
 			return 0;
-		return (int)Math.floor(_size_gen.get(i.value(), _xsize)  * (lon-minlon)/(maxlon-minlon));
+		return (int)Math.floor(_size_gen.get(i.value(), _size)  * (lon-minlon)/(maxlon-minlon));
 	}
 	
-	public int toY(Index i, double lat, double minlat, double maxlat) {
-		if( lat >= maxlat )
-			return _size_gen.get(i.value(), _ysize) -1;
-		if( lat <= minlat )
-			return 0;
-		return (int)Math.floor(_size_gen.get(i.value(), _ysize)  * (lat-minlat)/(maxlat-minlat));
-	}
 }
