@@ -24,8 +24,7 @@ import static java.lang.Math.*;
 class DispersalFunctions {
 	public final static int _xsize = 0;
 	public final static int _ysize = 1;
-	public final static int numRand = 100000;
-
+	public final static int numRand = 60000;
 
 	
 	DispersalSettings settings = null;
@@ -120,14 +119,18 @@ class DispersalFunctions {
 		hb_lonspace = (maxlon-minlon)/(settings.hardborders.getMaxX(hb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
 		hb_latspace = (maxlat-minlat)/(settings.hardborders.getMaxY(hb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
 		double[] latlon = new double[8];
-		latlon[0] = minlat;
-		latlon[1] = maxlat;
-		latlon[2] = minlon;
-		latlon[3] = maxlon;
+		double lat_offset = 0;//settings.getMinLat();
+		double lon_offset = 0;//settings.getMinLon();
+		latlon[0] = minlat-lat_offset;
+		latlon[1] = maxlat-lat_offset;
+		latlon[2] = minlon-lon_offset;
+		latlon[3] = maxlon-lon_offset;
 		latlon[4] = sb_lonspace;
 		latlon[5] = sb_latspace;
 		latlon[6] = hb_lonspace;
 		latlon[7] = hb_latspace;
+	//	System.out.println("lon"+ (maxlon-minlon)/maxlon);
+		//System.out.println("lat"+ (maxlat-minlat)/maxlat);
 		
 		//Node childrenX[] = new Node[children.size()];
 		int rm[] = new int[children.size()];
@@ -136,18 +139,9 @@ class DispersalFunctions {
 
 		for(int i=0; i<children.size(); i++) {
 			Node n = children.get(i);
-			node[i*2+Migrate.__DIMSUM_NODE_lat] = n.parent.lat;
-			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon;
+			node[i*2+Migrate.__DIMSUM_NODE_lat] = n.parent.lat-lat_offset;
+			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
 			}
-
-	/*for(int i=0;i<children.size();i++) {
-			childrenX[i] = children.get(i);
-			//d[i] = settings.getDispersalRadius(childrenX[i].generation,rand2);
-		}*/
-		for(int i=0;i<numRand;i++) {
-			randArray[i] = rand2.nextDouble();
-		}
-		Migrate dt =  new Migrate(settings, randArray) ;
 
 		int[] parami = new int[6];
 		parami[0] = 0;
@@ -156,7 +150,23 @@ class DispersalFunctions {
 		parami[3] = hb.value();
 		parami[4] = children.get(0).generation;
 		parami[5] = children.size();
-		dt.migrateLoop(node,rm,d,latlon,parami);
+		
+		
+		for(int i=0;i<children.size();i++) {
+			d[i] = settings.getDispersalRadius(parami[4] ,rand2);
+		}
+		for(int i=0;i<numRand;i++) {
+			randArray[i] = rand2.nextDouble();
+		}
+		
+		/*if(false) {
+			Migrate dt =  new Migrate(settings, randArray) ;
+			//Prepared4GPUFloat dt =  new Prepared4GPUFloat(settings, randArray) ;
+			dt.migrateLoop(node,rm,d,latlon,parami);
+		} else {*/
+			DispersalFunctionC.setRandArray(randArray);
+			DispersalFunctionC.migrateLoop(node,rm,d,latlon,parami);
+		//}
 		/*
 		for(int i=0; i<childrenX.length; i++) {
 			childrenX[i].lat = node[i*2+Prepared4GPU._lat];
@@ -180,8 +190,8 @@ class DispersalFunctions {
 		for(int i=0;i<children.size();i++) {
 			if(rm[i]==0) {
 				Node n = children.get(i);
-				n.lat = node[i*2+Migrate.__DIMSUM_NODE_lat];
-				n.lon = node[i*2+Migrate.__DIMSUM_NODE_lon];
+				n.lat = node[i*2+Migrate.__DIMSUM_NODE_lat]+lat_offset;
+				n.lon = node[i*2+Migrate.__DIMSUM_NODE_lon]+lon_offset;
 				nextGeneration.add(n);
 				//j++;
 			}

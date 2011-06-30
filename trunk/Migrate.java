@@ -29,15 +29,18 @@ public class Migrate
 		this.hb_DATA = ds.hardborders._f.getData();
 		hb_SIZE = ds.hardborders._f.size();
 		hb_META = ds.hardborders._size_gen.getData();
+		//DispersalFunctionC.setArrays(sb_DATA,sb_META,sb_SIZE,hb_DATA,hb_META,hb_SIZE);
 		this.randArray = randArray;
 		//System.out.println(System.getProperty("java.library.path"));
 		//System.out.println(System.getProperty("java.vm.name"));
 		
 		//System.loadLibrary("DispersalFunctionC");
-		DispersalFunctionC.setArrays(randArray,sb_DATA,sb_META,sb_SIZE,hb_DATA,hb_META,hb_SIZE);
+		//DispersalFunctionC.setRandArray(randArray);
+		
 		this.ds = ds;
 	}
 	
+	/*
 	public void migrateLoop(double[] children, int rm[], double d[], double[] paramd, int[] parami)
 	{
 		/*double[] childrentmp =new double[children.length];
@@ -50,7 +53,7 @@ public class Migrate
 		System.arraycopy(paramd, 0, pdtmp,0 , paramd.length);
 		*/
 		
-		for(int i=0; i<parami[__DIMSUM_PARAMI_NUMCHILDREN]; i++) {
+		/*for(int i=0; i<parami[__DIMSUM_PARAMI_NUMCHILDREN]; i++) {
 			double di = ds.getDispersalRadius(parami[__DIMSUM_PARAMI_GENERATION],nextRand(parami));
 			
 			//if(children[2*i] != childrentmp[2*i] || children[2*i+1] != childrentmp[2*i+1] )
@@ -62,8 +65,8 @@ public class Migrate
 			
 		//	if(children[2*i] != childrentmp[2*i] || children[2*i+1] != childrentmp[2*i+1] )
 			//	System.out.println(children[2*i] +" "+ childrentmp[2*i] +" "+ children[2*i+1] +" "+ childrentmp[2*i+1] +" "+ rm[i] +" "+ rmtmp[i]);
-		}
-	}
+		}*/
+	//}
 	
 	
 

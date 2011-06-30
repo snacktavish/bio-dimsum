@@ -833,83 +833,93 @@ jdoubleArray SWIG_JavaArrayOutDouble (JNIEnv *jenv, double *result, jsize sz) {
 
 
  /* Put header files here or function declarations like below */
-extern void setArrays(double* _randArray,float* _sb_DATA,int* _sb_META,int* _sb_SIZE,float* _hb_DATA,int* _hb_META,int* _hb_SIZE);
- extern void migrate(double* node, double d, int* rm, int* parami, double* paramv, int id);
+extern void setRandArray(double* _randArray);
+extern void setArrays(float* _sb_DATA,int* _sb_META,int* _sb_SIZE,float* _hb_DATA,int* _hb_META,int* _hb_SIZE);
+ extern void migrateLoop(double* children, int *rm, double *d, double* paramd, int* parami);
  
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-SWIGEXPORT void JNICALL Java_DispersalFunctionCJNI_setArrays(JNIEnv *jenv, jclass jcls, jdoubleArray jarg1, jfloatArray jarg2, jintArray jarg3, jintArray jarg4, jfloatArray jarg5, jintArray jarg6, jintArray jarg7) {
+SWIGEXPORT void JNICALL Java_DispersalFunctionCJNI_setRandArray(JNIEnv *jenv, jclass jcls, jdoubleArray jarg1) {
   double *arg1 = (double *) 0 ;
-  float *arg2 = (float *) 0 ;
-  int *arg3 = (int *) 0 ;
-  int *arg4 = (int *) 0 ;
-  float *arg5 = (float *) 0 ;
-  int *arg6 = (int *) 0 ;
-  int *arg7 = (int *) 0 ;
   jdouble *jarr1 ;
-  jfloat *jarr2 ;
+
+  (void)jenv;
+  (void)jcls;
+  if (!SWIG_JavaArrayInDouble(jenv, &jarr1, &arg1, jarg1)) return ;
+  setRandArray(arg1);
+  SWIG_JavaArrayArgoutDouble(jenv, jarr1, arg1, jarg1);
+  delete [] arg1;
+}
+
+
+SWIGEXPORT void JNICALL Java_DispersalFunctionCJNI_setArrays(JNIEnv *jenv, jclass jcls, jfloatArray jarg1, jintArray jarg2, jintArray jarg3, jfloatArray jarg4, jintArray jarg5, jintArray jarg6) {
+  float *arg1 = (float *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int *arg3 = (int *) 0 ;
+  float *arg4 = (float *) 0 ;
+  int *arg5 = (int *) 0 ;
+  int *arg6 = (int *) 0 ;
+  jfloat *jarr1 ;
+  jint *jarr2 ;
   jint *jarr3 ;
-  jint *jarr4 ;
-  jfloat *jarr5 ;
+  jfloat *jarr4 ;
+  jint *jarr5 ;
   jint *jarr6 ;
-  jint *jarr7 ;
   
   (void)jenv;
   (void)jcls;
-  if (!SWIG_JavaArrayInDouble(jenv, &jarr1, &arg1, jarg1)) return ; 
-  if (!SWIG_JavaArrayInFloat(jenv, &jarr2, &arg2, jarg2)) return ; 
+  if (!SWIG_JavaArrayInFloat(jenv, &jarr1, &arg1, jarg1)) return ;
+  if (!SWIG_JavaArrayInInt(jenv, &jarr2, &arg2, jarg2)) return ;
   if (!SWIG_JavaArrayInInt(jenv, &jarr3, &arg3, jarg3)) return ; 
-  if (!SWIG_JavaArrayInInt(jenv, &jarr4, &arg4, jarg4)) return ; 
-  if (!SWIG_JavaArrayInFloat(jenv, &jarr5, &arg5, jarg5)) return ; 
+  if (!SWIG_JavaArrayInFloat(jenv, &jarr4, &arg4, jarg4)) return ;
+  if (!SWIG_JavaArrayInInt(jenv, &jarr5, &arg5, jarg5)) return ;
   if (!SWIG_JavaArrayInInt(jenv, &jarr6, &arg6, jarg6)) return ; 
-  if (!SWIG_JavaArrayInInt(jenv, &jarr7, &arg7, jarg7)) return ; 
-  setArrays(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
-  SWIG_JavaArrayArgoutDouble(jenv, jarr1, arg1, jarg1); 
-  SWIG_JavaArrayArgoutFloat(jenv, jarr2, arg2, jarg2); 
+  setArrays(arg1,arg2,arg3,arg4,arg5,arg6);
+  SWIG_JavaArrayArgoutFloat(jenv, jarr1, arg1, jarg1);
+  SWIG_JavaArrayArgoutInt(jenv, jarr2, arg2, jarg2);
   SWIG_JavaArrayArgoutInt(jenv, jarr3, arg3, jarg3); 
-  SWIG_JavaArrayArgoutInt(jenv, jarr4, arg4, jarg4); 
-  SWIG_JavaArrayArgoutFloat(jenv, jarr5, arg5, jarg5); 
+  SWIG_JavaArrayArgoutFloat(jenv, jarr4, arg4, jarg4);
+  SWIG_JavaArrayArgoutInt(jenv, jarr5, arg5, jarg5);
   SWIG_JavaArrayArgoutInt(jenv, jarr6, arg6, jarg6); 
-  SWIG_JavaArrayArgoutInt(jenv, jarr7, arg7, jarg7); 
   delete [] arg1; 
   delete [] arg2; 
   delete [] arg3; 
   delete [] arg4; 
   delete [] arg5; 
   delete [] arg6; 
-  delete [] arg7; 
 }
 
 
-SWIGEXPORT void JNICALL Java_DispersalFunctionCJNI_migrate(JNIEnv *jenv, jclass jcls, jdoubleArray jarg1, jdouble jarg2, jintArray jarg3, jintArray jarg4, jdoubleArray jarg5, jint jarg6) {
+SWIGEXPORT void JNICALL Java_DispersalFunctionCJNI_migrateLoop(JNIEnv *jenv, jclass jcls, jdoubleArray jarg1, jintArray jarg2, jdoubleArray jarg3, jdoubleArray jarg4, jintArray jarg5) {
   double *arg1 = (double *) 0 ;
-  double arg2 ;
-  int *arg3 = (int *) 0 ;
-  int *arg4 = (int *) 0 ;
-  double *arg5 = (double *) 0 ;
-  int arg6 ;
+  int *arg2 = (int *) 0 ;
+  double *arg3 = (double *) 0 ;
+  double *arg4 = (double *) 0 ;
+  int *arg5 = (int *) 0 ;
   jdouble *jarr1 ;
-  jint *jarr3 ;
-  jint *jarr4 ;
-  jdouble *jarr5 ;
+  jint *jarr2 ;
+  jdouble *jarr3 ;
+  jdouble *jarr4 ;
+  jint *jarr5 ;
   
   (void)jenv;
   (void)jcls;
   if (!SWIG_JavaArrayInDouble(jenv, &jarr1, &arg1, jarg1)) return ; 
-  arg2 = (double)jarg2; 
-  if (!SWIG_JavaArrayInInt(jenv, &jarr3, &arg3, jarg3)) return ; 
-  if (!SWIG_JavaArrayInInt(jenv, &jarr4, &arg4, jarg4)) return ; 
-  if (!SWIG_JavaArrayInDouble(jenv, &jarr5, &arg5, jarg5)) return ; 
-  arg6 = (int)jarg6; 
-  migrate(arg1,arg2,arg3,arg4,arg5,arg6);
+  if (!SWIG_JavaArrayInInt(jenv, &jarr2, &arg2, jarg2)) return ;
+  if (!SWIG_JavaArrayInDouble(jenv, &jarr3, &arg3, jarg3)) return ;
+  if (!SWIG_JavaArrayInDouble(jenv, &jarr4, &arg4, jarg4)) return ;
+  if (!SWIG_JavaArrayInInt(jenv, &jarr5, &arg5, jarg5)) return ;
+  migrateLoop(arg1,arg2,arg3,arg4,arg5);
   SWIG_JavaArrayArgoutDouble(jenv, jarr1, arg1, jarg1); 
-  SWIG_JavaArrayArgoutInt(jenv, jarr3, arg3, jarg3); 
-  SWIG_JavaArrayArgoutInt(jenv, jarr4, arg4, jarg4); 
-  SWIG_JavaArrayArgoutDouble(jenv, jarr5, arg5, jarg5); 
+  SWIG_JavaArrayArgoutInt(jenv, jarr2, arg2, jarg2);
+  SWIG_JavaArrayArgoutDouble(jenv, jarr3, arg3, jarg3);
+  SWIG_JavaArrayArgoutDouble(jenv, jarr4, arg4, jarg4);
+  SWIG_JavaArrayArgoutInt(jenv, jarr5, arg5, jarg5);
   delete [] arg1; 
+  delete [] arg2;
   delete [] arg3; 
   delete [] arg4; 
   delete [] arg5; 
