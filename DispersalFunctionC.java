@@ -8,12 +8,16 @@
 
 
 public class DispersalFunctionC {
-  public static void setArrays(double[] _randArray, float[] _sb_DATA, int[] _sb_META, int[] _sb_SIZE, float[] _hb_DATA, int[] _hb_META, int[] _hb_SIZE) {
-    DispersalFunctionCJNI.setArrays(_randArray, _sb_DATA, _sb_META, _sb_SIZE, _hb_DATA, _hb_META, _hb_SIZE);
+  public static void setRandArray(double[] _randArray) {
+    DispersalFunctionCJNI.setRandArray(_randArray);
   }
 
-  public static void migrate(double[] node, double d, int[] rm, int[] parami, double[] paramv, int id) {
-    DispersalFunctionCJNI.migrate(node, d, rm, parami, paramv, id);
+  public static void setArrays(float[] _sb_DATA, int[] _sb_META, int[] _sb_SIZE, float[] _hb_DATA, int[] _hb_META, int[] _hb_SIZE) {
+    DispersalFunctionCJNI.setArrays(_sb_DATA, _sb_META, _sb_SIZE, _hb_DATA, _hb_META, _hb_SIZE);
+  }
+
+  public static void migrateLoop(double[] children, int[] rm, double[] d, double[] paramd, int[] parami) {
+    DispersalFunctionCJNI.migrateLoop(children, rm, d, paramd, parami);
   }
 
 }

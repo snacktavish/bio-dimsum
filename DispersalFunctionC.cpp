@@ -21,6 +21,9 @@
 #define __DIMSUM_XYFUNCTION_meta_length 4
 #define __DIMSUM_XYFUNCTION_Fdim 3
 #define PI 3.1415926536
+#define __DIMSUM_MIN_D 0.000001
+#define __DIMSUM_KA2_EPSILON 0.00000000001745329252
+#define __DIMSUM_EPSILON 0.00000017453292520000
 
 double* randArray;
 float* sb_DATA;
@@ -30,10 +33,14 @@ float* hb_DATA;
 int* hb_META;
 int* hb_SIZE;
 
-void setArrays(double* _randArray,float* _sb_DATA,int* _sb_META,int* _sb_SIZE,float* _hb_DATA,int* _hb_META,int* _hb_SIZE) {
+void setRandArray(double* _randArray) {
 	randArray = new double[numRand];
 	for(int i=0;i<numRand;i++)
 		randArray[i] = _randArray[i];
+
+}
+
+void setArrays(float* _sb_DATA,int* _sb_META,int* _sb_SIZE,float* _hb_DATA,int* _hb_META,int* _hb_SIZE) {
 	sb_SIZE = new int[__DIMSUM_XYFUNCTION_Fdim];
 	hb_SIZE = new int[__DIMSUM_XYFUNCTION_Fdim];
 	for(int i=0;i<__DIMSUM_XYFUNCTION_Fdim;i++) {
@@ -62,6 +69,10 @@ void setArrays(double* _randArray,float* _sb_DATA,int* _sb_META,int* _sb_SIZE,fl
 			}
 }
 
+double toDeg(double data) { return data*180.0f/PI;}
+
+double toRad(double data) { return data*PI/180.0f;}
+
 double abs(double x) {
 	if (x < 0)
 		return -x;
@@ -88,21 +99,19 @@ double geq (double lat1, double  sb_lat_bt) {
 }
 
 double nextRand(int* _index) {
-
-	if(_index[__DIMSUM_PARAMI_RANDINDEX]>=_index[__DIMSUM_PARAMI_RANDMAX]-10) {
-		printf("nextRand(): index>numRand");
-
-	}
-
-	double r = randArray[_index[__DIMSUM_PARAMI_RANDINDEX]];
+	/*if(_index[__DIMSUM_PARAMI_RANDINDEX]>=_index[__DIMSUM_PARAMI_RANDMAX]) {
+		System.err.println("nextRand(): index>numRand");
+		System.exit(-1);
+	}*/
+	double r =  randArray[_index[__DIMSUM_PARAMI_RANDINDEX]];
 	_index[__DIMSUM_PARAMI_RANDINDEX]++;
+
 	return r;
 }
 
 int getMetaIndex(int i, int type) {
 	return i+type*sb_SIZE[0];
 }
-
 
 
 float sb_f(int i, int y,int x) {
@@ -162,15 +171,15 @@ int eastORwest(int i) {
 
 double getI(double lat1, double minlat, double latspace, int dir) {
 	double ilat;
+	double mlat = lat1-minlat ;//toRad(minlat2);
 	if(dir == 1)
-		ilat = lat1 - mod((lat1-minlat),latspace) + latspace;
+		ilat = minlat + (latspace*floor(mlat/latspace)) + latspace;
 	else
-		ilat = lat1 - mod((lat1-minlat),latspace);
+		ilat = minlat + (latspace*floor(mlat/latspace));
 
 	return ilat;
 }
 
-double toDeg(double data) { return data*180/PI;}
 
 double dfromll(double lats, double lons, double latf, double lonf)			// JMB COMMENT -- 10.19.09 -- DETERMINES DISTANCE (D) AND COURSE (CRS) FROM ENDING LAT/LON
 {
@@ -188,27 +197,27 @@ double dfromll(double lats, double lons, double latf, double lonf)			// JMB COMM
 	return mod(atan2(sin(dlon)*cos(latf),cos(lats)*sin(latf)-sin(lats)*cos(latf)*cos(dlon)),2*PI);
 }*/
 
-
+/*
 void llffromdcrs(double lld_lats,double lld_lons, double lld_latf,  double lld_lonf, double lld_d, double lld_crs)			// JMB COMMENT -- 10.19.09 -- DETERMINES ENDING LAT/LON FROM DISTANCE (D) AND COURSE (CRS)
 {
 	lld_latf = asin(sin(lld_lats)*cos(lld_d/__DIMSUM_STD_R)+cos(lld_lats)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_crs));
 	lld_lonf = lld_lons + atan2(sin(lld_crs)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_lats),cos(lld_d/__DIMSUM_STD_R)-sin(lld_lats)*sin(lld_latf));
-}
+}*/
 
 
-double latdfromlon3(double lat1,double lon1, double lat2,  double lon2,  double lon3o) // // Implementation by JMB from http://williams.best.vwh.net/avform.htm#Par  -- lat=atan(  (sin(lat1)*cosf(lat2)*sin(lon-lon2)-sin(lat2)*cosf(lat1)*sin(lon-lon1))  /  (cosf(lat1)*cosf(lat2)*sin(lon1-lon2))  )
+double latdfromlon3(double lat1,double lon1, double lat2,  double lon2,  double lon3) // // Implementation by JMB from http://williams.best.vwh.net/avform.htm#Par  -- lat=atan(  (sin(lat1)*cosf(lat2)*sin(lon-lon2)-sin(lat2)*cosf(lat1)*sin(lon-lon1))  /  (cosf(lat1)*cosf(lat2)*sin(lon1-lon2))  )
 {
-	double lon3 = lon3o*PI/180;
+	//double lon3 = toRad(lon3o);//*PI/180;
 	double latf = atan(((sin(lat1)*cos(lat2)*sin(lon3-lon2))-(sin(lat2)*cos(lat1)*sin(lon3-lon1)))/(cos(lat1)*cos(lat2)*sin(lon1-lon2)));
 
 	return dfromll(lat1,lon1,latf, lon3);
 }
 
 
-double londfromlat3(double lat1,double lon1, double lat2,  double lon2, double lat3o) // in degrees		JMB COMMENT -- 10.19.09 -- FINDS LONGITUDE AT WHICH NEAREST LAT IS CROSSED W/
+double londfromlat3(double lat1,double lon1, double lat2,  double lon2, double lat3) // in degrees		JMB COMMENT -- 10.19.09 -- FINDS LONGITUDE AT WHICH NEAREST LAT IS CROSSED W/
 {														//								GREAT CIRCLE DISTANCE
 	// from http://williams.best.vwh.net/avform.htm#Par
-	double lat3 = lat3o * PI / 180.0f;
+	//double lat3 = toRad(lat3o);// * PI / 180.0f;
 	double d;
 
 	double A = sin(lat1)*cos(lat2)*cos(lat3)*sin(lon1-lon2);
@@ -224,17 +233,14 @@ double londfromlat3(double lat1,double lon1, double lat2,  double lon2, double l
 		double dlon = acos(C/sqrt(pow(A,2)+pow(B,2)));
 		double lon3_1=(mod((lon1+dlon+lon+PI),(2*PI))-PI);
 		double lon3_2=(mod((lon1-dlon+lon+PI),(2*PI))-PI);
-		double lonf = 0;
 		double lon3_1_d_D = dfromll(lat1, lon1,lat3,lon3_1);
 		double lon3_2_d_D = dfromll(lat1, lon1,lat3, lon3_2);
 
 		if( ((lon3_1 >= lon1 && lon3_1 <= lon2) || (lon3_1 <= lon1 && lon3_1 >= lon2)) && (lon3_1_d_D < lon3_2_d_D ))
-			lonf = lon3_1;
+			d = lon3_1_d_D;
 		else
-			lonf = lon3_2;
+			d = lon3_2_d_D;
 
-		// JMB COMMENT -- 10.19.09 -- SETS D AND CRS FOR RET
-		d = dfromll(lat1, lon1,lat3,lonf );
 	}
 
 	return d;
@@ -242,8 +248,8 @@ double londfromlat3(double lat1,double lon1, double lat2,  double lon2, double l
 
 double setX(double X, double x_bt, double prefix, double dXY){
 	double r = X;
-	if (((prefix > 0 && X < x_bt) || (prefix < 0 && X > x_bt)) && dXY == 0)
-		r = x_bt + 0.00001*prefix;
+	if (((prefix > 0 && r < x_bt) || (prefix < 0 && r > x_bt)) && dXY == 0)
+	    r = x_bt + __DIMSUM_EPSILON*prefix;
 	return r;
 }
 
@@ -253,42 +259,46 @@ double ka2(double lat1,double minlat, double sb_latspace, int dirLat,int* _index
 	if (lat1 == ilat)	// Checking to see if individual is starting RIGHT ON a lat line.
 	{					// If so, pushes it barely off in a random direction.
 		if (nextRand(_index) > 0.5)
-			lat1 += 0.000000001;
+			lat1 += __DIMSUM_KA2_EPSILON;
 		else
-			lat1 -= 0.000000001;
+			lat1 -= __DIMSUM_KA2_EPSILON;
 		ilat = getI(lat1,minlat,sb_latspace, dirLat);
 	}
 	return ilat;
 }
 
-void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id) {
-
+void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int id) {
+	double d = dA[id];
 	int sb = parami[__DIMSUM_PARAMI_SB_INDEX];
 	int hb = parami[__DIMSUM_PARAMI_HB_INDEX];
-	double lat1 = node[id*2+__DIMSUM_NODE_lat];
-	double lon1 = node[id*2+__DIMSUM_NODE_lon];
-	double minlat = paramv[0];
-	double maxlat = paramv[1];
-	double minlon = paramv[2];
-	double maxlon = paramv[3];
-	double sb_lonspace = paramv[4];
-	double sb_latspace = paramv[5];
-	double hb_lonspace = paramv[6];
-	double hb_latspace = paramv[7];
+	double lat1 = toRad(node[id*2+__DIMSUM_NODE_lat]);
+	double lon1 = toRad(node[id*2+__DIMSUM_NODE_lon]);
+	double minlat = toRad(paramv[0]);
+	double maxlat = toRad(paramv[1]);
+	double minlon = toRad(paramv[2]);
+	double maxlon = toRad(paramv[3]);
+	double sb_lonspace = toRad(paramv[4]);
+	double sb_latspace = toRad(paramv[5]);
+	double hb_lonspace = toRad(paramv[6]);
+	double hb_latspace = toRad(paramv[7]);
+
+
+	//END DECIMAL DEGREE
+
 	double step_d = 0.0001;
 	double sb_lat_bt,sb_lon_bt,hb_lat_bt,hb_lon_bt,hb_dd,sb_dd;				// JMB -- Using this to keep track of lat/lon value for border reflections and adjusting inexact positions, if necessary
 	double crs = nextRand(parami) * 2 * PI;	// Modified by JMB -- 4.5.10
 	double lld_d, lld_lats,lld_latf=0, lld_lons,lld_lonf=0,lld_crs;
 
-	while( d >= 0.000001 ) {
-		//printf("FROMC lat1: %lf lon1: %lf d: %lf\n",lat1,lon1,d);
+	while( d >= __DIMSUM_MIN_D ) {
+		//System.out.println(lat1+ " "+lon1+" "+d);
 		lld_d = d;					// JMB COMMENT -- SETS D INTERNALLY IN LLD OBJECT
 		//lld_r = 6371;				// radius of spherical earth in km (TODO: use value(# or units?) from xml)
-		lld_lats = lat1 / 180.0f * PI; //setLatSDDeg(lld,lat1);		// JMB COMMENT -- CONVERTS LATITUDE FROM DECIMAL DEGREES TO RADIANS
-		lld_lons = lon1 / 180.0f * PI;//	setLonSDDeg(lld,lon1);		// JMB COMMENT -- CONVERTS LONGITUDE FROM DECIMAL DEGREES TO RADIANS
+		//lld_lats = lat1;//toRad(lat1);// / 180.0f * PI; //setLatSDDeg(lld,lat1);		// JMB COMMENT -- CONVERTS LATITUDE FROM DECIMAL DEGREES TO RADIANS
+		//lld_lons = lon1;//toRad(lon1);// / 180.0f * PI;//	setLonSDDeg(lld,lon1);		// JMB COMMENT -- CONVERTS LONGITUDE FROM DECIMAL DEGREES TO RADIANS
 		lld_crs = crs;				// JMB COMMENT -- SETS CRS INTERNALLY WITHIN LLD OBJECT
-		lld_latf = asin(sin(lld_lats)*cos(lld_d/__DIMSUM_STD_R)+cos(lld_lats)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_crs));// JMB COMMENT -- GETS ENDING LAT/LON FROM DISTANCE AND COURSE AND STORES INTERNALLY IN LLD OBJECT
-		lld_lonf = lld_lons + atan2(sin(lld_crs)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_lats),cos(lld_d/__DIMSUM_STD_R)-sin(lld_lats)*sin(lld_latf));
+		lld_latf = asin(sin(lat1)*cos(lld_d/__DIMSUM_STD_R)+cos(lat1)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_crs));// JMB COMMENT -- GETS ENDING LAT/LON FROM DISTANCE AND COURSE AND STORES INTERNALLY IN LLD OBJECT
+		lld_lonf = lon1 + atan2(sin(lld_crs)*sin(lld_d/__DIMSUM_STD_R)*cos(lat1),cos(lld_d/__DIMSUM_STD_R)-sin(lat1)*sin(lld_latf));
 
 		hb_dd=100000000;
 		sb_dd=100000000;
@@ -297,10 +307,10 @@ void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id
 		int mode = getMode(crs);
 
 		sb_lat_bt = ka2(lat1,minlat,sb_latspace,northORsouth(mode),parami);
-		double i1_d = londfromlat3(lld_lats,lld_lons,lld_latf,lld_lonf,sb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
+		double i1_d = londfromlat3(lat1,lon1,lld_latf,lld_lonf,sb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
 
 		sb_lon_bt = ka2(lon1,minlon,sb_lonspace,eastORwest(mode),parami);
-		double i2_d = latdfromlon3(lld_lats,lld_lons,lld_latf,lld_lonf,sb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
+		double i2_d = latdfromlon3(lat1,lon1,lld_latf,lld_lonf,sb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
 
 		if( i1_d <= i2_d  && i1_d < d) {
 			sb_dd = i1_d;
@@ -312,10 +322,10 @@ void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id
 		}
 
 		hb_lat_bt = ka2(lat1,minlat,hb_latspace,northORsouth(mode),parami);
-		i1_d = londfromlat3(lld_lats,lld_lons,lld_latf,lld_lonf,hb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
+		i1_d = londfromlat3(lat1,lon1,lld_latf,lld_lonf,hb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
 
 		hb_lon_bt = ka2(lon1,minlon,hb_lonspace,eastORwest(mode),parami);
-		i2_d = latdfromlon3(lld_lats,lld_lons,lld_latf,lld_lonf,hb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
+		i2_d = latdfromlon3(lat1,lon1,lld_latf,lld_lonf,hb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
 
 		if( i1_d <= i2_d  && i1_d < d) {
 			hb_dd = i1_d;
@@ -331,12 +341,12 @@ void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id
 			//*********************** Fudging to keep poorly estimated positions (due to step_d alterations) from crossing border boundaries inadvertently ***********************
 			// IS THIS CHECK NECESSARY AT THIS POINT IN THE LOOP?  PERHAPS NOT, BUT SHOULD MAKE SURE BEFORE REMOVING IT.
 
-		   // node[id*2+__DIMSUM_NODE_lat] = toDeg(lld_latf);//getLatFDDeg(lld);
-			//node[id*2+__DIMSUM_NODE_lon] = toDeg(lld_lonf);//getLonFDDeg(lld);
-			lat1 = setX(toDeg(lld_latf),sb_lat_bt,geq(lat1,sb_lat_bt),0);
-			lon1 = setX(toDeg(lld_lonf),sb_lon_bt,geq(lon1,sb_lon_bt),0);
-			lat1 = setX(toDeg(lld_latf),hb_lat_bt,geq(lat1,hb_lat_bt),0);
-			lon1 = setX(toDeg(lld_lonf),hb_lon_bt,geq(lon1,hb_lon_bt),0);
+	       // node[id*2+__DIMSUM_NODE_lat] = toDeg(lld_latf);//getLatFDDeg(lld);
+	        //node[id*2+__DIMSUM_NODE_lon] = toDeg(lld_lonf);//getLonFDDeg(lld);
+			lat1 = setX(lld_latf,sb_lat_bt,geq(lat1,sb_lat_bt),0);
+			lon1 = setX(lld_lonf,sb_lon_bt,geq(lon1,sb_lon_bt),0);
+			lat1 = setX(lld_latf,hb_lat_bt,geq(lat1,hb_lat_bt),0);
+			lon1 = setX(lld_lonf,hb_lon_bt,geq(lon1,hb_lon_bt),0);
 			d=0;
 		}
 		else if( abs(sb_dd-hb_dd) < step_d || sb_dd < hb_dd ) {	// JMB COMMENT -- 10.20.09 -- BOTH SOFT AND HARD PIXEL BOUNDARIES WILL BE CROSSED
@@ -344,7 +354,7 @@ void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id
 			// I arbitrarily chose to check hard borders first
 			if(abs(sb_dd-hb_dd) < step_d )
 			if(  nextRand(parami) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
-				rm[id] =  true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
+				rm[id] =  1; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
 				return;
 			}
 
@@ -359,27 +369,35 @@ void migrate(double* node, double d, int* rm,int* parami, double* paramv, int id
 			}
 
 			d-= lld_d;
-			lld_latf = asin(sin(lld_lats)*cos(lld_d/__DIMSUM_STD_R)+cos(lld_lats)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_crs));
-			lld_lonf = lld_lons + atan2(sin(lld_crs)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_lats),cos(lld_d/__DIMSUM_STD_R)-sin(lld_lats)*sin(lld_latf));
+			lld_latf = asin(sin(lat1)*cos(lld_d/__DIMSUM_STD_R)+cos(lat1)*sin(lld_d/__DIMSUM_STD_R)*cos(lld_crs));
+			lld_lonf = lon1 + atan2(sin(lld_crs)*sin(lld_d/__DIMSUM_STD_R)*cos(lat1),cos(lld_d/__DIMSUM_STD_R)-sin(lat1)*sin(lld_latf));
 			// Fudging to keep poorly estimated positions from crossing boundaries
-			lat1 = setX(toDeg(lld_latf),sb_lat_bt,geq(lat1,sb_lat_bt),sb_dy);
-			lon1 = setX(toDeg(lld_lonf),sb_lon_bt,geq(lon1,sb_lon_bt),sb_dx);
+			lat1 = setX(lld_latf,sb_lat_bt,geq(lat1,sb_lat_bt),sb_dy);
+			lon1 = setX(lld_lonf,sb_lon_bt,geq(lon1,sb_lon_bt),sb_dx);
 		}
 		else {
 			if( nextRand(parami) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {
-				rm[id] =  true; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
+				rm[id] =  1; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
 				return;						// JMB -- Would this lead to pruning problems?
 			} else {
 				lld_d = hb_dd+step_d;
 				d-=lld_d;
 				//TODO: check lat1 = toDeg(lld_latf);
 				//TODO: check lon1 = toDeg(lld_lonf);
-				lat1 = setX(toDeg(lld_latf),hb_lat_bt,geq(lat1,hb_lat_bt),hb_dy);
-				lon1 = setX(toDeg(lld_lonf),hb_lon_bt,geq(lon1,hb_lon_bt),hb_dx);
+				lat1 = setX(lld_latf,hb_lat_bt,geq(lat1,hb_lat_bt),hb_dy);
+				lon1 = setX(lld_lonf,hb_lon_bt,geq(lon1,hb_lon_bt),hb_dx);
 			}
 		}
 	}
-	node[id*2+__DIMSUM_NODE_lat] = lat1;
-	node[id*2+__DIMSUM_NODE_lon] = lon1;
-	rm[id] =  false;
+	node[id*2+__DIMSUM_NODE_lat] = toDeg(lat1);
+	node[id*2+__DIMSUM_NODE_lon] = toDeg(lon1);
+	rm[id] =  0;
+}
+
+void migrateLoop(double* children, int* rm, double* d, double* paramd, int* parami)
+{
+	for(int i=0; i<parami[__DIMSUM_PARAMI_NUMCHILDREN]; i++) {
+		migrate(children, d, rm ,parami,paramd,i);
+
+	}
 }

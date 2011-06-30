@@ -8,6 +8,7 @@
 
 
 class DispersalFunctionCJNI {
-  public final static native void setArrays(double[] jarg1, float[] jarg2, int[] jarg3, int[] jarg4, float[] jarg5, int[] jarg6, int[] jarg7);
-  public final static native void migrate(double[] jarg1, double jarg2, int[] jarg3, int[] jarg4, double[] jarg5, int jarg6);
+  public final static native void setRandArray(double[] jarg1);
+  public final static native void setArrays(float[] jarg1, int[] jarg2, int[] jarg3, float[] jarg4, int[] jarg5, int[] jarg6);
+  public final static native void migrateLoop(double[] jarg1, int[] jarg2, double[] jarg3, double[] jarg4, int[] jarg5);
 }
