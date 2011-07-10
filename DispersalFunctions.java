@@ -19,6 +19,8 @@
 
 import java.util.*;
 
+import jcuda.driver.CUarray;
+
 import static java.lang.Math.*;
 
 class DispersalFunctions {
@@ -82,11 +84,11 @@ class DispersalFunctions {
 		return children;
 	}
 	
-	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
+	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen,float randArray[] , CUarray randArrayDev) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
 		settings.pAmTTimer.start();
 		//final int numRand = 100000;
-		double randArray[] = new double[numRand];
-		
+		//float randArray[] = new float[numRand];
+		//CUarray tmp = settings.cuda.cpRandArray2GPU(randArray);
 		
 		
 		java.util.Random rand2 = new java.util.Random(rand.nextInt());		// Added by JMB -- 4.5.10
@@ -145,7 +147,7 @@ class DispersalFunctions {
 
 		int[] parami = new int[6];
 		parami[0] = 0;
-		parami[1] = numRand;
+		parami[1] = randArray.length;
 		parami[2] = sb.value();
 		parami[3] = hb.value();
 		parami[4] = children.get(0).generation;
@@ -155,18 +157,20 @@ class DispersalFunctions {
 		for(int i=0;i<children.size();i++) {
 			d[i] = settings.getDispersalRadius(parami[4] ,rand2);
 		}
-		for(int i=0;i<numRand;i++) {
-			randArray[i] = rand2.nextDouble();
+		for(int i=0;i<randArray.length;i++) {
+			randArray[i] = (float)rand2.nextDouble();
 		}
+		settings.pAmTTimer2.start();
+
+			
+			settings.cuda.updaterand(randArrayDev,randArray);
+			settings.cuda.migrate(node,rm,d,latlon,parami);
+			
+			//DispersalFunctionC.setRandArray(randArray);
+			//DispersalFunctionC.migrateLoop(node,rm,d,latlon,parami);
 		
-		/*if(false) {
-			Migrate dt =  new Migrate(settings, randArray) ;
-			//Prepared4GPUFloat dt =  new Prepared4GPUFloat(settings, randArray) ;
-			dt.migrateLoop(node,rm,d,latlon,parami);
-		} else {*/
-			DispersalFunctionC.setRandArray(randArray);
-			DispersalFunctionC.migrateLoop(node,rm,d,latlon,parami);
-		//}
+		settings.pAmTTimer2.stop();
+		
 		/*
 		for(int i=0; i<childrenX.length; i++) {
 			childrenX[i].lat = node[i*2+Prepared4GPU._lat];
@@ -208,6 +212,7 @@ class DispersalFunctions {
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
 		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
+
 
 	public ArrayList<Node> populateNextGeneration(ArrayList<Node> thisGeneration) {
 		ArrayList<Node> nextGeneration = new ArrayList<Node>();

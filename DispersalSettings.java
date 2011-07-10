@@ -27,10 +27,12 @@ import javax.swing.*;
 
 class DispersalSettings {
     public Timer pAmTTimer = new Timer("populateAndMigrateThreaded");
+    public Timer pAmTTimer2 = new Timer("migrate");
     public Timer cCCTimer = new Timer("checkCarryingCapacity");
     public Timer outputTimer = new Timer("Output");
     public Timer pruneTimer = new Timer ("prune");
     public Timer simulateTimer = new Timer("Simulate");
+    public GPU cuda = new GPU(); 
 
 	
 	Document document;

@@ -1,0 +1,216 @@
+CP BORDER START
+CP BORDER FINISH
+Running Simulation: HawaiiExample
+CP RAND START
+64000
+CP RAND FINISH
+Generation number 1 has 4 individuals.
+Generation number 2 has 4 individuals.
+simulate: generation size mismatch: size: 4 should be: 5
+Generation number 3 has 6 individuals.
+simulate: generation size mismatch: size: 6 should be: 8
+Generation number 4 has 9 individuals.
+simulate: generation size mismatch: size: 9 should be: 11
+Generation number 5 has 9 individuals.
+simulate: generation size mismatch: size: 9 should be: 16
+Generation number 6 has 7 individuals.simulate: generation size mismatch: size: 7 should be: 18
+
+Generation number 7 has 8 individuals.
+simulate: generation size mismatch: size: 8 should be: 27
+Generation number 8 has 11 individuals.
+simulate: generation size mismatch: size: 11 should be: 38
+Generation number 9 has 14 individuals.
+simulate: generation size mismatch: size: 14 should be: 52
+Generation number 10 has 13 individuals.
+simulate: generation size mismatch: size: 13 should be: 63
+Generation number 11 has 14 individuals.
+simulate: generation size mismatch: size: 14 should be: 85
+Generation number 12 has 22 individuals.
+simulate: generation size mismatch: size: 22 should be: 102
+simulate: generation size mismatch: size: 29 should be: 126Generation number 13 has 29 individuals.
+
+Generation number 14 has 40 individuals.
+simulate: generation size mismatch: size: 40 should be: 163
+Generation number 15 has 50 individuals.
+simulate: generation size mismatch: size: 50 should be: 192
+Generation number 16 has 72 individuals.
+simulate: generation size mismatch: size: 72 should be: 230
+Generation number 17 has 89 individuals.
+simulate: generation size mismatch: size: 89 should be: 288
+Generation number 18 has 112 individuals.
+simulate: generation size mismatch: size: 112 should be: 335
+Generation number 19 has 141 individuals.
+simulate: generation size mismatch: size: 141 should be: 389
+Generation number 20 has 177 individuals.
+simulate: generation size mismatch: size: 177 should be: 461
+Generation number 21 has 213 individuals.
+simulate: generation size mismatch: size: 213 should be: 549
+Generation number 22 has 250 individuals.
+simulate: generation size mismatch: size: 250 should be: 656
+Generation number 23 has 287 individuals.
+simulate: generation size mismatch: size: 287 should be: 778
+Generation number 24 has 347 individuals.
+simulate: generation size mismatch: size: 347 should be: 886
+Generation number 25 has 437 individuals.
+simulate: generation size mismatch: size: 437 should be: 1015
+Generation number 26 has 515 individuals.
+simulate: generation size mismatch: size: 515 should be: 1142
+Generation number 27 has 601 individuals.
+simulate: generation size mismatch: size: 601 should be: 1296
+Generation number 28 has 714 individuals.
+simulate: generation size mismatch: size: 714 should be: 1445
+Generation number 29 has 818 individuals.
+simulate: generation size mismatch: size: 818 should be: 1586
+Generation number 30 has 934 individuals.
+simulate: generation size mismatch: size: 934 should be: 1721
+Generation number 31 has 1063 individuals.simulate: generation size mismatch: size: 1063 should be: 1853
+
+Generation number 32 has 1209 individuals.
+simulate: generation size mismatch: size: 1209 should be: 1916
+Generation number 33 has 1391 individuals.
+simulate: generation size mismatch: size: 1391 should be: 1986
+Generation number 34 has 1563 individuals.
+simulate: generation size mismatch: size: 1563 should be: 2053
+Generation number 35 has 1708 individuals.
+simulate: generation size mismatch: size: 1708 should be: 2137
+Generation number 36 has 1836 individuals.
+simulate: generation size mismatch: size: 1836 should be: 2191
+Generation number 37 has 1924 individuals.
+simulate: generation size mismatch: size: 1924 should be: 2210
+Generation number 38 has 2022 individuals.
+simulate: generation size mismatch: size: 2022 should be: 2210
+Generation number 39 has 2088 individuals.
+simulate: generation size mismatch: size: 2088 should be: 2249
+Generation number 40 has 2199 individuals.
+simulate: generation size mismatch: size: 2199 should be: 2309
+Generation number 41 has 2251 individuals.simulate: generation size mismatch: size: 2251 should be: 2314
+
+Generation number 42 has 2305 individuals.
+simulate: generation size mismatch: size: 2305 should be: 2324
+Generation number 43 has 2341 individuals.
+simulate: generation size mismatch: size: 2341 should be: 2346
+Generation number 44 has 2338 individuals.
+simulate: generation size mismatch: size: 2338 should be: 2395
+Generation number 45 has 2381 individuals.
+simulate: generation size mismatch: size: 2381 should be: 2360
+Generation number 46 has 2418 individuals.
+simulate: generation size mismatch: size: 2418 should be: 2389
+Generation number 47 has 2397 individuals.
+simulate: generation size mismatch: size: 2397 should be: 2432
+Generation number 48 has 2473 individuals.
+simulate: generation size mismatch: size: 2473 should be: 2443
+Generation number 49 has 2443 individuals.
+simulate: generation size mismatch: size: 2443 should be: 2442
+Generation number 50 has 2490 individuals.
+simulate: generation size mismatch: size: 2490 should be: 2510
+Generation number 51 has 2518 individuals.simulate: generation size mismatch: size: 2518 should be: 2491
+
+Generation number 52 has 2490 individuals.
+simulate: generation size mismatch: size: 2490 should be: 2505
+Generation number 53 has 2524 individuals.
+simulate: generation size mismatch: size: 2524 should be: 2474
+Generation number 54 has 2492 individuals.
+simulate: generation size mismatch: size: 2492 should be: 2468
+Generation number 55 has 2453 individuals.
+simulate: generation size mismatch: size: 2453 should be: 2466
+Generation number 56 has 2508 individuals.
+simulate: generation size mismatch: size: 2508 should be: 2490
+Generation number 57 has 2506 individuals.
+simulate: generation size mismatch: size: 2506 should be: 2470
+Generation number 58 has 2541 individuals.
+simulate: generation size mismatch: size: 2541 should be: 2517
+Generation number 59 has 2564 individuals.
+simulate: generation size mismatch: size: 2564 should be: 2473
+Generation number 60 has 2546 individuals.
+simulate: generation size mismatch: size: 2546 should be: 2459
+Generation number 61 has 2510 individuals.simulate: generation size mismatch: size: 2510 should be: 2494
+
+Generation number 62 has 2531 individuals.
+simulate: generation size mismatch: size: 2531 should be: 2484
+Generation number 63 has 2561 individuals.
+simulate: generation size mismatch: size: 2561 should be: 2513
+Generation number 64 has 2535 individuals.
+simulate: generation size mismatch: size: 2535 should be: 2513
+Generation number 65 has 2522 individuals.
+simulate: generation size mismatch: size: 2522 should be: 2496
+Generation number 66 has 2491 individuals.
+simulate: generation size mismatch: size: 2491 should be: 2499
+Generation number 67 has 2479 individuals.
+simulate: generation size mismatch: size: 2479 should be: 2526
+Generation number 68 has 2468 individuals.
+simulate: generation size mismatch: size: 2468 should be: 2558
+Generation number 69 has 2490 individuals.
+simulate: generation size mismatch: size: 2490 should be: 2552
+Generation number 70 has 2491 individuals.
+simulate: generation size mismatch: size: 2491 should be: 2537
+Generation number 71 has 2463 individuals.simulate: generation size mismatch: size: 2463 should be: 2533
+
+Generation number 72 has 2481 individuals.
+simulate: generation size mismatch: size: 2481 should be: 2527
+Generation number 73 has 2486 individuals.
+simulate: generation size mismatch: size: 2486 should be: 2553
+Generation number 74 has 2476 individuals.
+simulate: generation size mismatch: size: 2476 should be: 2546
+Generation number 75 has 2471 individuals.
+simulate: generation size mismatch: size: 2471 should be: 2534
+Generation number 76 has 2510 individuals.
+simulate: generation size mismatch: size: 2510 should be: 2500
+Generation number 77 has 2503 individuals.
+simulate: generation size mismatch: size: 2503 should be: 2527
+Generation number 78 has 2493 individuals.
+simulate: generation size mismatch: size: 2493 should be: 2541
+Generation number 79 has 2498 individuals.
+simulate: generation size mismatch: size: 2498 should be: 2541
+Generation number 80 has 2497 individuals.
+simulate: generation size mismatch: size: 2497 should be: 2550
+Generation number 81 has 2514 individuals.simulate: generation size mismatch: size: 2514 should be: 2520
+
+Generation number 82 has 2510 individuals.
+simulate: generation size mismatch: size: 2510 should be: 2552
+Generation number 83 has 2492 individuals.
+simulate: generation size mismatch: size: 2492 should be: 2524
+Generation number 84 has 2485 individuals.
+simulate: generation size mismatch: size: 2485 should be: 2484
+Generation number 85 has 2479 individuals.
+simulate: generation size mismatch: size: 2479 should be: 2457
+Generation number 86 has 2547 individuals.
+simulate: generation size mismatch: size: 2547 should be: 2482
+Generation number 87 has 2540 individuals.
+simulate: generation size mismatch: size: 2540 should be: 2483
+Generation number 88 has 2538 individuals.
+simulate: generation size mismatch: size: 2538 should be: 2487
+Generation number 89 has 2496 individuals.
+simulate: generation size mismatch: size: 2496 should be: 2502
+Generation number 90 has 2486 individuals.
+simulate: generation size mismatch: size: 2486 should be: 2518
+Generation number 91 has 2491 individuals.simulate: generation size mismatch: size: 2491 should be: 2495
+
+Generation number 92 has 2490 individuals.
+simulate: generation size mismatch: size: 2490 should be: 2515
+Generation number 93 has 2479 individuals.
+simulate: generation size mismatch: size: 2479 should be: 2507
+Generation number 94 has 2468 individuals.
+simulate: generation size mismatch: size: 2468 should be: 2487
+Generation number 95 has 2504 individuals.
+simulate: generation size mismatch: size: 2504 should be: 2532
+Generation number 96 has 2459 individuals.
+simulate: generation size mismatch: size: 2459 should be: 2539
+Generation number 97 has 2455 individuals.
+simulate: generation size mismatch: size: 2455 should be: 2509
+Generation number 98 has 2474 individuals.
+simulate: generation size mismatch: size: 2474 should be: 2465
+Generation number 99 has 2490 individuals.
+simulate: generation size mismatch: size: 2490 should be: 2496
+Generation number 100 has 2484 individuals.
+simulate: generation size mismatch: size: 2484 should be: 2529
+Generation number 101 has 2502 individuals.
+
+
+populateAndMigrateThreaded: Overall: 4762ms
+migrate: Overall: 4191ms
+checkCarryingCapacity: Overall: 876ms
+prune: Overall: 306ms
+Output: Overall: 27308ms
+Simulate: Overall: 33278ms
+
+
