@@ -35,7 +35,7 @@ import jcuda.driver.JCudaDriver;
 public class GPU {
 	CUmodule module;
 	CUfunction function;
-	int block_size =4;
+	int block_size =64;
 	
 	
 	public GPU() {	
@@ -80,7 +80,7 @@ public class GPU {
 	}
 	
 	
-	public void migrate(double[] children, int[] rm, double[] d, double[] paramd, int[] parami) {
+	public void migrate(double[] children, int[] rm, double[] d, double[] paramd, long[] parami) {
         CUdeviceptr childrenDevice = new CUdeviceptr();
         JCudaDriver.cuMemAlloc(childrenDevice, Sizeof.DOUBLE*children.length);
         JCudaDriver.cuMemcpyHtoD(childrenDevice, Pointer.to(children), Sizeof.DOUBLE*children.length);
@@ -98,8 +98,8 @@ public class GPU {
         JCudaDriver.cuMemcpyHtoD(paramdDevice, Pointer.to(paramd), Sizeof.DOUBLE*paramd.length);
         
         CUdeviceptr paramiDevice = new CUdeviceptr();
-        JCudaDriver.cuMemAlloc(paramiDevice, Sizeof.INT*parami.length);
-        JCudaDriver.cuMemcpyHtoD(paramiDevice, Pointer.to(parami), Sizeof.INT*parami.length);
+        JCudaDriver.cuMemAlloc(paramiDevice, Sizeof.LONG*parami.length);
+        JCudaDriver.cuMemcpyHtoD(paramiDevice, Pointer.to(parami), Sizeof.LONG*parami.length);
         
         int offset = 0;
         JCudaDriver.cuParamSetSize(function, Sizeof.POINTER*5);
@@ -115,7 +115,9 @@ public class GPU {
         offset += Sizeof.POINTER;
         
         JCudaDriver.cuFuncSetBlockShape(function, block_size, 1, 1);
-        JCudaDriver.cuLaunchGrid(function, rm.length/block_size,1);
+        double numThread = Math.ceil((double)rm.length/(double)block_size);
+        //System.out.println(numThread);
+        JCudaDriver.cuLaunchGrid(function, (int)numThread,1);
         JCudaDriver.cuCtxSynchronize();
         
         JCudaDriver.cuMemcpyDtoH(Pointer.to(children),childrenDevice,Sizeof.DOUBLE*children.length);

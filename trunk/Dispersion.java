@@ -23,8 +23,8 @@ import jcuda.driver.CUarray;
 public class Dispersion {
 	//public final static int[] genSizeOLDd = {4, 5, 6, 9, 11, 13, 18, 26, 29, 33, 42, 53, 64, 81, 103, 130, 167, 201, 255, 305, 377, 444, 555, 663, 766, 905, 1040, 1196, 1313, 1464, 1621, 1732, 1853, 1875, 1966, 2059, 2132, 2182, 2168, 2235, 2291, 2310, 2330, 2361, 2410, 2416, 2404, 2454, 2435, 2434, 2425, 2454, 2453, 2451, 2459, 2434, 2429, 2433, 2449, 2469, 2474, 2509, 2533, 2523, 2499, 2486, 2488, 2467, 2488, 2461, 2488, 2496, 2489, 2491, 2554, 2543, 2567, 2567, 2512, 2529, 2485, 2509, 2530, 2506, 2520, 2508, 2500, 2496, 2526, 2555, 2531, 2482, 2487, 2473, 2476, 2476, 2471, 2457, 2461, 2496, 0 };
 	//public final static int[] genSizeOLDdeg2rad = { 4, 5, 7, 10, 14, 20, 28, 42, 57, 73, 97, 126, 140, 184, 235, 291, 356, 442, 518, 631, 717, 852, 991, 1160, 1293, 1447, 1602, 1712, 1826, 1924, 2017, 2071, 2071, 2158, 2158, 2176, 2173, 2255, 2248, 2269, 2280, 2296, 2330, 2347, 2390, 2395, 2406, 2428, 2436, 2449, 2482, 2499, 2493, 2461, 2501, 2511, 2541, 2534, 2562, 2529, 2500, 2525, 2540, 2524, 2507, 2490, 2470, 2506, 2544, 2533, 2533, 2543, 2559, 2542, 2539, 2506, 2535, 2561, 2528, 2504, 2494, 2540, 2500, 2466, 2485, 2458, 2468, 2501, 2516, 2513, 2539, 2524, 2526, 2515, 2511, 2486, 2507, 2500, 2481, 2485, 0};
-	public final static int[] genSize = {4, 5, 8, 11, 16, 18, 27, 38, 52, 63, 85, 102, 126, 163, 192, 230, 288, 335, 389, 461, 549, 656, 778, 886, 1015, 1142, 1296, 1445, 1586, 1721, 1853, 1916, 1986, 2053, 2137, 2191, 2210, 2210, 2249, 2309, 2314, 2324, 2346, 2395, 2360, 2389, 2432, 2443, 2442, 2510, 2491, 2505, 2474, 2468, 2466, 2490, 2470, 2517, 2473, 2459, 2494, 2484, 2513, 2513, 2496, 2499, 2526, 2558, 2552, 2537, 2533, 2527, 2553, 2546, 2534, 2500, 2527, 2541, 2541, 2550, 2520, 2552, 2524, 2484, 2457, 2482, 2483, 2487, 2502, 2518, 2495, 2515, 2507, 2487, 2532, 2539, 2509, 2465, 2496, 2529, 0};
-		
+//	public final static int[] genSize = {4, 5, 8, 11, 16, 18, 27, 38, 52, 63, 85, 102, 126, 163, 192, 230, 288, 335, 389, 461, 549, 656, 778, 886, 1015, 1142, 1296, 1445, 1586, 1721, 1853, 1916, 1986, 2053, 2137, 2191, 2210, 2210, 2249, 2309, 2314, 2324, 2346, 2395, 2360, 2389, 2432, 2443, 2442, 2510, 2491, 2505, 2474, 2468, 2466, 2490, 2470, 2517, 2473, 2459, 2494, 2484, 2513, 2513, 2496, 2499, 2526, 2558, 2552, 2537, 2533, 2527, 2553, 2546, 2534, 2500, 2527, 2541, 2541, 2550, 2520, 2552, 2524, 2484, 2457, 2482, 2483, 2487, 2502, 2518, 2495, 2515, 2507, 2487, 2532, 2539, 2509, 2465, 2496, 2529, 0};
+	public final static int[] genSize = { 4, 5, 8, 12, 14, 16, 21, 28, 35, 43, 53, 76, 91, 117, 137, 175, 209, 257, 315, 391, 487, 586, 687, 809, 922, 1078, 1249, 1375, 1494, 1624, 1713, 1788, 1844, 1906, 1946, 1991, 2012, 2058, 2033, 2057, 2098, 2124, 2130, 2193, 2190, 2192, 2225, 2215, 2226, 2234, 2200, 2248, 2241, 2279, 2277, 2262, 2305, 2275, 2269, 2291, 2326, 2333, 2314, 2317, 2298, 2321, 2329, 2322, 2365, 2401, 2403, 2387, 2337, 2325, 2312, 2310, 2335, 2342, 2373, 2360, 2366, 2364, 2385, 2414, 2390, 2416, 2378, 2394, 2396, 2387, 2400, 2408, 2404, 2426, 2397, 2419, 2421, 2427, 2444, 2447, 0};
 	static DispersalSettings settings;
 	static DispersalFunctions functions;
 	static DispersalDisplay display;
@@ -33,7 +33,7 @@ public class Dispersion {
 	
     public static void main(String[] args) throws Exception {
     	
-    	//System.loadLibrary("DispersalFunctionC");
+    //	System.loadLibrary("DispersalFunctionC");
     	if( args.length < 1 )
     		throw new Exception("No XML input file specified!");
     	if( args.length > 1 )
@@ -95,7 +95,7 @@ public class Dispersion {
     public static ArrayList<Node> simulate(ArrayList<Node> initialGeneration,java.util.Random rand) throws Exception
     {
     	
-	/*	DispersalFunctionC.setArrays(settings.softborders._f.getData(),
+		/*DispersalFunctionC.setArrays(settings.softborders._f.getData(),
 				settings.softborders._size_gen.getData(),
 				settings.softborders._f.size(),
 				settings.hardborders._f.getData(),
@@ -109,15 +109,16 @@ public class Dispersion {
 		Node root = initialGeneration.get(0);				// Added by JMB -- 10.19.09 -- Retains a pointer to the root if started with one individual -- arbitrarily selects the first individual if
 															//								population is started with more than one individual.
 		
-		int numRand = 64000;
-		float randArray[] = new float[numRand];
-		CUarray tmp = settings.cuda.cpRandArray2GPU(randArray);
+		int numRand = 1;
+		//float randArray[] = new float[numRand];
+		//CUarray tmp = settings.cuda.cpRandArray2GPU(randArray);
 		// For each generation
+		
 		for(;generation<= settings.getNGenerations() && thisGeneration.size() != 0;generation++) {
 			settings.outputTimer.start();
 			System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
 			if(thisGeneration.size() != genSize[generation-1]) {
-				System.err.println("simulate: generation size mismatch: "+ "size: " + thisGeneration.size()+" should be: "+genSize[generation-1]);
+			//	System.err.println("simulate: generation size mismatch: "+ "size: " + thisGeneration.size()+" should be: "+genSize[generation-1]);
 			}
 			
 			if( display != null )
@@ -146,7 +147,7 @@ public class Dispersion {
 			// Threaded
 		//	Prepared4GPU p4g = new Prepared4GPU(settings, settings.getNGenerations(), rand.nextInt());
 		//	nextGeneration = p4g.populateAndMigrateThreaded(thisGeneration,settings.getNGenerations());
-			nextGeneration = functions.checkCarryingCapacity(functions.populateAndMigrate4GPU(thisGeneration,settings.getNGenerations(),randArray,tmp),settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
+			nextGeneration = functions.checkCarryingCapacity(functions.populateAndMigrate4GPU(thisGeneration,settings.getNGenerations()),settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
 
 		//	nextGeneration = functions.checkCarryingCapacity(functions.populateAndMigrateThreaded(thisGeneration,settings.getNGenerations()),settings.getNGenerations());	// SETTINGS.GETNGENERATIONS() ADDED BY JMB -- 10.20.09
 			
@@ -168,7 +169,7 @@ public class Dispersion {
 			thisGeneration = nextGeneration; // prepare for the next loop
 		}//End For each generation
 
-		settings.cuda.rmRandArray(tmp);
+		//settings.cuda.rmRandArray(tmp);
 		System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
 		if( display != null && generation <= settings.getNGenerations())
 				display.update(thisGeneration,generation);
