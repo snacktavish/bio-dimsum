@@ -132,7 +132,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 	
 	public void drawBackground(Index cc, Index hb, Index sb)
 	{
-		background = new BufferedImage(800,600,BufferedImage.TYPE_INT_ARGB);
+		background = new BufferedImage(1700,1200,BufferedImage.TYPE_INT_ARGB);
 				
 		Graphics2D g2d = background.createGraphics();
 		g2d.setColor(new Color(0,0,0,255));
@@ -142,13 +142,13 @@ public class DispersalDisplay extends Thread implements ItemListener
 			for(int y=0;y<background.getHeight();y++) {
 				int r=0,g=0,b=0;
 				if( bcc ) {
-					g = (int)Math.floor(255.0*ds.carryingcapacity.f(cc,(int)Math.floor((double)ds.carryingcapacity.getMaxX(cc)*x/background.getWidth()),(int)Math.floor((double)ds.carryingcapacity.getMaxY(cc)*y/background.getHeight()))/ds.carryingcapacity.fmax(cc));
+					g = (int)(255.0*ds.carryingcapacity.f(cc,(int)((double)ds.carryingcapacity.getMaxX(cc)*x/background.getWidth()),(int)((double)ds.carryingcapacity.getMaxY(cc)*y/background.getHeight()))/ds.carryingcapacity.fmax(cc));
 				}
 				if( bhb ) {
-					r = (int)Math.floor(255.0*ds.hardborders.f(hb,(int)Math.floor((double)ds.hardborders.getMaxX(hb)*x/background.getWidth()),(int)Math.floor((double)ds.hardborders.getMaxY(hb)*y/background.getHeight()))/ds.hardborders.fmax(hb));
+					r = (int)(255.0*ds.hardborders.f(hb,(int)((double)ds.hardborders.getMaxX(hb)*x/background.getWidth()),(int)((double)ds.hardborders.getMaxY(hb)*y/background.getHeight()))/ds.hardborders.fmax(hb));
 				}
 				if( bsb ) {
-					b = (int)Math.floor(255.0*ds.softborders.f(sb,(int)Math.floor((double)ds.softborders.getMaxX(sb)*x/background.getWidth()),(int)Math.floor((double)ds.softborders.getMaxY(sb)*y/background.getHeight()))/ds.softborders.fmax(sb));
+					b = (int)(255.0*ds.softborders.f(sb,(int)((double)ds.softborders.getMaxX(sb)*x/background.getWidth()),(int)((double)ds.softborders.getMaxY(sb)*y/background.getHeight()))/ds.softborders.fmax(sb));
 				}
 				
 				g2d.setColor(new Color(r,g,b,100));
@@ -194,8 +194,8 @@ public class DispersalDisplay extends Thread implements ItemListener
 			int x = (int)(bi.getWidth()*(thisGeneration.get(i).lon - ds.getMinLon()) / (ds.getMaxLon() - ds.getMinLon()));
 			int y = (int)(bi.getHeight()*(thisGeneration.get(i).lat - ds.getMinLat()) / (ds.getMaxLat() - ds.getMinLat()));
 			g2d.setColor( thisGeneration.get(i).c );
-			g2d.drawLine(x,y,x+1,y+1);
-			g2d.drawLine(x+1,y,x,y+1);
+			//g2d.drawLine(x,y,x+1,y+1);
+			g2d.drawLine(x,y,x,y);
 		}
 		
 		g2d.setColor(new Color(255,255,255,255));

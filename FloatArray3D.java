@@ -5,6 +5,7 @@ public class FloatArray3D {
 	private int[] _size;
 	
 	public FloatArray3D (int xsize,int ysize, int zsize) {
+		
 		_data = new float[xsize*ysize*zsize];
 		_xsize = xsize;
 		_ysize = ysize;
@@ -14,16 +15,19 @@ public class FloatArray3D {
 		_size[1] = ysize;
 
 		_size[2] = zsize;
+		System.out.println("YSIZE"+_ysize);
 
 	}
 	
-	public float get(int x,int y, int z){
+	public float get(int x,int z, int y){
+		
 		if(x+y*_xsize+z*_xsize*_ysize<0)
 			System.out.println(x+ " "+y+" "+z);
 		return _data[x+y*_xsize+z*_xsize*_ysize];
 	}
 	
-	public void set(int x, int y, int z, float val) {
+	public void set(int x, int z, int y, float val) {
+		
 		_data[x+y*_xsize+z*_xsize*_ysize] = val;
 	}
 	/*

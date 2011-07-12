@@ -83,8 +83,7 @@ class DispersalFunctions {
 		}
 		return children;
 	}
-	
-	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen,float randArray[] , CUarray randArrayDev) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
+	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
 		settings.pAmTTimer.start();
 		//final int numRand = 100000;
 		//float randArray[] = new float[numRand];
@@ -145,25 +144,31 @@ class DispersalFunctions {
 			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
 			}
 
-		int[] parami = new int[6];
-		parami[0] = 0;
-		parami[1] = randArray.length;
-		parami[2] = sb.value();
-		parami[3] = hb.value();
-		parami[4] = children.get(0).generation;
-		parami[5] = children.size();
+		long[] parami = new long[4+children.size()];
+		//parami[0] = 0;
+	//	parami[1] = randArray.length;
+		parami[Migrate.__DIMSUM_PARAMI_SB_INDEX] = sb.value();
+		parami[Migrate.__DIMSUM_PARAMI_HB_INDEX] = hb.value();
+		parami[Migrate.__DIMSUM_PARAMI_GENERATION] = children.get(0).generation;
+		parami[Migrate.__DIMSUM_PARAMI_NUMCHILDREN] = children.size();
+		
 		
 		
 		for(int i=0;i<children.size();i++) {
-			d[i] = settings.getDispersalRadius(parami[4] ,rand2);
+			d[i] = settings.getDispersalRadius((int)parami[2] ,rand2);
 		}
-		for(int i=0;i<randArray.length;i++) {
+		for(int i=4;i<4+children.size();i++)
+			parami[i] = rand2.nextLong();
+		
+	/*	for(int i=0;i<randArray.length;i++) {
 			randArray[i] = (float)rand2.nextDouble();
-		}
+		}*/
+		
+		//System.out.println("node"+node.length);
 		settings.pAmTTimer2.start();
 
 			
-			settings.cuda.updaterand(randArrayDev,randArray);
+		//	settings.cuda.updaterand(randArrayDev,randArray);
 			settings.cuda.migrate(node,rm,d,latlon,parami);
 			
 			//DispersalFunctionC.setRandArray(randArray);
@@ -212,6 +217,7 @@ class DispersalFunctions {
 		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
 		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
+
 
 
 	public ArrayList<Node> populateNextGeneration(ArrayList<Node> thisGeneration) {

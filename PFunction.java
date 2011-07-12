@@ -32,7 +32,7 @@ class PFunction {
 	public final static int endgeneration = 3;
 	
 	public PFunction(int x,int y) {
-		_outcomes_probabilities = new FloatArray3D(x, y, 2);
+		_outcomes_probabilities = new FloatArray3D(x, 2, y);
 		_size_gen = new IntArray2D(x, 4);
 	}
 	

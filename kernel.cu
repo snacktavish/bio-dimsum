@@ -10,12 +10,12 @@
 #define __DIMSUM_mode_southwest 3
 #define __DIMSUM_NODE_lat 0
 #define __DIMSUM_NODE_lon 1
-#define __DIMSUM_PARAMI_RANDINDEX 0
-#define __DIMSUM_PARAMI_RANDMAX 1
-#define __DIMSUM_PARAMI_SB_INDEX 2
-#define __DIMSUM_PARAMI_HB_INDEX 3
-#define __DIMSUM_PARAMI_GENERATION 4
-#define __DIMSUM_PARAMI_NUMCHILDREN 5
+#define __DIMSUM_PARAMI_RANDINDEX 4
+//#define __DIMSUM_PARAMI_RANDMAX 1
+#define __DIMSUM_PARAMI_SB_INDEX 0
+#define __DIMSUM_PARAMI_HB_INDEX 1
+#define __DIMSUM_PARAMI_GENERATION 2
+#define __DIMSUM_PARAMI_NUMCHILDREN 3
 #define __DIMSUM_XYFUNCTION_xsize 0
 #define __DIMSUM_XYFUNCTION_ysize 1
 #define __DIMSUM_XYFUNCTION_meta_length 4
@@ -33,7 +33,7 @@ float* hb_DATA;
 int* hb_META;
 //int* hb_SIZE;
 
-texture<float, 1, cudaReadModeElementType> randArray;
+//texture<float, 1, cudaReadModeElementType> randArray;
 texture<float, 3, cudaReadModeElementType> softborderDATA;
 texture<int, 2, cudaReadModeElementType> softborderMETA;
 texture<float, 1, cudaReadModeElementType> softborderSIZE;
@@ -115,17 +115,28 @@ double geq (double lat1, double  sb_lat_bt) {
 }
 
 __device__
+float nextRand(long* seed, int id)
+{
+	seed[__DIMSUM_PARAMI_RANDINDEX+id] = (seed[__DIMSUM_PARAMI_RANDINDEX+id] * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+	float r = (int)(seed[__DIMSUM_PARAMI_RANDINDEX+id] >> 24);
+	r = r/((float) (1 << 24));
+	//printf("%d %f\n", id, r);
+	return r;
+}
+
+/*
+__device__
 double nextRand(int* _index) {
-	/*if(_index[__DIMSUM_PARAMI_RANDINDEX]>=_index[__DIMSUM_PARAMI_RANDMAX]) {
+	if(_index[__DIMSUM_PARAMI_RANDINDEX]>=_index[__DIMSUM_PARAMI_RANDMAX]) {
 		System.err.println("nextRand(): index>numRand");
 		System.exit(-1);
-	}*/
+	}
 	double r =  tex1D(randArray,atomicAdd(&(_index[__DIMSUM_PARAMI_RANDINDEX]),1));
 	//_index[__DIMSUM_PARAMI_RANDINDEX]++;
 
 	return r;
 }
-/*
+
 __device__
 int getMetaIndex_sb(int i, int type) {
 	return i+type*tex1D(softborderSIZE,0);
@@ -138,13 +149,13 @@ int getMetaIndex_hb(int i, int type) {
 */
 
 __device__
-float sb_f(int i, int y,int x) {
+float sb_f(int i, int x,int y) {
 	return tex3D(softborderDATA,i,x,y);
 }
 
 
 __device__
-float hb_f(int i, int y,int x) {
+float hb_f(int i, int x,int y) {
 	return tex3D(hardborderDATA,i,x,y);
 }
 
@@ -290,11 +301,11 @@ double setX(double X, double x_bt, double prefix, double dXY){
 
 
 __device__
-double ka2(double lat1,double minlat, double sb_latspace, int dirLat,int* _index) {
+double ka2(double lat1,double minlat, double sb_latspace, int dirLat,long* _index, int id) {
 	double ilat = getI(lat1,minlat,sb_latspace, dirLat);
 	if (lat1 == ilat)	// Checking to see if individual is starting RIGHT ON a lat line.
 	{					// If so, pushes it barely off in a random direction.
-		if (nextRand(_index) > 0.5)
+		if (nextRand(_index, id) > 0.5)
 			lat1 += __DIMSUM_KA2_EPSILON;
 		else
 			lat1 -= __DIMSUM_KA2_EPSILON;
@@ -304,10 +315,10 @@ double ka2(double lat1,double minlat, double sb_latspace, int dirLat,int* _index
 }
 
 __device__
-void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int id) {
+void migrate(double* node, double* dA, int* rm,long* parami, double* paramv, int id) {
 	double d = dA[id];
-	int sb = parami[__DIMSUM_PARAMI_SB_INDEX];
-	int hb = parami[__DIMSUM_PARAMI_HB_INDEX];
+	int sb = (int)parami[__DIMSUM_PARAMI_SB_INDEX];
+	int hb = (int)parami[__DIMSUM_PARAMI_HB_INDEX];
 	double lat1 = toRad(node[id*2+__DIMSUM_NODE_lat]);
 	double lon1 = toRad(node[id*2+__DIMSUM_NODE_lon]);
 	double minlat = toRad(paramv[0]);
@@ -324,7 +335,7 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 
 	double step_d = 0.0001;
 	double sb_lat_bt,sb_lon_bt,hb_lat_bt,hb_lon_bt,hb_dd,sb_dd;				// JMB -- Using this to keep track of lat/lon value for border reflections and adjusting inexact positions, if necessary
-	double crs = nextRand(parami) * 2 * PI;	// Modified by JMB -- 4.5.10
+	double crs = nextRand(parami,id) * 2 * PI;	// Modified by JMB -- 4.5.10
 	double lld_d, lld_latf=0, lld_lonf=0,lld_crs;
 
 	while( d >= __DIMSUM_MIN_D ) {
@@ -343,10 +354,10 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 
 		int mode = getMode(crs);
 
-		sb_lat_bt = ka2(lat1,minlat,sb_latspace,northORsouth(mode),parami);
+		sb_lat_bt = ka2(lat1,minlat,sb_latspace,northORsouth(mode),parami,id);
 		double i1_d = londfromlat3(lat1,lon1,lld_latf,lld_lonf,sb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
 
-		sb_lon_bt = ka2(lon1,minlon,sb_lonspace,eastORwest(mode),parami);
+		sb_lon_bt = ka2(lon1,minlon,sb_lonspace,eastORwest(mode),parami,id);
 		double i2_d = latdfromlon3(lat1,lon1,lld_latf,lld_lonf,sb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
 
 		if( i1_d <= i2_d  && i1_d < d) {
@@ -358,10 +369,10 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 			sb_dx = eastORwest(mode);
 		}
 
-		hb_lat_bt = ka2(lat1,minlat,hb_latspace,northORsouth(mode),parami);
+		hb_lat_bt = ka2(lat1,minlat,hb_latspace,northORsouth(mode),parami,id);
 		i1_d = londfromlat3(lat1,lon1,lld_latf,lld_lonf,hb_lat_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LAT BORDER CROSSING
 
-		hb_lon_bt = ka2(lon1,minlon,hb_lonspace,eastORwest(mode),parami);
+		hb_lon_bt = ka2(lon1,minlon,hb_lonspace,eastORwest(mode),parami,id);
 		i2_d = latdfromlon3(lat1,lon1,lld_latf,lld_lonf,hb_lon_bt);		// JMB COMMENT -- FINDS COORDINATES FOR NEAREST LON BORDER CROSSING
 
 		if( i1_d <= i2_d  && i1_d < d) {
@@ -390,14 +401,14 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 			// both soft & hard must be checked at the same time -- but the order is up to you
 			// I arbitrarily chose to check hard borders first
 			if(abs(sb_dd-hb_dd) < step_d )
-			if(  nextRand(parami) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
+			if(  nextRand(parami,id) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {	// JMB COMMENT -- FINDS HARD BORDER VALUE FOR NEXT PIXEL WITH RESPECT TO LONGITUDE AND CHECKS TO SEE IF INDIVIDUAL SURVIVES HARD BORDER CROSSING.
 				rm[id] =  1; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
 				return;
 			}
 
-			if( nextRand(parami) <= sb_f(sb,sb_toX(sb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+sb_dx, sb_toX(sb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+sb_dy) ) {
+			if( nextRand(parami,id) <= sb_f(sb,sb_toX(sb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+sb_dx, sb_toX(sb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+sb_dy) ) {
 				// failed the soft border-- stop before border, reflect back, update d, and continue
-				crs = nextRand(parami) * 2 * PI;// / 4+3*PI/4;
+				crs = nextRand(parami,id) * 2 * PI;// / 4+3*PI/4;
 				sb_dy = 0;
 				sb_dx = 0;
 				lld_d = (sb_dd-step_d);
@@ -413,7 +424,7 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 			lon1 = setX(lld_lonf,sb_lon_bt,geq(lon1,sb_lon_bt),sb_dx);
 		}
 		else {
-			if( nextRand(parami) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {
+			if( nextRand(parami,id) <= hb_f(hb,hb_toX(hb,lon1,minlon,maxlon,__DIMSUM_XYFUNCTION_xsize)+hb_dx,hb_toX(hb,lat1,minlat,maxlat,__DIMSUM_XYFUNCTION_ysize)+hb_dy) ) {
 				rm[id] =  1; //continue childrenloop; // this exits the travel loop immediately, so the current child never gets added to the next generation
 				return;						// JMB -- Would this lead to pruning problems?
 			} else {
@@ -432,7 +443,7 @@ void migrate(double* node, double* dA, int* rm,int* parami, double* paramv, int 
 }
 
 __global__
-void migrateGPU(double* children, int* rm, double* d, double* paramd, int* parami)
+void migrateGPU(double* children, int* rm, double* d, double* paramd, long* parami)
 {
 
 	int id = blockIdx.x*blockDim.x+threadIdx.x;
