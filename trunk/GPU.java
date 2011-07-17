@@ -30,12 +30,15 @@ import jcuda.driver.CUmemorytype;
 import jcuda.driver.CUmodule;
 import jcuda.driver.CUtexref;
 import jcuda.driver.JCudaDriver;
+import jcuda.runtime.JCuda;
 
 
 public class GPU {
 	CUmodule module;
 	CUfunction function;
-	int block_size =64;
+	int block_size =256;
+	CUarray sb_DEV;
+	CUarray hb_DEV;
 	
 	
 	public GPU() {	
@@ -70,10 +73,10 @@ public class GPU {
 	
 	public void cpBorders2GPU(XYFunction soft, XYFunction hard) {
 		System.out.println("CP BORDER START");
-		cp2gpu(soft._f,"softborderDATA");
-		cp2gpu(hard._f,"hardborderDATA");
-		cp2gpu(soft._size_gen,"softborderMETA");
-		cp2gpu(hard._size_gen,"hardborderMETA");
+		sb_DEV=cp2gpu(soft.getF(new Index(0)),"softborderDATA");
+		hb_DEV=cp2gpu(hard.getF(new Index(0)),"hardborderDATA");
+	//	cp2gpu(soft._size_gen,"softborderMETA");
+	//	cp2gpu(hard._size_gen,"hardborderMETA");
 		System.out.println("CP BORDER FINISH");
 		//cp2gpu(soft._f.size(), "softborderSIZE");
 		//cp2gpu(hard._f.size(), "hardborderSIZE");
@@ -101,8 +104,17 @@ public class GPU {
         JCudaDriver.cuMemAlloc(paramiDevice, Sizeof.LONG*parami.length);
         JCudaDriver.cuMemcpyHtoD(paramiDevice, Pointer.to(parami), Sizeof.LONG*parami.length);
         
+        
+        
+       
+        int numThread = (int)Math.ceil((double)rm.length/(double)block_size);
+        //System.out.println(numThread);
+        //int maxThread = 320000;
+        //int numIterations = (int)Math.ceil((double)numThread/(double)maxThread);
+        
+        
         int offset = 0;
-        JCudaDriver.cuParamSetSize(function, Sizeof.POINTER*5);
+        JCudaDriver.cuParamSetSize(function, Sizeof.POINTER*5+Sizeof.INT);
         JCudaDriver.cuParamSetv(function, offset, Pointer.to(childrenDevice), Sizeof.POINTER);
         offset += Sizeof.POINTER;
         JCudaDriver.cuParamSetv(function, offset, Pointer.to(rmDevice), Sizeof.POINTER);
@@ -113,12 +125,18 @@ public class GPU {
         offset += Sizeof.POINTER;
         JCudaDriver.cuParamSetv(function, offset, Pointer.to(paramiDevice), Sizeof.POINTER);
         offset += Sizeof.POINTER;
-        
         JCudaDriver.cuFuncSetBlockShape(function, block_size, 1, 1);
-        double numThread = Math.ceil((double)rm.length/(double)block_size);
-        //System.out.println(numThread);
-        JCudaDriver.cuLaunchGrid(function, (int)numThread,1);
-        JCudaDriver.cuCtxSynchronize();
+        
+        
+       // for(int i=0;i<numIterations;i++) {
+        	JCudaDriver.cuParamSeti(function, offset, 0);
+        	int x = JCudaDriver.cuLaunchGrid(function, numThread,1);
+        	//System.out.println(x+" X "+i*maxThread*block_size+ " "+numThread+" "+numIterations+" "+parami[3] );
+        	JCudaDriver.cuCtxSynchronize();
+        //}
+        
+        
+        
         
         JCudaDriver.cuMemcpyDtoH(Pointer.to(children),childrenDevice,Sizeof.DOUBLE*children.length);
         cuMemFree(paramiDevice);
@@ -175,8 +193,23 @@ public class GPU {
         cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
         return array;
 	}
+	
+	public  void updateGPU(CUarray array, FloatArray2D src ){
+		int sizeX = src.size()[0];
+		int sizeY = src.size()[1];
+		CUDA_MEMCPY2D copyHD = new CUDA_MEMCPY2D();
+        copyHD.srcMemoryType = CUmemorytype.CU_MEMORYTYPE_HOST;
+        copyHD.srcHost = Pointer.to(src._data);
+        copyHD.srcPitch = sizeX * Sizeof.FLOAT;
+        copyHD.dstMemoryType = CUmemorytype.CU_MEMORYTYPE_ARRAY;
+        copyHD.dstArray = array;
+        copyHD.WidthInBytes = sizeX * Sizeof.FLOAT;
+        copyHD.Height = sizeY;
+        cuMemcpy2D(copyHD);
+	}
+	
 
-	private void cp2gpu(FloatArray3D src, String texName) {
+	private CUarray cp2gpu(FloatArray3D src, String texName) {
 		int sizeX = src.size()[0];
 		int sizeY = src.size()[1];
 		int sizeZ = src.size()[2];
@@ -212,10 +245,47 @@ public class GPU {
         //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
         cuTexRefSetFormat(texref, CU_AD_FORMAT_FLOAT, 1);
         cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
+        return array;
 	}
 	
 	
-	private void cp2gpu(IntArray2D src, String texName) {
+	private CUarray cp2gpu(FloatArray2D src, String texName) {
+		
+		int sizeX = src.size()[0];
+		int sizeY = src.size()[1];
+		System.out.println(sizeX+" "+sizeY);
+		CUarray array = new CUarray();
+        CUDA_ARRAY_DESCRIPTOR ad = new CUDA_ARRAY_DESCRIPTOR();
+        ad.Format = CU_AD_FORMAT_FLOAT;
+        ad.Width = sizeX;
+        ad.Height = sizeY;
+        ad.NumChannels = 1;
+        cuArrayCreate(array, ad);
+
+        CUDA_MEMCPY2D copyHD = new CUDA_MEMCPY2D();
+        copyHD.srcMemoryType = CUmemorytype.CU_MEMORYTYPE_HOST;
+        copyHD.srcHost = Pointer.to(src._data);
+        copyHD.srcPitch = sizeX * Sizeof.FLOAT;
+        copyHD.dstMemoryType = CUmemorytype.CU_MEMORYTYPE_ARRAY;
+        copyHD.dstArray = array;
+        copyHD.WidthInBytes = sizeX * Sizeof.FLOAT;
+        copyHD.Height = sizeY;
+        cuMemcpy2D(copyHD);
+
+        CUtexref texref = new CUtexref();
+        cuModuleGetTexRef(texref, module, texName);
+        cuTexRefSetFilterMode(texref, CU_TR_FILTER_MODE_POINT);
+        cuTexRefSetAddressMode(texref, 0, CU_TR_ADDRESS_MODE_CLAMP);
+        cuTexRefSetAddressMode(texref, 1, CU_TR_ADDRESS_MODE_CLAMP);
+        //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
+        cuTexRefSetFormat(texref, CU_AD_FORMAT_FLOAT, 1);
+        cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
+        return array;
+	}
+	
+	
+	
+	private CUarray cp2gpu(IntArray2D src, String texName) {
 		int sizeX = src.size()[0];
 		int sizeY = src.size()[1];
 		CUarray array = new CUarray();
@@ -244,6 +314,7 @@ public class GPU {
         //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
         cuTexRefSetFormat(texref, CU_AD_FORMAT_SIGNED_INT32, 1);
         cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
+        return array;
 	}
 	
 

@@ -132,7 +132,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 	
 	public void drawBackground(Index cc, Index hb, Index sb)
 	{
-		background = new BufferedImage(1700,1200,BufferedImage.TYPE_INT_ARGB);
+		background = new BufferedImage(ds.carryingcapacity.getMaxX(cc),ds.carryingcapacity.getMaxY(cc),BufferedImage.TYPE_INT_ARGB);
 				
 		Graphics2D g2d = background.createGraphics();
 		g2d.setColor(new Color(0,0,0,255));
@@ -142,13 +142,13 @@ public class DispersalDisplay extends Thread implements ItemListener
 			for(int y=0;y<background.getHeight();y++) {
 				int r=0,g=0,b=0;
 				if( bcc ) {
-					g = (int)(255.0*ds.carryingcapacity.f(cc,(int)((double)ds.carryingcapacity.getMaxX(cc)*x/background.getWidth()),(int)((double)ds.carryingcapacity.getMaxY(cc)*y/background.getHeight()))/ds.carryingcapacity.fmax(cc));
+					g = (int)(255.0*ds.carryingcapacity.f(cc,x,y)/ds.carryingcapacity.fmax(cc));
 				}
 				if( bhb ) {
-					r = (int)(255.0*ds.hardborders.f(hb,(int)((double)ds.hardborders.getMaxX(hb)*x/background.getWidth()),(int)((double)ds.hardborders.getMaxY(hb)*y/background.getHeight()))/ds.hardborders.fmax(hb));
+					r = (int)(255.0*ds.hardborders.f(hb,x,y)/ds.hardborders.fmax(hb));
 				}
 				if( bsb ) {
-					b = (int)(255.0*ds.softborders.f(sb,(int)((double)ds.softborders.getMaxX(sb)*x/background.getWidth()),(int)((double)ds.softborders.getMaxY(sb)*y/background.getHeight()))/ds.softborders.fmax(sb));
+					b = (int)(255.0*ds.softborders.f(sb,x,y)/ds.softborders.fmax(sb));
 				}
 				
 				g2d.setColor(new Color(r,g,b,100));
@@ -163,6 +163,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 	
 	public void process(ArrayList<Node> population, int genNumber) throws Exception
 	{
+		ds.outputTimer2.start();
 		thisGeneration = population;
 		//Dispersion.generation = genNumber;
 		
@@ -183,6 +184,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 		filename = "Generation"+filename+".png";
 		
 		ImageIO.write(bi,"png",new File(filename));
+		ds.outputTimer2.stop();
 	}
 	
 	public void drawGen(int genNumber) throws Exception
