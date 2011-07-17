@@ -1,0 +1,117 @@
+YSIZE2
+YSIZE2
+CP BORDER START
+CP BORDER FINISH
+Running Simulation: HawaiiExample
+Generation number 1 has 4 individuals.
+Generation number 2 has 5 individuals.
+Generation number 3 has 8 individuals.
+Generation number 4 has 12 individuals.
+Generation number 5 has 14 individuals.
+Generation number 6 has 16 individuals.
+Generation number 7 has 21 individuals.
+Generation number 8 has 28 individuals.
+Generation number 9 has 35 individuals.
+Generation number 10 has 43 individuals.
+Generation number 11 has 53 individuals.
+Generation number 12 has 76 individuals.
+Generation number 13 has 91 individuals.
+Generation number 14 has 117 individuals.
+Generation number 15 has 137 individuals.
+Generation number 16 has 175 individuals.
+Generation number 17 has 209 individuals.
+Generation number 18 has 257 individuals.
+Generation number 19 has 315 individuals.
+Generation number 20 has 391 individuals.
+Generation number 21 has 487 individuals.
+Generation number 22 has 586 individuals.
+Generation number 23 has 687 individuals.
+Generation number 24 has 809 individuals.
+Generation number 25 has 922 individuals.
+Generation number 26 has 1078 individuals.
+Generation number 27 has 1249 individuals.
+Generation number 28 has 1375 individuals.
+Generation number 29 has 1494 individuals.
+Generation number 30 has 1624 individuals.
+Generation number 31 has 1713 individuals.
+Generation number 32 has 1789 individuals.
+Generation number 33 has 1872 individuals.
+Generation number 34 has 1929 individuals.
+Generation number 35 has 2002 individuals.
+Generation number 36 has 2032 individuals.
+Generation number 37 has 2027 individuals.
+Generation number 38 has 2084 individuals.
+Generation number 39 has 2117 individuals.
+Generation number 40 has 2132 individuals.
+Generation number 41 has 2165 individuals.
+Generation number 42 has 2151 individuals.
+Generation number 43 has 2185 individuals.
+Generation number 44 has 2237 individuals.
+Generation number 45 has 2224 individuals.
+Generation number 46 has 2196 individuals.
+Generation number 47 has 2153 individuals.
+Generation number 48 has 2207 individuals.
+Generation number 49 has 2271 individuals.
+Generation number 50 has 2221 individuals.
+Generation number 51 has 2236 individuals.
+Generation number 52 has 2256 individuals.
+Generation number 53 has 2254 individuals.
+Generation number 54 has 2259 individuals.
+Generation number 55 has 2282 individuals.
+Generation number 56 has 2306 individuals.
+Generation number 57 has 2304 individuals.
+Generation number 58 has 2307 individuals.
+Generation number 59 has 2339 individuals.
+Generation number 60 has 2364 individuals.
+Generation number 61 has 2395 individuals.
+Generation number 62 has 2361 individuals.
+Generation number 63 has 2378 individuals.
+Generation number 64 has 2380 individuals.
+Generation number 65 has 2363 individuals.
+Generation number 66 has 2405 individuals.
+Generation number 67 has 2398 individuals.
+Generation number 68 has 2407 individuals.
+Generation number 69 has 2451 individuals.
+Generation number 70 has 2474 individuals.
+Generation number 71 has 2476 individuals.
+Generation number 72 has 2438 individuals.
+Generation number 73 has 2467 individuals.
+Generation number 74 has 2470 individuals.
+Generation number 75 has 2474 individuals.
+Generation number 76 has 2472 individuals.
+Generation number 77 has 2475 individuals.
+Generation number 78 has 2422 individuals.
+Generation number 79 has 2424 individuals.
+Generation number 80 has 2411 individuals.
+Generation number 81 has 2427 individuals.
+Generation number 82 has 2467 individuals.
+Generation number 83 has 2447 individuals.
+Generation number 84 has 2457 individuals.
+Generation number 85 has 2495 individuals.
+Generation number 86 has 2488 individuals.
+Generation number 87 has 2479 individuals.
+Generation number 88 has 2483 individuals.
+Generation number 89 has 2536 individuals.
+Generation number 90 has 2547 individuals.
+Generation number 91 has 2550 individuals.
+Generation number 92 has 2546 individuals.
+Generation number 93 has 2544 individuals.
+Generation number 94 has 2522 individuals.
+Generation number 95 has 2532 individuals.
+Generation number 96 has 2558 individuals.
+Generation number 97 has 2561 individuals.
+Generation number 98 has 2532 individuals.
+Generation number 99 has 2471 individuals.
+Generation number 100 has 2459 individuals.
+Generation number 101 has 2442 individuals.
+
+
+populateAndMigrateThreaded: Overall: 1827ms
+migrate: Overall: 1629ms
+checkCarryingCapacity: Overall: 847ms
+prune: Overall: 269ms
+Output: Overall: 23009ms
+Output2/Display: Overall: 14660ms
+Simulate: Overall: 25965ms
+
+
