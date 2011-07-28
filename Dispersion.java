@@ -47,7 +47,7 @@ public class Dispersion {
 			rand = new Random();
 		else
 			rand = new Random(settings.seed);
-		settings.cuda.cpBorders2GPU(settings.softborders, settings.hardborders);
+		settings.cuda.cpBorders2GPU(settings.getSoftBorders(0), settings.getHardBorders(0));
 		
 		functions = new DispersalFunctions(settings,rand, settings.cuda);
 		Thread dispthread=null;
@@ -118,12 +118,13 @@ public class Dispersion {
 		// For each generation
 		
 		for(;generation<= settings.getNGenerations() && thisGeneration.size() != 0;generation++) {
-			settings.outputTimer.start();
+			
 			System.out.println("Generation number "+generation+" has "+thisGeneration.size()+" individuals.");
 			if(thisGeneration.size() != genSize[generation-1]) {
 		//		System.err.println("simulate: generation size mismatch: "+ "size: " + thisGeneration.size()+" should be: "+genSize[generation-1]);
 			}
-			
+			//settings.outputTimer.start();
+			settings.outputTimer.start();
 			if( display != null )
 			{
 				ArrayList<Node>thisGenCopy = OutputFunction.deepTreeCopy(thisGeneration);
@@ -139,8 +140,9 @@ public class Dispersion {
 						System.out.println(origItr.next());
 					System.exit(1);
 				}*/
-				display.update(thisGenCopy,generation);
+				display.update(thisGeneration,generation);
 			}
+			
 			
 			settings.doOutput(thisGeneration,generation,rand);
 			settings.outputTimer.stop();
@@ -162,7 +164,7 @@ public class Dispersion {
 			nextGeneration = functions.migrate(nextGeneration,settings.getNGenerations());
 */
 			settings.pruneTimer.start();
-			functions.prune(thisGeneration);
+			functions.prune(thisGeneration,generation);
 			settings.pruneTimer.stop();
 			
 			//functions.debug_prune(thisGeneration,generation,root);	// ADDED BY JMB -- 10.19.09 -- FOR DEBUGGING WEIRD PRUNING PROBLEM

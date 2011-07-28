@@ -23,21 +23,21 @@ import java.util.*;
 import java.io.*;
 
 class XYFunction {
-	//public int startgeneration=-1, endgeneration=-1;
-	public IntArray2D _size_gen;
+	public int startgeneration=-1, endgeneration=-1;
+	public int[] _size_gen;
 	
 //	private float[] f;
-	public FloatArray3D _f;
-	int _index = 0;
+	private  FloatArray2D _f;
+	//int _index = 0;
 
 	public final static int _xsize = 0;
 	public final static int _ysize = 1;
 
-	public final static int _startgeneration = 2;
-	public final static int _endgeneration = 3;
+	//public final static int _startgeneration = 2;
+	//public final static int _endgeneration = 3;
 	
-	//private int maxX, maxY;
-	private double _fmax[];
+	private int maxX, maxY;
+	private double _fmax;
 	
 	int lastgen=-1 ;
 	int lastindex=-1;
@@ -51,43 +51,50 @@ class XYFunction {
 	 */
 	
 	
-	public int getMaxX(Index i) {
-		return _size_gen.get(i.value(), _xsize) ;
+	public int getMaxX() {
+		return _size_gen[_xsize] ;
 	}
 	
-	public int getMaxY(Index i) {
-		return _size_gen.get(i.value(), _ysize) ;
+	public int getMaxY() {
+		return _size_gen[_ysize] ;
 	}
 	
 
-	public double fmax(Index i) {
-		return _fmax[i.value()];
+	public double fmax() {
+		return _fmax;
 	}
 	
-	
+	/*
 	public XYFunction(int numGenerations, int xmax, int ymax) {
-		_f = new FloatArray3D(numGenerations, xmax, ymax);
+		_f = new FloatArray2D[numGenerations];
+		for(int i=0;i<numGenerations;i++)
+			_f[i] = new FloatArray2D(xmax, ymax);
 		_size_gen = new IntArray2D(numGenerations, 4);
 		_fmax = new double[numGenerations];
 		_index = 0;
-	}
+	}*/
 	
-	public void add(Image image, String color, double maxValue, double setborder, int startgeneration, int endgeneration) throws Exception {
+	public XYFunction(Image image, String color, double maxValue, double setborder) throws Exception {
+		_size_gen = new int[2];
+		
 		double fmax=-1.0;
-		_size_gen.set(_index, _startgeneration, startgeneration);
-		_size_gen.set(_index, _endgeneration , endgeneration);
+		this.startgeneration = startgeneration;
+		this.endgeneration = endgeneration;
 		//f = new float[ image.getHeight(null)* image.getWidth(null) ];
-		_size_gen.set(_index, _xsize, image.getWidth(null));
-		_size_gen.set(_index, _ysize, image.getHeight(null));
-		if( _size_gen.get(_index, _xsize) == 0 || _size_gen.get(_index, _ysize)  == 0 )
+		_size_gen[_xsize] =  image.getWidth(null);
+		_size_gen[_ysize] =  image.getHeight(null);
+		maxX = image.getWidth(null);
+		maxY = image.getHeight(null);
+		_f = new FloatArray2D(maxX, maxY);
+		if( maxX == 0 || maxY  == 0 )
 			throw new Exception("Image map height or width is 0, this is unacceptable.");
 		
 		BufferedImage buffImage = new BufferedImage( image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = buffImage.getGraphics();
 		g.drawImage(image, 0, 0, null);
 		
-		for(int r=0; r<_size_gen.get(_index, _ysize) ; r++) {
-			for(int c=0; c<_size_gen.get(_index, _xsize) ; c++) {
+		for(int r=0; r<maxY ; r++) {
+			for(int c=0; c<maxX ; c++) {
 				int pixel = buffImage.getRGB(c,r);
 				if( color.equalsIgnoreCase("red") ) pixel = (pixel >> 16) & 0xff;
 				else if( color.equalsIgnoreCase("green") ) pixel = (pixel >> 8 ) & 0xff;
@@ -101,24 +108,24 @@ class XYFunction {
 					f[r+c*maxY] = (float) setborder;
 				if( f[r+c*maxY] > fmax )
 					fmax = f[r+c*maxY];*/
-				_f.set(_index,r,c,(float) (((double)pixel/255.0) * maxValue));
-				if( ((r == 0 || r == _size_gen.get(_index, _ysize) -1) || (c == 0 || c == _size_gen.get(_index, _xsize) -1)) && setborder != -1.0 )
-					_f.set(_index,r,c, (float) setborder);
-				if( _f.get(_index,r,c) > fmax )
-					fmax = _f.get(_index,r,c);
+				_f.set(r,c,(float) (((double)pixel/255.0) * maxValue));
+				if( ((r == 0 || r == maxY -1) || (c == 0 || c == maxX -1)) && setborder != -1.0 )
+					_f.set(r,c, (float) setborder);
+				if( _f.get(r,c) > fmax )
+					fmax = _f.get(r,c);
 				//if(pixel != 0)
 			//		System.out.println((double)pixel/255.0+" "+_f.get(index,r,c));
 			}
 		}
-		_fmax[_index] = fmax;
-		_index++;
+		_fmax = fmax;
 	//	System.out.println(_f);
 	}
 	
-	public void add(String filename,double setborder, int startgeneration, int endgeneration) throws Exception {
+	public XYFunction(String filename,double setborder) throws Exception {
+		_size_gen = new int[2];
 		double fmax=-1.0;
-		_size_gen.set(_index, _startgeneration, startgeneration);
-		_size_gen.set(_index, _endgeneration , endgeneration);
+		this.startgeneration = startgeneration;
+		this.endgeneration = endgeneration;
 		BufferedReader buff = new BufferedReader(new FileReader(filename));
 		ArrayList<StringTokenizer> rows = new ArrayList<StringTokenizer>();
 		while( buff.ready() ) {
@@ -129,8 +136,15 @@ class XYFunction {
 				throw new Exception("Uneven number of columns across rows in xy input file -- row "+(r+1));
 		}
 		
-		_size_gen.set(_index, _xsize,rows.get(0).countTokens());
-		_size_gen.set(_index, _ysize, rows.size());
+		
+
+		
+
+		_size_gen[_xsize] =  rows.get(0).countTokens();
+		_size_gen[_ysize] =  rows.size();
+		maxX = rows.get(0).countTokens();
+		maxY = rows.size();
+		_f = new FloatArray2D(maxX, maxY);
 		/*f = new float[maxY*maxX];
 		
 		for(int r=0; r<maxY; r++) {
@@ -143,29 +157,28 @@ class XYFunction {
 			}
 		}*/
 		
-		for(int r=0; r<_size_gen.get(_index, _ysize) ; r++) {
-			for(int c=0; c<_size_gen.get(_index, _xsize) ; c++) {
-				_f.set(_index,r,c, Float.parseFloat(rows.get(r).nextToken()));
-				if( ((r == 0 || r == _size_gen.get(_index, _ysize) -1) || (c == 0 || c == _size_gen.get(_index, _xsize) -1)) && setborder != -1.0 )
-					_f.set(_index,r,c, (float) setborder);
-				if( _f.get(_index,r,c) > fmax )
-					fmax = _f.get(_index,r,c);
+		for(int r=0; r<maxY ; r++) {
+			for(int c=0; c<maxX ; c++) {
+				_f.set(r,c, Float.parseFloat(rows.get(r).nextToken()));
+				if( ((r == 0 || r == maxY -1) || (c == 0 || c == maxX -1)) && setborder != -1.0 )
+					_f.set(r,c, (float) setborder);
+				if( _f.get(r,c) > fmax )
+					fmax = _f.get(r,c);
 			}
 		}
-		_fmax[_index] = (int)fmax;
-		_index++;
+		_fmax = fmax;
 	}
 	
-	
+	/*
 	public Index calcIndex(int generation) {
 		if(generation== lastgen)
 			return new Index(lastindex);
 		int ind =-1;
-		for(int i=0;i<_f.xsize(); i++)
+		for(int i=0;i<_f.length; i++)
 			if( _size_gen.get(i,_startgeneration) <= generation && _size_gen.get(i,_endgeneration) >= generation )
 				ind = i;;
 		if( ind == -1 ) {
-			for(int i=0;i<_f.xsize();i++)
+			for(int i=0;i<_f.length;i++)
 				if( _size_gen.get(i,_startgeneration) == -1 && _size_gen.get(i,_endgeneration) == -1 ) {
 					ind = i;
 					break;
@@ -176,7 +189,7 @@ class XYFunction {
 		lastgen = generation;
 		lastindex = ind;
 		return new Index(ind);
-	}
+	}*/
 
 	
 
@@ -249,18 +262,22 @@ class XYFunction {
 	 * 
 	 * GPU AND CPU
 	 */
-	public float f(Index i, int x,int y) {
+	public float f( int x,int y) {
 		//System.out.println(generation +" "+ calcIndex(generation));
-		return _f.get(i.value(), y, x);
+		return _f.get(y, x);
 	}
 	
-	public int toX(Index i,double lon, double minlon, double maxlon, int _size) {
+	public FloatArray2D getF() {
+		return _f;
+	}
+	
+	public int toX(double lon, double minlon, double maxlon, int _size) {
 	
 		if( lon >= maxlon )
-			return _size_gen.get(i.value(), _size) -1;
+			return _size_gen[ _size] -1;
 		if( lon <= minlon )
 			return 0;
-		return (int)Math.floor(_size_gen.get(i.value(), _size)  * (lon-minlon)/(maxlon-minlon));
+		return (int)Math.floor(_size_gen[ _size]  * (lon-minlon)/(maxlon-minlon));
 	}
 	
 }

@@ -8,8 +8,8 @@ public class Migrate
 	public final static int __DIMSUM_NODE_lon = 1;
 	public final static int __DIMSUM_PARAMI_RANDINDEX =8;
 	//public final static int __DIMSUM_PARAMI_RANDMAX =1;
-	public final static int __DIMSUM_PARAMI_SB_INDEX =0;
-	public final static int __DIMSUM_PARAMI_HB_INDEX =1;
+	//public final static int __DIMSUM_PARAMI_SB_INDEX =0;
+	//public final static int __DIMSUM_PARAMI_HB_INDEX =1;
 	public final static int __DIMSUM_PARAMI_GENERATION =2;
 	public final static int __DIMSUM_PARAMI_NUMCHILDREN =3;
 	public final static int  __DIMSUM_PARAMI_SB_XSIZE =4;

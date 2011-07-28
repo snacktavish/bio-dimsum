@@ -18,6 +18,7 @@
 
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -28,30 +29,42 @@ import javax.imageio.ImageIO;
 
 class DispersalDisplayData
 {
-	public int generation;
-	public ArrayList<Node> thisGeneration;
+	private int generation;
+	private ArrayList<Node> _thisGeneration;
 	
 	public DispersalDisplayData(ArrayList<Node> tG, int gen)
 	{
 		generation =gen;
-		thisGeneration = tG;
+		_thisGeneration = new ArrayList<Node>(tG);
+	//	System.out.println(_thisGeneration.size()+" iTg " + generation);
+
+	}
+	
+	public int getGen() {
+		return generation;
+	}
+	
+	public ArrayList<Node>  getTg() {
+		
+
+		return _thisGeneration;
 	}
 }
 
 //public class DispersalDisplay extends JFrame implements ItemListener
-public class DispersalDisplay extends Thread implements ItemListener
+public class DispersalDisplay extends Thread 
 {
-	public ArrayList<Node> thisGeneration;
+	//private ArrayList<Node> thisGeneration;
 	public DispersalSettings ds;
-	public BufferedImage bi;
-	public BufferedImage background;
+	private BufferedImage bi;
+	private BufferedImage background;
 	
-	JCheckBoxMenuItem carryingcapacity, hardborders, softborders, samplerects;
+//	JCheckBoxMenuItem carryingcapacity, hardborders, softborders, samplerects;
 	boolean bcc=true, bhb=true, bsb=true, bsr=false;
 	
-	public ArrayList<DispersalDisplayData> dataQueue = new ArrayList<DispersalDisplayData>();
+	private LinkedBlockingQueue<DispersalDisplayData> dataQueue = new LinkedBlockingQueue<DispersalDisplayData>();
 	
-	public boolean sourceTerminated = false;
+	private boolean sourceTerminated = false;
 	
 	public void run()
 	{
@@ -62,15 +75,19 @@ public class DispersalDisplay extends Thread implements ItemListener
 				while( dataQueue.size() == 0 && !sourceTerminated )
 					sleep(100);
 				if( dataQueue.size() > 0 ) {
-					process(dataQueue.get(0).thisGeneration, dataQueue.get(0).generation);
-					dataQueue.remove(0);
+					DispersalDisplayData tmp = dataQueue.poll();
+				//	System.out.println(tmp.getTg().size()+" Tg " + tmp.getGen());
+					process(tmp.getTg(), tmp.getGen());
+				//	dataQueue.remove(0);
 				}
 			}
 			while( dataQueue.size() > 0 )
 			{
-				System.out.println("Outputting generation "+dataQueue.get(0).generation);
-				process(dataQueue.get(0).thisGeneration, dataQueue.get(0).generation);
-				dataQueue.remove(0);
+				DispersalDisplayData tmp = dataQueue.poll();
+				System.out.println("Outputting generation "+tmp.getGen());
+				
+				process(tmp.getTg(), tmp.getGen());
+			//	dataQueue.remove(0);
 			}
 		
 		}
@@ -96,7 +113,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 	
 	public DispersalDisplay(DispersalSettings ds0)
 	{
-		thisGeneration = null;
+		//thisGeneration = null;
 		ds = ds0;
 		
 /*		super("Dispersal Display");
@@ -130,55 +147,57 @@ public class DispersalDisplay extends Thread implements ItemListener
 		this.show();*/
 	}
 	
-	public void drawBackground(Index cc, Index hb, Index sb)
+	public void drawBackground(XYFunction cc, XYFunction hb, XYFunction sb)
 	{
-		background = new BufferedImage(ds.carryingcapacity.getMaxX(cc),ds.carryingcapacity.getMaxY(cc),BufferedImage.TYPE_INT_ARGB);
+		background = new BufferedImage(cc.getMaxX(),cc.getMaxY(),BufferedImage.TYPE_INT_ARGB);
 				
-		Graphics2D g2d = background.createGraphics();
-		g2d.setColor(new Color(0,0,0,255));
-		g2d.fillRect(0,0,background.getWidth(),background.getHeight());
-		
+	//	Graphics2D g2d = background.createGraphics();
+
+		//g2d.setColor(new Color(0,0,0,255));
+		//g2d.fillRect(0,0,background.getWidth(),background.getHeight());
+		int color, r=0,g=0,b=0;;
 		for(int x=0;x<background.getWidth();x++) {
 			for(int y=0;y<background.getHeight();y++) {
-				int r=0,g=0,b=0;
-				if( bcc ) {
-					g = (int)(255.0*ds.carryingcapacity.f(cc,x,y)/ds.carryingcapacity.fmax(cc));
-				}
-				if( bhb ) {
-					r = (int)(255.0*ds.hardborders.f(hb,x,y)/ds.hardborders.fmax(hb));
-				}
-				if( bsb ) {
-					b = (int)(255.0*ds.softborders.f(sb,x,y)/ds.softborders.fmax(sb));
-				}
 				
-				g2d.setColor(new Color(r,g,b,100));
-				g2d.drawLine( x,y,x,y);
+				
+				if( bcc ) {
+					g = (int)(255.0*cc.f(x,y)/cc.fmax());
+				} else g = 0;
+				if( bhb ) {
+					r = (int)(255.0*hb.f(x,y)/hb.fmax());
+				} else r = 0;
+				if( bsb ) {
+					b = (int)(255.0*sb.f(x,y)/sb.fmax());
+				} else b = 0;
+				
+				color = (0xFF << 24 )+ ((b & 0xFF) << 16) + ((g & 0xFF) << 8) + (r & 0xFF);
+				
+				background.setRGB(x,y,color);
+				//g2d.setColor(new Color(r,g,b,100));
+				//g2d.drawLine( x,y,x,y);
 			}
 		}
 
 
 	}
 	
-	Index lcc=null, lsb=null, lhb=null;
+	XYFunction lcc=null, lsb=null, lhb=null;
 	
 	public void process(ArrayList<Node> population, int genNumber) throws Exception
 	{
+	//	System.out.println(population.size()+" P " + genNumber);
 		ds.outputTimer2.start();
-		thisGeneration = population;
-		//Dispersion.generation = genNumber;
-		
-		if( lcc != ds.carryingcapacity.calcIndex(genNumber) || lsb != ds.softborders.calcIndex(genNumber) || lhb != ds.hardborders.calcIndex(genNumber) ) {
-			lcc = ds.carryingcapacity.calcIndex(genNumber);
-			lhb = ds.hardborders.calcIndex(genNumber);
-			lsb = ds.softborders.calcIndex(genNumber);
+
+		if( lcc != ds.getCarryingCapacity(genNumber) || lsb != ds.getSoftBorders(genNumber) || lhb != ds.getHardBorders(genNumber) ) {
+			lcc = ds.getCarryingCapacity(genNumber);
+			lhb = ds.getHardBorders(genNumber);
+			lsb = ds.getSoftBorders(genNumber);
 			
 			drawBackground(lcc,lhb,lsb);
 		}
-		
 		bi = new BufferedImage(background.getWidth(),background.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		
-		drawGen(genNumber);
-		
+		drawGen(population,genNumber);
 		String filename = ""+genNumber;
 		while( filename.length() < 4 ) filename = "0"+filename;
 		filename = "Generation"+filename+".png";
@@ -187,17 +206,21 @@ public class DispersalDisplay extends Thread implements ItemListener
 		ds.outputTimer2.stop();
 	}
 	
-	public void drawGen(int genNumber) throws Exception
+	public void drawGen(final ArrayList<Node> thisGeneration, int genNumber) throws Exception
 	{
+	//	System.out.println(thisGeneration.size()+" " + genNumber);
 		Graphics2D g2d = bi.createGraphics();
 		g2d.drawImage(background,0,0,null);
 
+		Node n;
 		for(int i=0; i<thisGeneration.size(); i++) {
-			int x = (int)(bi.getWidth()*(thisGeneration.get(i).lon - ds.getMinLon()) / (ds.getMaxLon() - ds.getMinLon()));
-			int y = (int)(bi.getHeight()*(thisGeneration.get(i).lat - ds.getMinLat()) / (ds.getMaxLat() - ds.getMinLat()));
-			g2d.setColor( thisGeneration.get(i).c );
+			n = thisGeneration.get(i);
+			int x = (int)(bi.getWidth()*(n.lon - ds.getMinLon()) / (ds.getMaxLon() - ds.getMinLon()));
+			int y = (int)(bi.getHeight()*(n.lat - ds.getMinLat()) / (ds.getMaxLat() - ds.getMinLat()));
+			//g2d.setColor(  thisGeneration.get(i).c);
 			//g2d.drawLine(x,y,x+1,y+1);
-			g2d.drawLine(x,y,x,y);
+			//g2d.drawLine(x,y,x,y);
+			bi.setRGB(x,y,n.c.getRGB());
 		}
 		
 		g2d.setColor(new Color(255,255,255,255));
@@ -207,7 +230,7 @@ public class DispersalDisplay extends Thread implements ItemListener
 		//this.repaint();
 	}
 	
-	public void itemStateChanged(ItemEvent e) 
+	/*public void itemStateChanged(ItemEvent e) 
 	{
 		Object source = e.getItemSelectable();
 		
@@ -230,5 +253,5 @@ public class DispersalDisplay extends Thread implements ItemListener
 		catch( Exception e2 ) {
 			System.out.println("Unable to update display!");
 		}
-	}
+	}*/
 }

@@ -26,9 +26,9 @@ import static java.lang.Math.*;
 class DispersalFunctions {
 	public final static int _xsize = 0;
 	public final static int _ysize = 1;
-	public final static int numRand = 60000;
-	Index sb_old = new Index(0);
-	Index hb_old = new Index(0);
+	//public final static int numRand = 60000;
+	XYFunction sb_old ;
+	XYFunction hb_old ;
 
 	GPU gpu;
 	
@@ -67,29 +67,27 @@ class DispersalFunctions {
 		java.util.Random rand2 = new java.util.Random(rand.nextInt());		// Added by JMB -- 4.5.10
 
 		
-		
-		
 		ArrayList<Node> children = populate4GPU(thisGeneration,rand2);
 		long[] parami = new long[Migrate.__DIMSUM_PARAMI_RANDINDEX+children.size()];
-		Index hb = null;
+		XYFunction hb = null;
 		if (children.get(0).generation-1 == end_gen)								// JMB -- Added to make sure that children of the final generation get the right hard borders
-			hb = settings.hardborders.calcIndex(children.get(0).generation-1);
+			hb = settings.getHardBorders(children.get(0).generation-1);
 		else
-			hb = settings.hardborders.calcIndex(children.get(0).generation);
-		Index sb = null;
+			hb = settings.getHardBorders(children.get(0).generation);
+		XYFunction sb = null;
 		if (children.get(0).generation-1 == end_gen)									// JMB -- Added to make sure that children of the final generation get the right soft borders
-			sb = settings.softborders.calcIndex(children.get(0).generation-1);
+			sb = settings.getSoftBorders(children.get(0).generation-1);
 		else
-			sb = settings.softborders.calcIndex(children.get(0).generation);
+			sb = settings.getSoftBorders(children.get(0).generation);
 		
-		if(sb.value() != sb_old.value()) {
+		if(sb != sb_old) {
 			sb_old = sb;
-			gpu.updateGPU(gpu.sb_DEV, settings.softborders.getF(sb));
+			gpu.updateGPU(gpu.sb_DEV, sb.getF());
 			
 		}
-		if(hb.value() != hb_old.value()) {
+		if(hb != hb_old) {
 			hb_old = hb;
-			gpu.updateGPU(gpu.hb_DEV, settings.hardborders.getF(hb));
+			gpu.updateGPU(gpu.hb_DEV, hb.getF());
 			
 		}
 		
@@ -101,10 +99,10 @@ class DispersalFunctions {
 		double sb_latspace = 0.0;
 		double hb_lonspace = 0.0;
 		double hb_latspace = 0.0;
-		sb_lonspace = (maxlon-minlon)/(settings.softborders.getMaxX(sb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
-		sb_latspace = (maxlat-minlat)/(settings.softborders.getMaxY(sb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
-		hb_lonspace = (maxlon-minlon)/(settings.hardborders.getMaxX(hb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
-		hb_latspace = (maxlat-minlat)/(settings.hardborders.getMaxY(hb));		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
+		sb_lonspace = (maxlon-minlon)/(sb.getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LONGITUDES IN DECIMAL DEGREES (UNIT: DEGREES/PIXEL)
+		sb_latspace = (maxlat-minlat)/(sb.getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR SOFT BORDER LATITUDES IN DECIMAL DEGREES
+		hb_lonspace = (maxlon-minlon)/(hb.getMaxX());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LONGITUDES IN DECIMAL DEGREES
+		hb_latspace = (maxlat-minlat)/(hb.getMaxY());		// JMB COMMENT -- DETERMINES PIXEL SIZE FOR HARD BORDER LATITUDES IN DECIMAL DEGREES						
 		double[] latlon = new double[8];
 		double lat_offset = 0;//settings.getMinLat();
 		double lon_offset = 0;//settings.getMinLon();
@@ -122,33 +120,39 @@ class DispersalFunctions {
 		//Node childrenX[] = new Node[children.size()];
 		int rm[] = new int[children.size()];
 		double[] d = new double[children.size()];
-		double[] node = new double[2*children.size()];
-
-		for(int i=0; i<children.size(); i++) {
-			Node n = children.get(i);
-			node[i*2+Migrate.__DIMSUM_NODE_lat] = n.parent.lat-lat_offset;
-			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
-			}
 
 		
 		//parami[0] = 0;
 	//	parami[1] = randArray.length;
-		parami[Migrate.__DIMSUM_PARAMI_SB_INDEX] = sb.value();
-		parami[Migrate.__DIMSUM_PARAMI_HB_INDEX] = hb.value();
+	//	parami[Migrate.__DIMSUM_PARAMI_SB_INDEX] = sb.value();
+		//parami[Migrate.__DIMSUM_PARAMI_HB_INDEX] = hb.value();
 		parami[Migrate.__DIMSUM_PARAMI_GENERATION] = children.get(0).generation;
 		parami[Migrate.__DIMSUM_PARAMI_NUMCHILDREN] = children.size();
-		parami[Migrate.__DIMSUM_PARAMI_SB_XSIZE] = settings.softborders._size_gen.get(sb.value(), _xsize);
-		parami[Migrate.__DIMSUM_PARAMI_SB_YSIZE] = settings.softborders._size_gen.get(sb.value(), _ysize);
-		parami[Migrate.__DIMSUM_PARAMI_HB_XSIZE] = settings.hardborders._size_gen.get(hb.value(), _xsize);
-		parami[Migrate.__DIMSUM_PARAMI_HB_YSIZE] = settings.hardborders._size_gen.get(hb.value(), _ysize);
+		parami[Migrate.__DIMSUM_PARAMI_SB_XSIZE] = sb.getMaxX();
+		parami[Migrate.__DIMSUM_PARAMI_SB_YSIZE] = sb.getMaxY();
+		parami[Migrate.__DIMSUM_PARAMI_HB_XSIZE] = hb.getMaxX();
+		parami[Migrate.__DIMSUM_PARAMI_HB_YSIZE] = hb.getMaxY();
 		//System.out.println(parami[Prepared4GPU.__DIMSUM_PARAMI_SB_XSIZE]+" "+parami[Prepared4GPU.__DIMSUM_PARAMI_SB_YSIZE]);
 		
 		
 		
 		
 		for(int i=0;i<children.size();i++) {
-			d[i] = settings.getDispersalRadius((int)parami[Migrate.__DIMSUM_PARAMI_GENERATION] ,rand2);
+			children.get(i).d = settings.getDispersalRadius((int)parami[Migrate.__DIMSUM_PARAMI_GENERATION] ,rand2);
 		}
+		Collections.sort(children);
+		
+		
+		double[] node = new double[2*children.size()];
+
+		for(int i=0; i<children.size(); i++) {
+			Node n = children.get(i);
+			d[i] = n.d;
+			node[i*2+Migrate.__DIMSUM_NODE_lat] = n.parent.lat-lat_offset;
+			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
+			}
+
+
 		for(int i=Migrate.__DIMSUM_PARAMI_RANDINDEX;i<Migrate.__DIMSUM_PARAMI_RANDINDEX+children.size();i++)
 			parami[i] = rand2.nextLong();
 		
@@ -177,7 +181,7 @@ class DispersalFunctions {
 		for(int i=0;i<children.size(); i++) {
 			Node n = children.get(i);
 			if(rm[i]==1)
-				n.parent.children.remove( n.parent.children.indexOf( n ) );
+				n.parent.children.remove( n );
 		}
 		
 		int length=0;
@@ -326,15 +330,15 @@ class DispersalFunctions {
 		settings.cCCTimer.start();
 		ArrayList<Node> children2 = new ArrayList<Node>(children.size());
 		if( children.size() > 0 ) {
-			Index ccap = settings.carryingcapacity.calcIndex(children.get(0).generation);
+			XYFunction ccap = settings.getCarryingCapacity(children.get(0).generation);
 			if (children.get(0).generation-1 == end_gen)
-				ccap = settings.carryingcapacity.calcIndex(children.get(0).generation-1);
-			int[][] count = new int[settings.carryingcapacity.getMaxY(ccap)][settings.carryingcapacity.getMaxX(ccap)];
+				ccap = settings.getCarryingCapacity(children.get(0).generation-1);
+			int[][] count = new int[ccap.getMaxY()][ccap.getMaxX()];
 			int max_count =0;
 			int x,y;
 			for(int i=0; i<children.size(); i++) {
-				y = settings.carryingcapacity.toX(ccap,children.get(i).lat,settings.getMinLat(),settings.getMaxLat(),_ysize);
-				x = settings.carryingcapacity.toX(ccap,children.get(i).lon,settings.getMinLon(),settings.getMaxLon(),_xsize);
+				y = ccap.toX(children.get(i).lat,settings.getMinLat(),settings.getMaxLat(),_ysize);
+				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon(),_xsize);
 				count[y][x] += 1;
 				if(count[y][x]>max_count)
 					max_count = count[y][x];
@@ -344,12 +348,12 @@ class DispersalFunctions {
 					System.out.print(count[r][c]+" ");
 			System.out.println();*/ //this outputs the count to console
 		
-			boolean rmchild[][][] = new boolean[settings.carryingcapacity.getMaxY(ccap)][settings.carryingcapacity.getMaxX(ccap)][max_count];
+			boolean rmchild[][][] = new boolean[ccap.getMaxY()][ccap.getMaxX()][max_count];
 			
 			int r;
-			for(x=0;x<settings.carryingcapacity.getMaxX(ccap);x++) {
-				for(y=0;y<settings.carryingcapacity.getMaxY(ccap);y++) { // this could be parallelized
-					for(int i =0; i<count[y][x]-settings.carryingcapacity.f(ccap,x,y); i++) {
+			for(x=0;x<ccap.getMaxX();x++) {
+				for(y=0;y<ccap.getMaxY();y++) { // this could be parallelized
+					for(int i =0; i<count[y][x]-ccap.f(x,y); i++) {
 						r = (int)(rand.nextDouble() * count[y][x]);
 						while(rmchild[y][x][r])
 							r = (int)(rand.nextDouble() * count[y][x]);
@@ -359,12 +363,12 @@ class DispersalFunctions {
 			}
 			
 			for(int i=0;i<children.size();i++) {
-				y = settings.carryingcapacity.toX(ccap,children.get(i).lat,settings.getMinLat(),settings.getMaxLat(),_ysize);
-				x = settings.carryingcapacity.toX(ccap,children.get(i).lon,settings.getMinLon(),settings.getMaxLon(),_xsize);
+				y = ccap.toX(children.get(i).lat,settings.getMinLat(),settings.getMaxLat(),_ysize);
+				x = ccap.toX(children.get(i).lon,settings.getMinLon(),settings.getMaxLon(),_xsize);
 				count[y][x]--;
 				if(rmchild[y][x][count[y][x]]) {
-					if( children.get(i).parent.children.indexOf( children.get(i) ) != -1 )
-						children.get(i).parent.children.remove( children.get(i).parent.children.indexOf( children.get(i) ));
+					//if( children.get(i).parent.children.indexOf( children.get(i) ) != -1 )
+						children.get(i).parent.children.remove( children.get(i) );
 				} else
 					children2.add(children.get(i));
 			}
@@ -373,55 +377,54 @@ class DispersalFunctions {
 		return children2;
 	}
 
-	public void prune(ArrayList<Node> thisGeneration) {
+	public void prune(ArrayList<Node> thisGeneration, int generation) {
 		// Each member of the generation must be tested for pruning.
+		boolean[] rm = new boolean[thisGeneration.size()];
+		for(int i=0;i<rm.length;i++)
+			rm[i] = false;
 		
-		Iterator thisGenItr = thisGeneration.iterator();
-		
-		//for(int i=0; i<thisGeneration.size(); i++)
-		while (thisGenItr.hasNext())
+	
+		for(int i=0; i<thisGeneration.size(); i++)
+		//while (thisGenItr.hasNext())
 		{
-			//Node current = thisGeneration.get(i);
-			Node current = (Node)thisGenItr.next();
+			Node current = thisGeneration.get(i);
+		//	Node current = (Node)thisGenItr.next();
 			// If a member of this generation is pruned, it might make a member of the last generation eligible for pruning.
 			// Hence, the while loop.
 			while( current != null && current.parent != null ) 
 			{
 				// To remove a node from memory, we must remove all pointers to it.
 				if( current.children.size() == 0 )															//	NOTE BY JMB -- 10.19.09 -- THIS LOOP DOES THE ACTUAL DELETING OF EXTINCT LINEAGES	
-				{
-					// if( current.parent.children.indexOf(current) != -1 )
-						current.parent.children.remove( current.parent.children.indexOf( current ) );
-					if (thisGeneration.indexOf(current) != -1)
-						thisGenItr.remove();																// JMB -- 4.13.10 -- Hadn't previously been removing individual from current generation array list!
-					Node temp = current.parent;																// ADDED BY JMB -- 10.19.09 -- THESE TWO LINES SHOULDN'T MATTER, BUT MAY MAKE THE DELETION CLEANER
-					current.parent = null;																	// ADDED BY JMB -- 10.19.09
-					current = temp;
-					temp = null;																			// ADDED BY JMB -- 10.19.09
+				{	
+					current.parent.children.remove(  current  );
+					if  (current.generation == generation) {
+						rm[i] = true;
+					}
+
+					current = current.parent;
 				}
 				else if( current.children.size() == 1 && current.generation != 1)							// NOTE BY JMB -- 10.19.09 -- THIS LOOP RECONNECTS POINTERS AROUND INDIVIDUALS
 				{																							//								WITH ONLY ONE DESCENDANT
 					current.children.get(0).parent = current.parent;
+					current.parent.children.remove(  current  );
 					current.parent.children.add( current.children.get(0) );
-					// if( current.parent.children.indexOf(current) != -1 )
-						current.parent.children.remove( current.parent.children.indexOf( current ) );
-					if (thisGeneration.indexOf(current) != -1)
-						thisGenItr.remove();																// JMB -- 4.13.10 -- Hadn't previously been removing individual from current generation array list!
-					Node temp = current.parent;																// ADDED BY JMB -- 10.19.09 -- LINES TURN CURRENT POINTERS TO NULL, SO THEY DON'T POINT OUT
-					current.parent = null;																	// ADDED BY JMB -- 10.19.09
-					int j = 0;																				// ADDED BY JMB -- 10.19.09
-					while (current.children.size() > 0)														// ADDED BY JMB -- 10.19.09
-					{																						// ADDED BY JMB -- 10.19.09	
-						current.children.remove(j);															// ADDED BY JMB -- 10.19.09	
-						j++;																				// ADDED BY JMB -- 10.19.09
-					}																						// ADDED BY JMB -- 10.19.09
-					current = temp;
-					temp = null;																			// ADDED BY JMB -- 10.19.09
+					
+					if (current.generation == generation) {
+						rm[i]=true;	
+					}
+					
+					current = current.parent;
 				}
 				else
 					break;
 			}
 		}
+		ArrayList<Node> tmp = new ArrayList<Node>(thisGeneration.size());
+		for(int i=0;i<rm.length;i++)
+			if(!rm[i]) tmp.add(thisGeneration.get(i));
+		thisGeneration.clear();
+		thisGeneration = tmp;
+		
 	}
 	
 	// ***************	ADDED BY JMB -- 10.19.09 **************************************
@@ -469,7 +472,7 @@ class DispersalFunctions {
 		}
 	}*/
 	
-	private Node flag_prune(Node node, int generation)
+	/*private Node flag_prune(Node node, int generation)
 	{
 		if (node.generation < generation && node.children.size() == 0)  // Case for nodes that should have been deleted
 			return node;
@@ -489,7 +492,7 @@ class DispersalFunctions {
 			System.out.println("*********** How did I get here?? ***********");
 			return null;
 		}
-	}
+	}*/
 	
 	// *******************************************************************************
 }

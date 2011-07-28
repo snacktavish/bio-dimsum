@@ -54,27 +54,11 @@ public class GPU {
         function = new CUfunction();
         JCudaDriver.cuModuleGetFunction(function, module, "migrateGPU");
 	}
-	
-	public CUarray cpRandArray2GPU(float[] rand) {
-		System.out.println("CP RAND START");
-		CUarray tmp =  cp2gpu(rand,"randArray");
-		System.out.println("CP RAND FINISH");
-		return tmp;
-	}
-	
-	public void rmRandArray(CUarray array) {
-		cuArrayDestroy(array);
-	}
-	
-	public  void updaterand(CUarray array, float[] src ){
-		Pointer pInput = Pointer.to(src);
-        cuMemcpyHtoA(array, 0, pInput, src.length * Sizeof.FLOAT);
-	}
-	
+
 	public void cpBorders2GPU(XYFunction soft, XYFunction hard) {
 		System.out.println("CP BORDER START");
-		sb_DEV=cp2gpu(soft.getF(new Index(0)),"softborderDATA");
-		hb_DEV=cp2gpu(hard.getF(new Index(0)),"hardborderDATA");
+		sb_DEV=cp2gpu(soft.getF(),"softborderDATA");
+		hb_DEV=cp2gpu(hard.getF(),"hardborderDATA");
 	//	cp2gpu(soft._size_gen,"softborderMETA");
 	//	cp2gpu(hard._size_gen,"hardborderMETA");
 		System.out.println("CP BORDER FINISH");
@@ -146,54 +130,7 @@ public class GPU {
         cuMemFree(childrenDevice);   
 }
 	
-	
-	private CUarray cp2gpu(int[] src, String texName) {
-		int sizeX = src.length;
-		CUarray array = new CUarray();
-        CUDA_ARRAY_DESCRIPTOR ad = new CUDA_ARRAY_DESCRIPTOR();
-        ad.Format = CU_AD_FORMAT_SIGNED_INT32;
-        ad.Width = sizeX;
-        ad.Height = 1;
-        ad.NumChannels = 1;
-        cuArrayCreate(array, ad);
 
-        Pointer pInput = Pointer.to(src);
-        cuMemcpyHtoA(array, 0, pInput, sizeX * Sizeof.INT);
-
-        CUtexref texref = new CUtexref();
-        cuModuleGetTexRef(texref, module, texName);
-        cuTexRefSetFilterMode(texref, CU_TR_FILTER_MODE_POINT);
-        cuTexRefSetAddressMode(texref, 0, CU_TR_ADDRESS_MODE_CLAMP);
-        //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
-        cuTexRefSetFormat(texref, CU_AD_FORMAT_SIGNED_INT32, 1);
-        cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
-        return array;
-	}
-	
-	private CUarray cp2gpu(float[] src, String texName) {
-		System.out.println(src.length);
-		int sizeX = src.length;
-		CUarray array = new CUarray();
-        CUDA_ARRAY_DESCRIPTOR ad = new CUDA_ARRAY_DESCRIPTOR();
-        ad.Format = CU_AD_FORMAT_FLOAT;
-        ad.Width = sizeX;
-        ad.Height = 1;
-        ad.NumChannels = 1;
-        cuArrayCreate(array, ad);
-
-        Pointer pInput = Pointer.to(src);
-        cuMemcpyHtoA(array, 0, pInput, sizeX * Sizeof.FLOAT);
-
-        CUtexref texref = new CUtexref();
-        cuModuleGetTexRef(texref, module, texName);
-        cuTexRefSetFilterMode(texref, CU_TR_FILTER_MODE_POINT);
-        cuTexRefSetAddressMode(texref, 0, CU_TR_ADDRESS_MODE_CLAMP);
-        //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
-        cuTexRefSetFormat(texref, CU_AD_FORMAT_FLOAT, 1);
-        cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
-        return array;
-	}
-	
 	public  void updateGPU(CUarray array, FloatArray2D src ){
 		int sizeX = src.size()[0];
 		int sizeY = src.size()[1];
@@ -208,52 +145,11 @@ public class GPU {
         cuMemcpy2D(copyHD);
 	}
 	
-
-	private CUarray cp2gpu(FloatArray3D src, String texName) {
-		int sizeX = src.size()[0];
-		int sizeY = src.size()[1];
-		int sizeZ = src.size()[2];
-		
-		CUarray array = new CUarray();
-        CUDA_ARRAY3D_DESCRIPTOR ad = new CUDA_ARRAY3D_DESCRIPTOR();
-        ad.Format = CU_AD_FORMAT_FLOAT;
-        ad.Width = sizeX;
-        ad.Height = sizeY;
-        ad.Depth = sizeZ;
-        ad.NumChannels = 1;
-        cuArray3DCreate(array, ad);
-
-        CUDA_MEMCPY3D copy = new CUDA_MEMCPY3D();
-        copy.srcMemoryType = CUmemorytype.CU_MEMORYTYPE_HOST;
-        copy.srcHost = Pointer.to(src._data);
-        copy.srcPitch = sizeX * Sizeof.FLOAT;
-        copy.srcHeight = sizeY;
-        copy.dstMemoryType = CUmemorytype.CU_MEMORYTYPE_ARRAY;
-        copy.dstArray = array;
-        copy.dstHeight = sizeX;
-        copy.WidthInBytes = sizeX * Sizeof.FLOAT;
-        copy.Height = sizeY;
-        copy.Depth = sizeZ;
-        cuMemcpy3D(copy);
-
-        CUtexref texref = new CUtexref();
-        cuModuleGetTexRef(texref, module, texName);
-        cuTexRefSetFilterMode(texref, CU_TR_FILTER_MODE_POINT);
-        cuTexRefSetAddressMode(texref, 0, CU_TR_ADDRESS_MODE_CLAMP);
-        cuTexRefSetAddressMode(texref, 1, CU_TR_ADDRESS_MODE_CLAMP);
-        cuTexRefSetAddressMode(texref, 2, CU_TR_ADDRESS_MODE_CLAMP);
-        //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
-        cuTexRefSetFormat(texref, CU_AD_FORMAT_FLOAT, 1);
-        cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
-        return array;
-	}
-	
 	
 	private CUarray cp2gpu(FloatArray2D src, String texName) {
 		
 		int sizeX = src.size()[0];
 		int sizeY = src.size()[1];
-		System.out.println(sizeX+" "+sizeY);
 		CUarray array = new CUarray();
         CUDA_ARRAY_DESCRIPTOR ad = new CUDA_ARRAY_DESCRIPTOR();
         ad.Format = CU_AD_FORMAT_FLOAT;
@@ -282,41 +178,4 @@ public class GPU {
         cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
         return array;
 	}
-	
-	
-	
-	private CUarray cp2gpu(IntArray2D src, String texName) {
-		int sizeX = src.size()[0];
-		int sizeY = src.size()[1];
-		CUarray array = new CUarray();
-        CUDA_ARRAY_DESCRIPTOR ad = new CUDA_ARRAY_DESCRIPTOR();
-        ad.Format = CU_AD_FORMAT_SIGNED_INT32;
-        ad.Width = sizeX;
-        ad.Height = sizeY;
-        ad.NumChannels = 1;
-        cuArrayCreate(array, ad);
-
-        CUDA_MEMCPY2D copyHD = new CUDA_MEMCPY2D();
-        copyHD.srcMemoryType = CUmemorytype.CU_MEMORYTYPE_HOST;
-        copyHD.srcHost = Pointer.to(src._data);
-        copyHD.srcPitch = sizeX * Sizeof.INT;
-        copyHD.dstMemoryType = CUmemorytype.CU_MEMORYTYPE_ARRAY;
-        copyHD.dstArray = array;
-        copyHD.WidthInBytes = sizeX * Sizeof.INT;
-        copyHD.Height = sizeY;
-        cuMemcpy2D(copyHD);
-
-        CUtexref texref = new CUtexref();
-        cuModuleGetTexRef(texref, module, texName);
-        cuTexRefSetFilterMode(texref, CU_TR_FILTER_MODE_POINT);
-        cuTexRefSetAddressMode(texref, 0, CU_TR_ADDRESS_MODE_CLAMP);
-        cuTexRefSetAddressMode(texref, 1, CU_TR_ADDRESS_MODE_CLAMP);
-        //cuTexRefSetFlags(texref, CU_TRSF_NORMALIZED_COORDINATES);
-        cuTexRefSetFormat(texref, CU_AD_FORMAT_SIGNED_INT32, 1);
-        cuTexRefSetArray(texref, array, CU_TRSA_OVERRIDE_FORMAT);
-        return array;
-	}
-	
-
-
 }
