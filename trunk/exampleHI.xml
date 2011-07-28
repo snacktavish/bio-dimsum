@@ -52,7 +52,7 @@ Here are highly informal descriptions of a few XML terms:
 	 Simulations begun with the same seed will always produce the same output.  If no seed is given,
 	 DIM SUM will seed the random number generator with the time of the system clock. -->
 
-	<seed> 3451 </seed>
+	<seed> 3452 </seed>
 
 <!-- Enter the number of generations for which the simulation should run between 
 	 <generations> and </generations> -->
@@ -117,16 +117,16 @@ Here are highly informal descriptions of a few XML terms:
 	 the input file if it is not located in the same directory as the DIM SUM jar. For this example,
 	 the input image file ("ExampleHI.png") is stored in another folder ("ExampleInputs"). -->
 
-	<carryingcapacity xsize="1024" ysize="768">
-		<data type="image" color="green" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+	<carryingcapacity>
+		<data type="image" color="green" maxvalue="1">ExampleInputs/ExampleHI3300x2330.png</data>
     </carryingcapacity>
 
-	<hardborders xsize="1024" ysize="768">
-		<data type="image" color="red" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+	<hardborders>
+		<data type="image" color="red" maxvalue="1">ExampleInputs/ExampleHI3300x2330.png</data>
 	</hardborders>
 
-	<softborders xsize="1024" ysize="768">		
-    	<data type="image" color="blue" maxvalue="1">ExampleInputs/ExampleHI.png</data>
+	<softborders>		
+    	<data type="image" color="blue" maxvalue="1">ExampleInputs/ExampleHI3300x2330.png</data>
     </softborders>
 	
 <!-- Example XML code is given below for the use of a text file as input.  Note that in this case,
@@ -160,7 +160,7 @@ Here are highly informal descriptions of a few XML terms:
 	 length (as long as it is the same length for both), so continuous distributions can be 
 	 approximated quite closely, if desired.  -->
     
-	<reproductiveability size="2">
+	<reproductiveability>
 		<distribution offspring="1 2" p=".3 .7"/>
 	</reproductiveability>
 	
@@ -169,7 +169,7 @@ Here are highly informal descriptions of a few XML terms:
 	 in an empty "distribution" tag, as above for numbers of offspring.  However, this 
 	 "distribution" tag is nested in a "dispersalradius" element. -->
 	
-	<dispersalradius size="4">
+	<dispersalradius>
 		<distribution radii="1 7 50 70 " p=".8 .1 .05 .05"/>
 	</dispersalradius>
 	
@@ -225,10 +225,10 @@ Here are highly informal descriptions of a few XML terms:
 		<treestructure delimeter='#' output='parent' trim='false' file='anc_phylo.tre' output_every='10' resolve='true'/>
 		<treestructure delimeter=':' output='distance' mutationrate='0.1' trim='false' file='dist_phylo.tre'  output_every='10' resolve='true'/>
 		<locations generation='all' file='locs.txt'  output_every='10'/>
-		<!--<sample type="grid" dlat="1.0" dlon="1.0" n="10" file='grid_samps.txt' output_every='10'>
+	 <sample type="grid" dlat="1.0" dlon="1.0" n="10" file='grid_samps.txt' output_every='10'>
 			<treestructure delimeter='#' output='parent' mutationrate='0.1' trim='false' resolve='true' file='pruned_anc_phylo.tre'/>
 			<locations file='pruned_locs.txt'/>
-		</sample>-->
+		</sample>
 	</output>
 	
 <!-- A "simulation" end tag is required at the end of the file. -->

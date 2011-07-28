@@ -21,90 +21,34 @@ import java.util.*;
 import java.lang.*;
 
 class PFunction {
-	//private float[] _outcomes_probabilities;
-	public FloatArray3D _outcomes_probabilities;
-	public IntArray2D _size_gen;
-	int _index =0;
-	public final static int _outcomes = 0;
-	public final static int _probabilities = 1;
-
-	public final static int startgeneration = 2;
-	public final static int endgeneration = 3;
-	
-	public PFunction(int x,int y) {
-		_outcomes_probabilities = new FloatArray3D(x, 2, y);
-		_size_gen = new IntArray2D(x, 4);
-	}
-	
-	public void add(String outcomeslist,String probabilitieslist,int sg, int eg) throws Exception {
-		ArrayList<Double> outcomes, probabilities;
-
-		outcomes = new ArrayList<Double>();
-		probabilities = new ArrayList<Double>();
-		
-		StringTokenizer strtok = new StringTokenizer(outcomeslist);
-		while( strtok.hasMoreTokens() )
-			outcomes.add( new Double( Double.parseDouble(strtok.nextToken()) ) );
-			
-		strtok = new StringTokenizer(probabilitieslist);
-		while( strtok.hasMoreTokens() )
-			probabilities.add( new Double( Double.parseDouble(strtok.nextToken()) ) );
-			
-		if( outcomes.size() != probabilities.size() )
-			throw new Exception("Size of probability list and outcome list does not match.");
-		//_outcomes_probabilities = new float[outcomes.size()*2];
-		for(int i=0;i<outcomes.size();i++)
-		{
-			double tmp = outcomes.get(i);
-			_outcomes_probabilities.set(_index, i, _outcomes,(float)tmp);
-			tmp = probabilities.get(i);
-			_outcomes_probabilities.set(_index,i,_probabilities,(float)tmp);
-		}
-		_size_gen.set(_index, _outcomes, outcomes.size());
-		_size_gen.set(_index, _probabilities, probabilities.size());
-
-		_size_gen.set(_index, startgeneration, sg);
-		_size_gen.set(_index, endgeneration, eg);
-
-		_index++;
-	}
-	
-	public double getP(int generation, java.util.Random rand) {
-		double p = rand.nextDouble();
-		return getP(generation, p);
-	}
-	
-	public double getP(int generation, double p) {
-		//PFunction thefunc=null;
-		int ind=-1;
-		for(int i=0;i<_outcomes_probabilities.xsize(); i++)
-			if( _size_gen.get(i, startgeneration) <= generation &&  _size_gen.get(i, endgeneration)>= generation )	// MODIFIED BY JMB -- 10.20.09 -- CHANGED FINAL > TO >=
-				ind = i;
-		if( ind == -1 ) {
-			for(int i=0;i<_outcomes_probabilities.xsize();i++)
-				if( _size_gen.get(i, startgeneration) == -1 && _size_gen.get(i, endgeneration) == -1 ) {
-					ind = i;
-					break;
-				}
-		}
-		if(ind ==-1) {
-			System.err.println("asdasdasdas");
-			System.exit(-1);
-		}
-			
-		return draw(ind, p);
-	}
-	
-
-	private double draw(int x, double p) {
-	
-		double c = 0.0;
-		int i=0;
-		for(i=0; i<_size_gen.get(x, _outcomes); i++) {
-			if( p >= c && p <= c+_outcomes_probabilities.get(x, i, _probabilities) )
-				return _outcomes_probabilities.get(x, i, _outcomes);
-			c+=_outcomes_probabilities.get(x, i, _probabilities);
-		}
-		return _outcomes_probabilities.get(x, _size_gen.get(x,_outcomes)-1, _outcomes);
-	}
+        public int startgeneration=-1,endgeneration=-1;
+        ArrayList<Double> outcomes, probabilities;
+        
+        public PFunction(String outcomeslist,String probabilitieslist) throws Exception {
+                outcomes = new ArrayList<Double>();
+                probabilities = new ArrayList<Double>();
+                
+                StringTokenizer strtok = new StringTokenizer(outcomeslist);
+                while( strtok.hasMoreTokens() )
+                        outcomes.add( new Double( Double.parseDouble(strtok.nextToken()) ) );
+                        
+                strtok = new StringTokenizer(probabilitieslist);
+                while( strtok.hasMoreTokens() )
+                        probabilities.add( new Double( Double.parseDouble(strtok.nextToken()) ) );
+                        
+                if( outcomes.size() != probabilities.size() )
+                        throw new Exception("Size of probability list and outcome list does not match.");
+        }
+        
+        public double draw(java.util.Random rand) {
+                double p = rand.nextDouble();
+                double c = 0.0;
+                int i=0;
+                for(i=0; i<probabilities.size(); i++) {
+                        if( p >= c && p <= c+probabilities.get(i) )
+                                return outcomes.get(i);
+                        c+=probabilities.get(i);
+                }
+                return outcomes.get(outcomes.size()-1);
+        }
 }

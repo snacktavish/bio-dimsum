@@ -2,7 +2,7 @@
 public class Timer {
 	
 	private final static boolean ENABLED = true;
-	private final static boolean VERBOSE = false;
+	private boolean VERBOSE = false;
 	
 	private String name;
 	private long tmpTime = 0;
@@ -11,6 +11,11 @@ public class Timer {
 	
 	public Timer(String name) {
 		this.name = name;
+	}
+	
+	public Timer(String name, boolean v) {
+		this.name = name;
+		VERBOSE = v;
 	}
 	
 	

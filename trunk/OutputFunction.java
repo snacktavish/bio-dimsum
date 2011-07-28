@@ -31,10 +31,13 @@ class OutputFunction {
 	String type = "";
 	
 	String delimeter = "";
-	String output = "";
+	String _output = "";
 	boolean trim = false;
 	boolean resol = false;
 	double mutationrate = 0.0;
+
+	
+	PrintWriter out;
 	
 	String generations = ""; // -1 is output all generations
 	
@@ -98,16 +101,16 @@ class OutputFunction {
 				delimeter = "#";
 			}
 			try {
-				output = input.getAttribute("output").getValue();
+				_output = input.getAttribute("output").getValue();
 			} catch( Exception e ) {
-				output = "parent";
+				_output = "parent";
 			}
 			try {
 				trim = input.getAttribute("trim").getValue().equalsIgnoreCase("true");
 			} catch( Exception e ) {
 				trim = false;
 			}
-			if( output.equalsIgnoreCase("distance") ) {
+			if( _output.equalsIgnoreCase("distance") ) {
 				try {
 					mutationrate = Double.parseDouble(input.getAttribute("mutationrate").getValue());
 				} catch( Exception e ) {
@@ -171,60 +174,92 @@ class OutputFunction {
 	}
 
 	public void execute(ArrayList<Node> lastGeneration,int generation_number, java.util.Random rand) throws Exception {
-		String output = "";
-		
-		if( type.equalsIgnoreCase("treestructure") ) {
-			output = treestructure(lastGeneration,false);
-		}
-		if( type.equalsIgnoreCase("locations") ) {
-			output = locations(lastGeneration);
-		}
-		if( type.equalsIgnoreCase("sample") ) {
-			int seed = rand.nextInt();				// JMB -- 4.12.10 -- Fixes seed to replicate results for return of string output and nodes from two diff. functions
-			ArrayList<Node> lastGenCopy = deepTreeCopy(lastGeneration);
-			output = sample(lastGenCopy,seed);
-			ArrayList<Node> sampled = sampleNodes(lastGenCopy,seed);  // JMB -- 4.12.10 -- Records sampled Nodes
-			for (int i=0; i<optionalSampleOuts.size(); i++)
-				optionalSampleOuts.get(i).execute(lastGenCopy, sampled,generation_number,i);			// JMB -- 4.12.10 -- Overloaded execute() required
-		}
-		
 		if( ofile.equalsIgnoreCase("") )
-			System.out.println(output);
+			out = new PrintWriter(System.out);
 		else {
 			try {
 				//if( generation_number != -1 && !type.equalsIgnoreCase("sample"))
 				//	outputfile = new BufferedWriter(new FileWriter(ofile+(generation_number+1)));
 				if (generation_number != -1)
-					outputfile = new BufferedWriter(new FileWriter(ofile+generation_number));
+					out = new PrintWriter(new FileWriter(ofile+generation_number));
 				/*else if( generation_number != -1 && type.equalsIgnoreCase("sample"))
 					outputfile = new BufferedWriter(new FileWriter(ofile+generation_number));*/
 				else if( generation_number == -1)
-					outputfile = new BufferedWriter(new FileWriter(ofile));
-				String[] lines = output.split("\n");
+					out = new PrintWriter(new FileWriter(ofile));
+				/*String[] lines = output.split("\n");
 				for(int i=0; i<lines.length; i++) {
-					outputfile.write(lines[i]);
-					outputfile.newLine();
-				}
+					out.write(lines[i]);
+					out.newLine();
+				}*/
 				
-				outputfile.close();
+	
 			}
 			catch( Exception e ) {
 				System.out.println("Unable to output to file \""+ofile+"\"! Outputting to console instead:");
-				System.out.println(output);
+				//System.out.println(output);
+				out = new PrintWriter(System.out);
 			}
 		}
+		
+		
+	//	String output = "";
+		
+		if( type.equalsIgnoreCase("treestructure") ) {
+			treestructure(lastGeneration,false);
+		}
+		if( type.equalsIgnoreCase("locations") ) {
+			locations(lastGeneration);
+		}
+		if( type.equalsIgnoreCase("sample") ) {
+			int seed = rand.nextInt();				// JMB -- 4.12.10 -- Fixes seed to replicate results for return of string output and nodes from two diff. functions
+			ArrayList<Node> lastGenCopy = deepTreeCopy(lastGeneration);
+			sample(lastGenCopy,seed);
+			ArrayList<Node> sampled = sampleNodes(lastGenCopy,seed);  // JMB -- 4.12.10 -- Records sampled Nodes
+			for (int i=0; i<optionalSampleOuts.size(); i++)
+				optionalSampleOuts.get(i).execute(lastGenCopy, sampled,generation_number,i);			// JMB -- 4.12.10 -- Overloaded execute() required
+		}
+		
+		out.close();
 	}
 	
 	public void execute(ArrayList<Node> all, ArrayList<Node> sampled,int gen_num, int z)	// JMB -- 4.12.10 -- Overloaded execute() for treestructure and locations elements
 	{																	//					   that are children of sample elements.
-		String output = "";
+		if( ofile.equalsIgnoreCase("") )
+			out = new PrintWriter(System.out);
+		else {
+			try {
+				//if( generation_number != -1 && !type.equalsIgnoreCase("sample"))
+				//	outputfile = new BufferedWriter(new FileWriter(ofile+(generation_number+1)));
+				if (gen_num != -1)
+					out = new PrintWriter(new FileWriter(ofile+gen_num));
+				/*else if( generation_number != -1 && type.equalsIgnoreCase("sample"))
+					outputfile = new BufferedWriter(new FileWriter(ofile+generation_number));*/
+				else if( gen_num == -1)
+					out = new PrintWriter(new FileWriter(ofile));
+				/*String[] lines = output.split("\n");
+				for(int i=0; i<lines.length; i++) {
+					out.write(lines[i]);
+					out.newLine();
+				}*/
+				
+			
+			}
+			catch( Exception e ) {
+				System.out.println("Unable to output to file \""+ofile+"\"! Outputting to console instead:");
+				//System.out.println(output);
+				out = new PrintWriter(System.out);
+			}
+		}
+		
+		
+		//String output = "";
 		
 		if (type.equalsIgnoreCase("treestructure"))
 		{
 			try{
 				if (z == 0)
 					all = samplePrune(all,sampled);
-				output = treestructure(all,false);
+				treestructure(all,false);
 			}catch(Exception e){
 				System.out.println();
 				System.out.println("Error in printing pruned treestructure!!");
@@ -238,7 +273,7 @@ class OutputFunction {
 			try{
 				if (z == 0)
 					all = samplePrune(all,sampled);
-				output = locations(all);
+				locations(all);
 			}catch(Exception e){
 				System.out.println();
 				System.out.println("Error in printing pruned locations!!");
@@ -246,8 +281,9 @@ class OutputFunction {
 				System.out.println();
 			}
 		}
+		out.close();
 		
-		if (ofile.equalsIgnoreCase(""))
+	/*	if (ofile.equalsIgnoreCase(""))
 			System.out.println(output);
 		else
 		{
@@ -267,7 +303,7 @@ class OutputFunction {
 				System.out.println("Unable to output to file \""+ofile+"\"! Outputting to console instead:");
 				System.out.println(output);
 			}
-		}
+		}*/
 	}
 		
 	public ArrayList<Node> samplePrune(ArrayList<Node> all, ArrayList<Node> sampled)  // JMB -- 4.12.10 -- To prune generation down to just sampled individuals
@@ -362,8 +398,8 @@ class OutputFunction {
 		return to;
 	}
 	
-	public String treestructure(ArrayList<Node> thisGeneration, boolean pruneTips) throws Exception	{
-		String ret = "";
+	public void treestructure(ArrayList<Node> thisGeneration, boolean pruneTips) throws Exception	{
+		//String ret = "";
 		
 		ArrayList<Node> relevantFirstGeneration = new ArrayList<Node>();
 		for(int i=0; i<thisGeneration.size(); i++)
@@ -378,7 +414,7 @@ class OutputFunction {
 		for(int i=0; i<relevantFirstGeneration.size(); i++)
 		{
 			String addition = "";
-			if( output.equalsIgnoreCase("distance") )										// "resol" added by JMB -- 4.8.10
+			if( _output.equalsIgnoreCase("distance") )										// "resol" added by JMB -- 4.8.10
 				addition = ( relevantFirstGeneration.get(i).printDistance(delimeter,mutationrate,thisGeneration.get(0).generation,resol,pruneTips) );
 			else
 				addition = ( relevantFirstGeneration.get(i).printTreeStructure(delimeter,thisGeneration.get(0).generation,resol,pruneTips) );
@@ -387,54 +423,54 @@ class OutputFunction {
 					addition = addition.substring(1,addition.length()-1);
 			}
 			if (addition != "")
-				ret += (spacer + addition);
+				out.print( (spacer + addition));
 			spacer = "\n";
 		}
 		
-		return ret;
+		//return ret;
 	}
 	
-	public String locations(ArrayList<Node> thisGeneration) throws Exception	{
-		String ret = "";
+	public void locations(ArrayList<Node> thisGeneration) throws Exception	{
+	//	String ret = "";
 		if( generations.equalsIgnoreCase("all") ) {
-			
-			ArrayList<Node> relevantFirstGeneration = new ArrayList<Node>();
+			LinkedList<Node> relevantNodes = new LinkedList<Node>();
 			for(int i=0; i<thisGeneration.size(); i++)
 			{
 				Node c = thisGeneration.get(i);
 				while( c.parent != null )
 					c = c.parent;
-				if( relevantFirstGeneration.indexOf(c) == -1 )
-					relevantFirstGeneration.add(c);
+				if( relevantNodes.indexOf(c) == -1 )
+					relevantNodes.add(c);
 			}
-					
-			ArrayList<Node> relevantNodes = (ArrayList<Node>) relevantFirstGeneration.clone();
+			
+
 			String spacer = "";
-			while( relevantNodes.size() != 0 )
+			while( !relevantNodes.isEmpty() )
 			{
-				ret += ( spacer + relevantNodes.get(0) );
-				for(int i=0; i<relevantNodes.get(0).children.size(); i++)
-					relevantNodes.add( relevantNodes.get(0).children.get(i) );
-				relevantNodes.remove(0);
+				Node tmp = relevantNodes.poll();
+				out.print( ( spacer + tmp ));
+				for(int i=0; i<tmp.children.size(); i++)
+					relevantNodes.add( tmp.children.get(i) );
+				
 				spacer = "\n";
 			}
 		}
 		else if( generations.equalsIgnoreCase("last") ) {
 			String spacer = "";
 			for(int i=0; i<thisGeneration.size(); i++) {
-				ret += (spacer + thisGeneration.get(i));
+				out.print( (spacer + thisGeneration.get(i)));
 				spacer = "\n";
 			}
 		}
 		
-		return ret;
+		//return ret;
 	}
 	
-	public String sample(ArrayList<Node> generation, int seed) {
+	public void sample(ArrayList<Node> generation, int seed) {
 		
 		java.util.Random rand = new java.util.Random(seed);
 		
-		String ret = "";
+	//	String ret = "";
 		for(int i=0; 4*i+3<samplerects.size(); i++) {
 			ArrayList<Node> contained = new ArrayList<Node>();
 			for(int j=0; j<generation.size(); j++) {
@@ -449,14 +485,14 @@ class OutputFunction {
 				removed.add( contained.remove( (int)Math.floor(contained.size() * rand.nextDouble()) ) );
 			// Grid from (lat0,lon0) to (lat1,lon1)
 			if( removed.size() != 0 ) {
-				ret += "("+samplerects.get(4*i)+","+samplerects.get(4*i+1)+") ("+samplerects.get(4*i+2)+","+samplerects.get(4*i+3)+") ";
+				out.print( "("+samplerects.get(4*i)+","+samplerects.get(4*i+1)+") ("+samplerects.get(4*i+2)+","+samplerects.get(4*i+3)+") ");
 				for(int j=0;j<removed.size();j++)
-					ret += ""+removed.get(j).getName()+" ";
-				ret += "\n";
+					out.print( ""+removed.get(j).getName()+" ");
+				out.print( "\n");
 			}
 		}
 		
-		return ret;
+	//	return ret;
 	}
 	
 	public ArrayList<Node> sampleNodes(ArrayList<Node> generation, int seed) {  // Added by JMB -- 4.12.10 -- To get list of nodes for sampled individuals to return
@@ -479,4 +515,6 @@ class OutputFunction {
 		
 		return removed;
 	}
+	
+	
 }

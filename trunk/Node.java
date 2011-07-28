@@ -20,7 +20,7 @@
 import java.util.*;
 import java.awt.*;
 
-class Node {
+class Node implements Comparable<Node>{
 	
 	//double last_value=0.0;
 	//String last_check="";
@@ -45,6 +45,7 @@ class Node {
 	Node parent=null;
 	ArrayList<Node> children=new ArrayList<Node>();
 	Color c;
+	double d;
 	public Node(int gen, Node par) {
 		if( lastGen != gen ) {
 			lastUnique = 1;
@@ -159,5 +160,10 @@ class Node {
 		ret += ")";
 		
 		return ret;
+	}
+	
+	@Override
+	public int compareTo(Node o) {
+		return (int)(d-o.d);
 	}
 }
