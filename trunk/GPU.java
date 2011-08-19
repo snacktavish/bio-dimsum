@@ -1,15 +1,10 @@
 import static jcuda.driver.CUaddress_mode.CU_TR_ADDRESS_MODE_CLAMP;
 import static jcuda.driver.CUarray_format.CU_AD_FORMAT_FLOAT;
-import static jcuda.driver.CUarray_format.CU_AD_FORMAT_SIGNED_INT32;
 import static jcuda.driver.CUfilter_mode.CU_TR_FILTER_MODE_POINT;
 import static jcuda.driver.JCudaDriver.CU_TRSA_OVERRIDE_FORMAT;
-import static jcuda.driver.JCudaDriver.cuArray3DCreate;
 import static jcuda.driver.JCudaDriver.cuArrayCreate;
-import static jcuda.driver.JCudaDriver.cuArrayDestroy;
 import static jcuda.driver.JCudaDriver.cuMemFree;
 import static jcuda.driver.JCudaDriver.cuMemcpy2D;
-import static jcuda.driver.JCudaDriver.cuMemcpy3D;
-import static jcuda.driver.JCudaDriver.cuMemcpyHtoA;
 import static jcuda.driver.JCudaDriver.cuModuleGetTexRef;
 import static jcuda.driver.JCudaDriver.cuTexRefSetAddressMode;
 import static jcuda.driver.JCudaDriver.cuTexRefSetArray;
@@ -17,10 +12,8 @@ import static jcuda.driver.JCudaDriver.cuTexRefSetFilterMode;
 import static jcuda.driver.JCudaDriver.cuTexRefSetFormat;
 import jcuda.Pointer;
 import jcuda.Sizeof;
-import jcuda.driver.CUDA_ARRAY3D_DESCRIPTOR;
 import jcuda.driver.CUDA_ARRAY_DESCRIPTOR;
 import jcuda.driver.CUDA_MEMCPY2D;
-import jcuda.driver.CUDA_MEMCPY3D;
 import jcuda.driver.CUarray;
 import jcuda.driver.CUcontext;
 import jcuda.driver.CUdevice;
@@ -30,7 +23,6 @@ import jcuda.driver.CUmemorytype;
 import jcuda.driver.CUmodule;
 import jcuda.driver.CUtexref;
 import jcuda.driver.JCudaDriver;
-import jcuda.runtime.JCuda;
 
 
 public class GPU {
@@ -56,17 +48,12 @@ public class GPU {
 	}
 
 	public void cpBorders2GPU(XYFunction soft, XYFunction hard) {
-		System.out.println("CP BORDER START");
 		sb_DEV=cp2gpu(soft.getF(),"softborderDATA");
 		hb_DEV=cp2gpu(hard.getF(),"hardborderDATA");
-	//	cp2gpu(soft._size_gen,"softborderMETA");
-	//	cp2gpu(hard._size_gen,"hardborderMETA");
-		System.out.println("CP BORDER FINISH");
-		//cp2gpu(soft._f.size(), "softborderSIZE");
-		//cp2gpu(hard._f.size(), "hardborderSIZE");
 	}
 	
 	
+	@SuppressWarnings("deprecation")
 	public void migrate(double[] children, int[] rm, double[] d, double[] paramd, long[] parami) {
         CUdeviceptr childrenDevice = new CUdeviceptr();
         JCudaDriver.cuMemAlloc(childrenDevice, Sizeof.DOUBLE*children.length);
@@ -88,14 +75,9 @@ public class GPU {
         JCudaDriver.cuMemAlloc(paramiDevice, Sizeof.LONG*parami.length);
         JCudaDriver.cuMemcpyHtoD(paramiDevice, Pointer.to(parami), Sizeof.LONG*parami.length);
         
-        
-        
-       
+
         int numThread = (int)Math.ceil((double)rm.length/(double)block_size);
-        //System.out.println(numThread);
-        //int maxThread = 320000;
-        //int numIterations = (int)Math.ceil((double)numThread/(double)maxThread);
-        
+
         
         int offset = 0;
         JCudaDriver.cuParamSetSize(function, Sizeof.POINTER*5+Sizeof.INT);
@@ -111,17 +93,10 @@ public class GPU {
         offset += Sizeof.POINTER;
         JCudaDriver.cuFuncSetBlockShape(function, block_size, 1, 1);
         
-        
-       // for(int i=0;i<numIterations;i++) {
-        	JCudaDriver.cuParamSeti(function, offset, 0);
-        	int x = JCudaDriver.cuLaunchGrid(function, numThread,1);
-        	//System.out.println(x+" X "+i*maxThread*block_size+ " "+numThread+" "+numIterations+" "+parami[3] );
-        	JCudaDriver.cuCtxSynchronize();
-        //}
-        
-        
-        
-        
+    	JCudaDriver.cuParamSeti(function, offset, 0);
+    	JCudaDriver.cuLaunchGrid(function, numThread,1);
+    	JCudaDriver.cuCtxSynchronize();
+
         JCudaDriver.cuMemcpyDtoH(Pointer.to(children),childrenDevice,Sizeof.DOUBLE*children.length);
         cuMemFree(paramiDevice);
         cuMemFree(paramdDevice);

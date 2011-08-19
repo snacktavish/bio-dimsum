@@ -20,10 +20,7 @@
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.io.*;
 import javax.imageio.ImageIO;
 
@@ -221,6 +218,9 @@ public class DispersalDisplay extends Thread
 			//g2d.drawLine(x,y,x+1,y+1);
 			//g2d.drawLine(x,y,x,y);
 			bi.setRGB(x,y,n.c.getRGB());
+			bi.setRGB(x,y+1,n.c.getRGB());
+			bi.setRGB(x+1,y,n.c.getRGB());
+			bi.setRGB(x+1,y+1,n.c.getRGB());
 		}
 		
 		g2d.setColor(new Color(255,255,255,255));

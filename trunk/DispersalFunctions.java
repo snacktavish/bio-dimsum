@@ -19,10 +19,6 @@
 
 import java.util.*;
 
-import jcuda.driver.CUarray;
-
-import static java.lang.Math.*;
-
 class DispersalFunctions {
 	public final static int _xsize = 0;
 	public final static int _ysize = 1;
@@ -41,6 +37,39 @@ class DispersalFunctions {
 		this.gpu = gpu;
 	}
 
+    public ArrayList<Node> populateAndMigrateThreaded(ArrayList<Node> thisGeneration, int end_gen) throws Exception {       // END_GEN ADDED BY JMB -- 10.20.09
+        
+        ArrayList<DispersalThread> dthreads = new ArrayList<DispersalThread>();
+        ArrayList<Thread> threads = new ArrayList<Thread>();
+        
+        for(int i=0; i<settings.getNThreads(); i++) {                                           // JMB COMMENT -- 10.19.09 -- CREATES # OF DTHREADS SPECIFIED BY SETTINGS FILE
+                dthreads.add( new DispersalThread(settings, end_gen, rand.nextInt()) );
+                for(int j=i;j<thisGeneration.size(); j+=settings.getNThreads())         // JMB COMMENT -- 10.19.09 -- ADDS EVERY #DTHREADS INDIVIDUAL TO A PARTICULAR THREAD
+                        dthreads.get(i).add( thisGeneration.get(j) );
+
+                threads.add( new Thread( dthreads.get(i) ) );           // JMB COMMENT -- 10.19.09 -- PLACES EACH DTHREADS OBJECT IN A THREADS OBJECT...MORE GENERAL IMPLEMENTATION OF A RUNNABLE OBJECT
+                if( i != settings.getNThreads()-1 )
+                        threads.get(i).start();
+        }
+        
+        threads.get( threads.size()-1 ).run();
+        
+        for(int i=0; i<settings.getNThreads()-1; i++) {
+                threads.get(i).join();
+        }
+        
+        
+        ArrayList<Node> nextGeneration = new ArrayList<Node>();
+        for(int i=0; i<dthreads.size(); i++) {
+                nextGeneration.addAll( dthreads.get(i).nextGeneration );
+        }
+        
+        //System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
+        return checkCarryingCapacity(nextGeneration,end_gen);   // END_GEN ADDED BY JMB -- 10.20.09
+    }
+
+
+	
 	public ArrayList<Node> populate4GPU(ArrayList<Node> thisGeneration,java.util.Random rand2) {
 		ArrayList<Node> children = new ArrayList<Node>();
 		
@@ -57,18 +86,16 @@ class DispersalFunctions {
 		return children;
 	}
 	
+
+	
 	public ArrayList<Node> populateAndMigrate4GPU(ArrayList<Node> thisGeneration, int end_gen) throws Exception {	// END_GEN ADDED BY JMB -- 10.20.09
 		settings.pAmTTimer.start();
-		//final int numRand = 100000;
-		//float randArray[] = new float[numRand];
-		//CUarray tmp = settings.cuda.cpRandArray2GPU(randArray);
-		
 		
 		java.util.Random rand2 = new java.util.Random(rand.nextInt());		// Added by JMB -- 4.5.10
 
 		
 		ArrayList<Node> children = populate4GPU(thisGeneration,rand2);
-		long[] parami = new long[Migrate.__DIMSUM_PARAMI_RANDINDEX+children.size()];
+		long[] parami = new long[Migrate.DIMSUM_PARAMI_RANDINDEX+children.size()];
 		XYFunction hb = null;
 		if (children.get(0).generation-1 == end_gen)								// JMB -- Added to make sure that children of the final generation get the right hard borders
 			hb = settings.getHardBorders(children.get(0).generation-1);
@@ -80,15 +107,25 @@ class DispersalFunctions {
 		else
 			sb = settings.getSoftBorders(children.get(0).generation);
 		
-		if(sb != sb_old) {
-			sb_old = sb;
-			gpu.updateGPU(gpu.sb_DEV, sb.getF());
-			
+		
+		if(settings.mode == DispersalSettings.MODE_CUDA) {
+			if(sb != sb_old) {
+				sb_old = sb;
+				gpu.updateGPU(gpu.sb_DEV, sb.getF());
+				
+				
+			}
+			if(hb != hb_old) {
+				hb_old = hb;
+				gpu.updateGPU(gpu.hb_DEV, hb.getF());
+				
+			}
 		}
-		if(hb != hb_old) {
+		
+		if(settings.mode == DispersalSettings.MODE_CPP && hb != hb_old || sb != sb_old) {
 			hb_old = hb;
-			gpu.updateGPU(gpu.hb_DEV, hb.getF());
-			
+			sb_old = sb;
+			Migrate.updateF(sb,hb);
 		}
 		
 		double minlat = settings.getMinLat();
@@ -114,31 +151,20 @@ class DispersalFunctions {
 		latlon[5] = sb_latspace;
 		latlon[6] = hb_lonspace;
 		latlon[7] = hb_latspace;
-	//	System.out.println("lon"+ (maxlon-minlon)/maxlon);
-		//System.out.println("lat"+ (maxlat-minlat)/maxlat);
-		
-		//Node childrenX[] = new Node[children.size()];
+
+
 		int rm[] = new int[children.size()];
 		double[] d = new double[children.size()];
 
-		
-		//parami[0] = 0;
-	//	parami[1] = randArray.length;
-	//	parami[Migrate.__DIMSUM_PARAMI_SB_INDEX] = sb.value();
-		//parami[Migrate.__DIMSUM_PARAMI_HB_INDEX] = hb.value();
-		parami[Migrate.__DIMSUM_PARAMI_GENERATION] = children.get(0).generation;
-		parami[Migrate.__DIMSUM_PARAMI_NUMCHILDREN] = children.size();
-		parami[Migrate.__DIMSUM_PARAMI_SB_XSIZE] = sb.getMaxX();
-		parami[Migrate.__DIMSUM_PARAMI_SB_YSIZE] = sb.getMaxY();
-		parami[Migrate.__DIMSUM_PARAMI_HB_XSIZE] = hb.getMaxX();
-		parami[Migrate.__DIMSUM_PARAMI_HB_YSIZE] = hb.getMaxY();
-		//System.out.println(parami[Prepared4GPU.__DIMSUM_PARAMI_SB_XSIZE]+" "+parami[Prepared4GPU.__DIMSUM_PARAMI_SB_YSIZE]);
-		
-		
-		
-		
+		parami[Migrate.DIMSUM_PARAMI_GENERATION] = children.get(0).generation;
+		parami[Migrate.DIMSUM_PARAMI_NUMCHILDREN] = children.size();
+		parami[Migrate.DIMSUM_PARAMI_SB_XSIZE] = sb.getMaxX();
+		parami[Migrate.DIMSUM_PARAMI_SB_YSIZE] = sb.getMaxY();
+		parami[Migrate.DIMSUM_PARAMI_HB_XSIZE] = hb.getMaxX();
+		parami[Migrate.DIMSUM_PARAMI_HB_YSIZE] = hb.getMaxY();
+
 		for(int i=0;i<children.size();i++) {
-			children.get(i).d = settings.getDispersalRadius((int)parami[Migrate.__DIMSUM_PARAMI_GENERATION] ,rand2);
+			children.get(i).d = settings.getDispersalRadius((int)parami[Migrate.DIMSUM_PARAMI_GENERATION] ,rand2);
 		}
 		Collections.sort(children);
 		
@@ -148,35 +174,26 @@ class DispersalFunctions {
 		for(int i=0; i<children.size(); i++) {
 			Node n = children.get(i);
 			d[i] = n.d;
-			node[i*2+Migrate.__DIMSUM_NODE_lat] = n.parent.lat-lat_offset;
-			node[i*2+Migrate.__DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
+			node[i*2+Migrate.DIMSUM_NODE_lat] = n.parent.lat-lat_offset;
+			node[i*2+Migrate.DIMSUM_NODE_lon] = n.parent.lon-lon_offset;
 			}
 
 
-		for(int i=Migrate.__DIMSUM_PARAMI_RANDINDEX;i<Migrate.__DIMSUM_PARAMI_RANDINDEX+children.size();i++)
+		for(int i=Migrate.DIMSUM_PARAMI_RANDINDEX;i<Migrate.DIMSUM_PARAMI_RANDINDEX+children.size();i++)
 			parami[i] = rand2.nextLong();
 		
-	/*	for(int i=0;i<randArray.length;i++) {
-			randArray[i] = (float)rand2.nextDouble();
-		}*/
-		
-		//System.out.println("node"+node.length);
 		settings.pAmTTimer2.start();
 
+		if(settings.mode == DispersalSettings.MODE_CUDA) {
+		settings.cuda.migrate(node,rm,d,latlon,parami);
+		}else if(settings.mode == DispersalSettings.MODE_CPP) {
 			
-		//	settings.cuda.updaterand(randArrayDev,randArray);
-			settings.cuda.migrate(node,rm,d,latlon,parami);
-			
-			//DispersalFunctionC.setRandArray(randArray);
-			//DispersalFunctionC.migrateLoop(node,rm,d,latlon,parami);
+			kernel.migrateCPU( node, rm,  d,  latlon, parami,  0);
+		}
+		else System.out.println("populateAndMigrate4GPU: unknwon mode");
 		
 		settings.pAmTTimer2.stop();
 		
-		/*
-		for(int i=0; i<childrenX.length; i++) {
-			childrenX[i].lat = node[i*2+Prepared4GPU._lat];
-			childrenX[i].lon = node[i*2+Prepared4GPU._lon];
-		}*/
 		
 		for(int i=0;i<children.size(); i++) {
 			Node n = children.get(i);
@@ -190,27 +207,17 @@ class DispersalFunctions {
 		
 		ArrayList<Node> nextGeneration = new ArrayList<Node>();
 
-		//Node nextGen[] = new Node[length];
-		//int j=0;
 		for(int i=0;i<children.size();i++) {
 			if(rm[i]==0) {
 				Node n = children.get(i);
-				n.lat = node[i*2+Migrate.__DIMSUM_NODE_lat]+lat_offset;
-				n.lon = node[i*2+Migrate.__DIMSUM_NODE_lon]+lon_offset;
+				n.lat = node[i*2+Migrate.DIMSUM_NODE_lat]+lat_offset;
+				n.lon = node[i*2+Migrate.DIMSUM_NODE_lon]+lon_offset;
 				nextGeneration.add(n);
-				//j++;
 			}
-			//System.out.println(children.get(i)+ " "+ rm[i]+" ");
-
 		}
 
-		
-		
-		//ArrayList<Node> nextGeneration = new ArrayList<Node>();
-		//for(int i=0;i<nextGen.length;i++)
-			//nextGeneration.add(nextGen[i]);
 		settings.pAmTTimer.stop();
-		//System.out.println("from dispersalfunctions: ng="+nextGeneration.size());
+
 		return nextGeneration;	// END_GEN ADDED BY JMB -- 10.20.09
 	}
 

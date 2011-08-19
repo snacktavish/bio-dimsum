@@ -78,18 +78,17 @@ class XYFunction {
 		_size_gen = new int[2];
 		
 		double fmax=-1.0;
-		this.startgeneration = startgeneration;
-		this.endgeneration = endgeneration;
 		//f = new float[ image.getHeight(null)* image.getWidth(null) ];
-		_size_gen[_xsize] =  image.getWidth(null);
-		_size_gen[_ysize] =  image.getHeight(null);
 		maxX = image.getWidth(null);
 		maxY = image.getHeight(null);
+		_size_gen[_xsize] =  maxX;
+		_size_gen[_ysize] =  maxY;
+	
 		_f = new FloatArray2D(maxX, maxY);
 		if( maxX == 0 || maxY  == 0 )
 			throw new Exception("Image map height or width is 0, this is unacceptable.");
 		
-		BufferedImage buffImage = new BufferedImage( image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage buffImage = new BufferedImage( maxX, maxY, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = buffImage.getGraphics();
 		g.drawImage(image, 0, 0, null);
 		
@@ -124,8 +123,6 @@ class XYFunction {
 	public XYFunction(String filename,double setborder) throws Exception {
 		_size_gen = new int[2];
 		double fmax=-1.0;
-		this.startgeneration = startgeneration;
-		this.endgeneration = endgeneration;
 		BufferedReader buff = new BufferedReader(new FileReader(filename));
 		ArrayList<StringTokenizer> rows = new ArrayList<StringTokenizer>();
 		while( buff.ready() ) {
@@ -279,5 +276,22 @@ class XYFunction {
 			return 0;
 		return (int)Math.floor(_size_gen[ _size]  * (lon-minlon)/(maxlon-minlon));
 	}
+	
+	
+	 public int toX(double lon, double minlon, double maxlon) {
+         if( lon >= maxlon )
+                 return maxX-1;
+         if( lon <= minlon )
+                 return 0;
+         return (int)Math.floor(maxX * (lon-minlon)/(maxlon-minlon));
+	 }
+	 public int toY(double lat, double minlat, double maxlat) {
+         if( lat >= maxlat )
+                 return maxY-1;
+         if( lat <= minlat )
+                 return 0;
+         return (int)Math.floor(maxY * (lat-minlat)/(maxlat-minlat));
+	 }
+
 	
 }

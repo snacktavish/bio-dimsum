@@ -20,21 +20,29 @@
 import java.io.*;
 import org.jdom.*;
 import org.jdom.input.*;
-import org.jdom.output.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
 class DispersalSettings {
+	public final static int MODE_CUDA = 2;
+	public final static int MODE_CPP = 1;
+	public final static int MODE_JAVA = 0;
+	
+	
     public Timer pAmTTimer = new Timer("populateAndMigrateThreaded");
     public Timer pAmTTimer2 = new Timer("migrate");
     public Timer cCCTimer = new Timer("checkCarryingCapacity");
     public Timer outputTimer = new Timer("Output");
-    public Timer outputTimer2 = new Timer("Output2/Display",false);
+    public Timer outputTimer2 = new Timer("Output2/Display");
 
     public Timer pruneTimer = new Timer ("prune",false);
+    public Timer pruneTimer1 = new Timer ("prune1");
+    public Timer pruneTimer2 = new Timer ("prune2");
+    public Timer pruneTimer3 = new Timer ("prune3");
     public Timer simulateTimer = new Timer("Simulate");
     public GPU cuda = new GPU(); 
+    public int mode = 0;
 
 	
 	Document document;
@@ -74,6 +82,7 @@ class DispersalSettings {
 	public boolean visualoutput = false;
 	public ArrayList<OutputFunction> outputfunctors = new ArrayList<OutputFunction>();
 	
+	@SuppressWarnings("unchecked")
 	public DispersalSettings(String filename) throws Exception {
 		SAXBuilder builder = new SAXBuilder();
         document = builder.build(new File(filename));

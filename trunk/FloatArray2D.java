@@ -12,9 +12,6 @@ public class FloatArray2D {
 		_size = new int[3];
 		_size[0] = xsize;
 		_size[1] = ysize;
-
-
-
 	}
 	
 	public float get(int y,int x){

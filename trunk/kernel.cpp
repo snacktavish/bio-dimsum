@@ -1,7 +1,5 @@
 #include <math.h>
 #include <stdio.h>
-#include <cuda.h>
-#include <cuda_runtime_api.h>
 
 #define numRand 10000
 
@@ -33,17 +31,14 @@
 #define EPSILON 0.000000000001
 #endif
 
-texture<float, 2, cudaReadModeElementType> softborderDATA;
-texture<float, 2, cudaReadModeElementType> hardborderDATA;
+
 
 float *_sb_DATA;
 float *_hb_DATA;
 int _sbx,_sby,_hbx,_hby;
 
 
-#ifdef __CUDACC__
-extern "C" {
-#endif
+
 
 	void setArrays(float* sb_DATA, int sbx, int sby, float* hb_DATA, int hbx, int hby) {
 		_sbx = sbx;
@@ -61,40 +56,41 @@ extern "C" {
 	/**
 	 * Converts x from radians to decimal degree
 	 */
-	__host__ __device__
+
 	double toDeg(double x) { return x*180.0f/PI;}
 
 
 	/**
 	 * Converts x from decimal degree to radians
 	 */
-	__host__ __device__
+
 	double toRad(double x) { return x*PI/180.0f;}
 
 
-/*
+
 double min(double x, double y) {
 		if (x < y)
 			return x;
 		return y;
 	}
-*/
+
+double abs(double x) {
+		if (x < 0)
+			return -x;
+		return x;
+	}
 
 
-	/**
-	 * Modulus function for double
-	 */
-	__host__ __device__
+
+
+
 	double mod(double y, double x)
 	{
 		return (y - (x*floor(y/x)));
 	}
 
 
-	/**
-	 * Return 1 if lat >= sb_lat_bt and -1 if not
-	 */
-	__host__ __device__
+
 	double geq (double lat1, double  sb_lat_bt) {
 		if(lat1 >= sb_lat_bt)
 			return 1;
@@ -107,7 +103,7 @@ double min(double x, double y) {
 	/*
 	 * Generates a random number
 	 */
-	__host__ __device__
+
 	float nextRand(long long* seed, int id)
 	{
 		seed[DIMSUM_PARAMI_RANDINDEX+id] = (seed[DIMSUM_PARAMI_RANDINDEX+id] * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
@@ -118,10 +114,7 @@ double min(double x, double y) {
 	}
 
 
-	/**
-	 * Return the value of the softborder at (x,y)
-	 */
-	__host__ __device__
+
 	float sb_f(int x,int y) {
 	#ifdef __CUDA_ARCH__
 		return tex2D(softborderDATA,x,y);
@@ -130,10 +123,8 @@ double min(double x, double y) {
 	#endif
 	}
 
-	/**
-	 * Return the value of the hardborder at (x,y)
-	 */
-	__host__ __device__
+
+
 	float hb_f(int x,int y) {
 	#ifdef __CUDA_ARCH__
 		return tex2D(hardborderDATA,x,y);
@@ -146,7 +137,7 @@ double min(double x, double y) {
 	/**
 	 * Converts lng/lon to x/y coordinates of f
 	 */
-	__host__ __device__
+
 	int toX(double lon, double minlon, double maxlon, int img_size) {
 		if( lon >= maxlon )
 			return img_size -1;
@@ -159,7 +150,7 @@ double min(double x, double y) {
 	/**
 	 * Returns the direction of the course
 	 */
-	__host__ __device__
+
 	int getMode(double crs) {
 		int mode = -1;
 		if( crs >= 0 && crs <= PI/2 ) {		// JMB COMMENT -- DETERMINES IF COURSE IS NORTHEAST...OR IS THIS SOUTHEAST, SINCE INPUT MAPS ARE FLIPPED??
@@ -181,7 +172,7 @@ double min(double x, double y) {
 	/**
 	 * Returns 1 if the direction is north and -1 if the direction is south
 	 */
-	__host__ __device__
+
 	int northORsouth(int i) {
 		if(i == DIMSUM_mode_northeast || i == DIMSUM_mode_northwest)
 			return 1;
@@ -191,7 +182,7 @@ double min(double x, double y) {
 	/**
 	 * Returns 1 if the direction is east and -1 if the direction is west
 	 */
-	__host__ __device__
+
 	int eastORwest(int i) {
 		if(i == DIMSUM_mode_northeast || i == DIMSUM_mode_southeast)
 			return 1;
@@ -201,7 +192,7 @@ double min(double x, double y) {
 	/**
 	 * Returns the next latspace on course
 	 */
-	__host__ __device__
+
 	double getI(double lat1, double minlat, double latspace, int dir) {
 		double ilat;
 		double mlat = lat1-minlat ;
@@ -217,7 +208,7 @@ double min(double x, double y) {
 	/**
 	 * JMB COMMENT -- 10.19.09 -- DETERMINES DISTANCE (D) FROM ENDING LAT/LON
 	 */
-	__host__ __device__
+
 	double dfromll(double lats, double lons, double latf, double lonf)
 	{
 		double dlat = latf - lats;
@@ -231,7 +222,7 @@ double min(double x, double y) {
 	/**
 	 * Determines distance to lon3 from lat1,lon1 over lat2,lon2
 	 */
-	__host__ __device__
+
 	double latdfromlon3(double lat1,double lon1, double lat2,  double lon2,  double lon3) // // Implementation by JMB from http://williams.best.vwh.net/avform.htm#Par  -- lat=atan(  (sin(lat1)*cosf(lat2)*sin(lon-lon2)-sin(lat2)*cosf(lat1)*sin(lon-lon1))  /  (cosf(lat1)*cosf(lat2)*sin(lon1-lon2))  )
 	{
 		double latf = atan(((sin(lat1)*cos(lat2)*sin(lon3-lon2))-(sin(lat2)*cos(lat1)*sin(lon3-lon1)))/(cos(lat1)*cos(lat2)*sin(lon1-lon2)));
@@ -242,7 +233,7 @@ double min(double x, double y) {
 	/**
 	 * Determines distance to lat3 from lat1,lon1 over lat2,lon2
 	 */
-	__host__ __device__
+
 	double londfromlat3(double lat1,double lon1, double lat2,  double lon2, double lat3) // in degrees		JMB COMMENT -- 10.19.09 -- FINDS LONGITUDE AT WHICH NEAREST LAT IS CROSSED W/
 	{														//								GREAT CIRCLE DISTANCE
 		// from http://williams.best.vwh.net/avform.htm#Par
@@ -275,10 +266,7 @@ double min(double x, double y) {
 	}
 
 
-	/**
-	 * Return X if X is not on x_bt and X + prefix*DIMSUM_EPSILON otherwise
-	 */
-	__host__ __device__
+
 	double setX(double X, double x_bt, double prefix, double dXY){
 		double r = X;
 		if (((prefix > 0 && r < x_bt) || (prefix < 0 && r > x_bt)) && dXY == 0)
@@ -290,7 +278,7 @@ double min(double x, double y) {
 	/**
 	 * Returns the next latspace on course
 	 */
-	__host__ __device__
+
 	double nearestBorderCrossing(double lat1,double minlat, double sb_latspace, int dirLat,long long* _index, int id) {
 		double ilat = getI(lat1,minlat,sb_latspace, dirLat);
 		if (abs(lat1-ilat) < EPSILON)//(lat1 == ilat)	// Checking to see if individual is starting RIGHT ON a lat line.
@@ -305,7 +293,7 @@ double min(double x, double y) {
 	}
 
 
-	__host__ __device__
+
 	void migrate(double* node, double* dA, int* rm,long long* parami, double* paramv, int id) {
 		double d = dA[id];
 
@@ -428,18 +416,7 @@ double min(double x, double y) {
 	}
 
 
-	__global__
-	void migrateGPU(double* children, int* rm, double* d, double* paramd, long long* parami, int offset)
-	{
 
-		int id = blockIdx.x*blockDim.x+threadIdx.x;
-		int ido = id+offset;
-		if(id < parami[DIMSUM_PARAMI_NUMCHILDREN]) {
-			migrate(children, d, rm ,parami,paramd,ido);
-		}
-
-
-	}
 
 
 	void migrateCPU(double* children, int* rm, double* d, double* paramd, long long* parami, int offset)
@@ -453,6 +430,3 @@ double min(double x, double y) {
 
 	}
 
-#ifdef __CUDACC__
-}
-#endif
