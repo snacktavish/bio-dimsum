@@ -20,7 +20,6 @@
 import java.util.*;
 import java.io.*;
 import org.jdom.*;
-import org.jdom.input.*;
 
 class OutputFunction {
 	
@@ -58,6 +57,7 @@ class OutputFunction {
 		new OutputFunction("treestructure","parent","");
 	}
 
+	@SuppressWarnings("unchecked")
 	public OutputFunction(DispersalSettings ds, Element input) throws Exception {
 		
 		if (input.getAttribute("resolve") != null)		// Added by JMB -- 4.8.10
@@ -308,7 +308,7 @@ class OutputFunction {
 		
 	public ArrayList<Node> samplePrune(ArrayList<Node> all, ArrayList<Node> sampled)  // JMB -- 4.12.10 -- To prune generation down to just sampled individuals
 	{
-		Iterator allitr = all.iterator();
+		Iterator<Node> allitr = all.iterator();
 		while (allitr.hasNext())	// Iterates across all nodes in "all"
 		{
 			Node curr = (Node)allitr.next();

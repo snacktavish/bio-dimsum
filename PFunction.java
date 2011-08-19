@@ -18,7 +18,6 @@
 
 
 import java.util.*;
-import java.lang.*;
 
 class PFunction {
         public int startgeneration=-1,endgeneration=-1;
