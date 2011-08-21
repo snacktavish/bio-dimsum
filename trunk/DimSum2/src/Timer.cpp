@@ -29,43 +29,43 @@ Timer::~Timer()
 void
 Timer::start()
 {
-
-  if (!running)
-    {
-      tmpTime = clock();
-      running = true;
-    }
-  else
-    std::cerr << "Timer " << name << " allready running" << std::endl;
+  if(enabled) {
+    if (!running)
+      {
+        tmpTime = clock();
+        running = true;
+      }
+    else
+      std::cerr << "Timer " << name << " allready running" << std::endl;
+  }
 }
 
 clock_t
 Timer::stop()
 {
-
-  if (running)
-    {
-      clock_t diff = clock() - tmpTime;
-      overallTime += diff;
-      tmpTime = 0;
-      if (verbose)
-        std::cout << name << ": " << ((double) diff * 1000.0)
-            / (double) CLOCKS_PER_SEC << "ms" << std::endl;
-      running = false;
-      return diff;
-    }
-  else
-    {
-      std::cerr << "Timer " << name << " not running" << std::endl;
-    }
-
+  if(enabled) {
+    if (running)
+      {
+        clock_t diff = clock() - tmpTime;
+        overallTime += diff;
+        tmpTime = 0;
+        if (verbose)
+          std::cout << name << ": " << ((double) diff * 1000.0)
+              / (double) CLOCKS_PER_SEC << "ms" << std::endl;
+        running = false;
+        return diff;
+      }
+    else
+      {
+        std::cerr << "Timer " << name << " not running" << std::endl;
+      }
+  }
   return 0;
 }
 
 void
 Timer::print()
 {
-
   std::cout << name << ": Overall: " << ((double) overallTime * 1000.0)
       / (double) CLOCKS_PER_SEC << "ms" << std::endl;
 }

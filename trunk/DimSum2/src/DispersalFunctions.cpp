@@ -101,7 +101,6 @@ DispersalFunctions::migrate4GPU(std::vector<Node*> children, int generation,
 
   if (setArray)
     {
-      std::cout << "Updating Arrays!" << std::endl;
       if (_cuda)
         setArraysGPU(sb->getF(), sb->getMaxX(), sb->getMaxY(), hb->getF(),
             hb->getMaxX(), hb->getMaxY());

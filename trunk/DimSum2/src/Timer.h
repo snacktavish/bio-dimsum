@@ -37,6 +37,7 @@ public:
   print();
 
 private:
+  static const bool enabled = true;
   std::string name;
   bool running;
   bool verbose;

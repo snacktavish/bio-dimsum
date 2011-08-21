@@ -58,15 +58,10 @@ BMPImage::BMPImage(const char* filename, double maxValue, int color)
                 w++;
               if ((int) _image[(j * xlength + i + 2)] != 0)
                 e++;
-              //std::cout << i<< " "<<j<< std::endl;
               _f[y * bitmapInfoHeader.width + x] = (float) _image[(j * xlength
                   + i + color)] * maxValue / 255.0;
-              //std::cout << i<< " "<<j<< std::endl;
               x++;
             }
-          /*	tmp = _image[i];
-           _image[i] = _image[i + 2];
-           _image[i + 2] = tmp;*/
         }
       y++;
       x = 0;

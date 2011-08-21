@@ -116,12 +116,6 @@ public:
     return _nGenerations;
   }
 
-  bool
-  isEdgeDeadly()
-  {
-    return false; //todo:return simulation-> document.getRootElement().getChild("edges").getAttribute("type").getValue().equalsIgnoreCase("deadly");
-  }
-
   long
   getSeed()
   {
@@ -134,8 +128,6 @@ private:
   std::vector<Pfunction*> noffspring, dispersalradius;
   std::vector<OutputFunction*> outputfunctions;
 
-  //int visualfreq;
-
   std::string simulationname;
   int _nGenerations;
   long _seed;
@@ -144,32 +136,10 @@ private:
   std::string name;
 
   int
-  calcIndex(int generation, std::vector<XYFunction*>& xyf)
-  {
+  calcIndex(int generation, std::vector<XYFunction*>& xyf);
 
-    int ind = -1;
-    for (unsigned int i = 0; i < xyf.size(); i++)
-      if (xyf[i]->startgeneration <= generation && xyf[i]->endgeneration
-          >= generation)
-        ind = i;
-    ;
-    if (ind == -1)
-      {
-        for (unsigned int i = 0; i < xyf.size(); i++)
-          if (xyf[i]->startgeneration == -1 && xyf[i]->endgeneration == -1)
-            {
-              ind = i;
-              break;
-            }
-      }
-    if (ind < 0)
-      {
-        std::cerr << "Config::calcIndex(): " << ind << " " << generation
-            << std::endl;
-        return 0;
-      }
-    return ind;
-  }
+  Pfunction*
+  getPFunction(int generation, std::vector<Pfunction*>& pf);
 };
 
 #endif /* CONFIG_H_ */

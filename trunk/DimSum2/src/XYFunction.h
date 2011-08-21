@@ -59,9 +59,15 @@ public:
     return image;
   }
 
-  int startgeneration, endgeneration; //todo:private
+  bool checkGeneration(int generation) {
+    return (startgeneration <= generation
+        && endgeneration >= generation);
+  }
+
+
 
 private:
+  int startgeneration, endgeneration;
   const float* _f;
   int maxX, maxY;
   double _fmax;
