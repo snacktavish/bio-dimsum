@@ -84,7 +84,7 @@ public class DispersalThread implements Runnable
 
 			boolean debug = false;				// ADDED BY JMB -- Boolean to control the outputting of LOTS of extra information to help debug
 			
-			Iterator childItr = children.iterator();	// Added by JMB -- 4.13.10
+			Iterator<Node> childItr = children.iterator();	// Added by JMB -- 4.13.10
 			
 			childrenloop:
 				for(int i=0; i<children.size(); i++) {
@@ -140,7 +140,7 @@ public class DispersalThread implements Runnable
 							double sb_lon_bt = 0.0;
 							double hb_lat_bt = 0.0;
 							double hb_lon_bt = 0.0;
-							double border_buffer = 0.001;
+							//double border_buffer = 0.001;
 							
 							if (debug)
 							{
