@@ -1,0 +1,51 @@
+<simulation xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="src/ConfigFile.xsd" name="HawaiiExample">
+
+	<seed> 3452 </seed>
+
+	<generations>100</generations>
+	
+	
+	<latitude minimum="18.5" maximum="22.5"/>
+	<longitude minimum="-160.5" maximum="-154.5"/>
+
+	<edges type="impenetrable"/>
+
+	<carryingcapacity>
+		<data type="image" maxvalue="1" file="ExampleInputs/ExampleHI.bmp" />
+    </carryingcapacity>
+
+	<hardborders>
+		<data type="image" maxvalue="1" file="ExampleInputs/ExampleHI.bmp" />
+	</hardborders>
+
+	<softborders>		
+    	<data type="image"  maxvalue="1" file="ExampleInputs/ExampleHI.bmp" />
+    </softborders>
+	
+	<reproductiveability>
+		<distribution offspring="1 2" p=".3 .7"/>
+	</reproductiveability>
+	
+	
+	<dispersalradius>
+		<distribution offspring="1 7 50 70 " p=".8 .1 .05 .05"/>
+	</dispersalradius>
+
+	<initialpopulation>
+        <node lat="21.9" lon="-159.5" n="1" r="255" g="255" b="0"/>
+        <node lat="21.4" lon="-158" n="1" r="255" g="0" b="0"/>
+        <node lat="20.8" lon="-156.3" n="1" r="255" g="90" b="255"/>
+        <node lat="19.5" lon="-155.5" n="1" r="30" g="144" b="255"/>
+	</initialpopulation>
+	
+	<output>
+		<visual output_every='10' xsize="800" ysize="600"/>
+		<treestructure delimeter='#' output='parent' trim='false' file='anc_phylo.tre' output_every='10' resolve='true'/>
+		<treestructure delimeter=':' output='distance' mutationrate='0.1' trim='false' file='dist_phylo.tre'  output_every='10' resolve='true'/>
+		<locations generation='all' file='locs.txt'  output_every='10'/>
+	</output>
+	
+<!-- A "simulation" end tag is required at the end of the file. -->
+	
+</simulation>
+

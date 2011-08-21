@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:simpleType name="edgeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="impenetrable"/>
+			<xs:enumeration value="deadly"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="fileType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="image"/>
+			<xs:enumeration value="file"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="treeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="parent"/>
+			<xs:enumeration value="distance"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="locType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="all"/>
+			<xs:enumeration value="last"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="xyType">
+		<xs:sequence>
+		<xs:element name="data" minOccurs="1" maxOccurs="unbounded">
+			<xs:complexType>
+			<xs:attribute name="type" type="fileType" use="required"/>
+			<xs:attribute name="maxvalue" type="xs:int" use="required"/>
+			<xs:attribute name="file" type="xs:string" use="required"/>
+			<xs:attribute name="startgeneration" type="xs:int"/>
+			<xs:attribute name="endgeneration" type="xs:int"/>
+			</xs:complexType>
+		</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:simpleType name="intlist">
+    	<xs:list itemType="xs:float"/>
+	</xs:simpleType>
+	
+	<xs:complexType name="pType">
+		<xs:sequence>
+		<xs:element name="distribution" minOccurs="1" maxOccurs="unbounded">
+			<xs:complexType>
+			<xs:attribute name="p" type="intlist" use="required"/>
+			<xs:attribute name="offspring" type="intlist" use="required"/>	
+			<xs:attribute name="startgeneration" type="xs:int"/>
+			<xs:attribute name="endgeneration" type="xs:int"/>
+			</xs:complexType>
+		</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	
+	
+<xs:element name="simulation">
+	<xs:complexType>
+		<xs:sequence>
+
+	
+	<xs:element name="seed" type="xs:int" />
+	
+	<xs:element name="generations" type="xs:int"/>	
+	
+	<xs:element name="latitude">
+		<xs:complexType>
+		<xs:attribute name="minimum" type="xs:float" use="required"/>
+		<xs:attribute name="maximum" type="xs:float" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="longitude">
+		<xs:complexType>
+		<xs:attribute name="minimum" type="xs:float" use="required"/>
+		<xs:attribute name="maximum" type="xs:float" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="edges">
+		<xs:complexType>
+		<xs:attribute name="type" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="carryingcapacity" type="xyType" />
+	<xs:element name="hardborders" type="xyType" />
+	<xs:element name="softborders" type="xyType" />
+	<xs:element name="reproductiveability" type="pType" />
+	<xs:element name="dispersalradius" type="pType" />
+	
+	<xs:element name="initialpopulation">
+		<xs:complexType>
+		<xs:sequence>
+		<xs:element name="node" minOccurs="1" maxOccurs="unbounded">
+			<xs:complexType>
+			<xs:attribute name="lat" type="xs:float" use="required"/>
+			<xs:attribute name="lon" type="xs:float" use="required"/>
+			<xs:attribute name="n" type="xs:int" use="required"/>
+			<xs:attribute name="r" type="xs:int" use="required"/>
+			<xs:attribute name="g" type="xs:int" use="required"/>
+			<xs:attribute name="b" type="xs:int" use="required"/>
+			</xs:complexType>
+		</xs:element>
+		</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="output">
+		<xs:complexType>
+		<xs:sequence>
+			<xs:element name="visual" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:attribute name="output_every" type="xs:int" use="required"/>
+					<xs:attribute name="xsize" type="xs:int"/>
+					<xs:attribute name="ysize" type="xs:int"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="treestructure" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="delimeter" type="xs:string"/>
+					<xs:attribute name="output" type="treeType" use="required"/>
+					<xs:attribute name="file" type="xs:string" use="required"/>
+					<xs:attribute name="trim" type="xs:boolean"/>
+					<xs:attribute name="resolve" type="xs:boolean"/>
+					<xs:attribute name="mutationrate" type="xs:float"/>
+					<xs:attribute name="output_every" type="xs:int" use="required"/>			
+				</xs:complexType>
+			</xs:element>	
+			<xs:element name="locations" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="generation" type="locType" use="required"/>
+					<xs:attribute name="file" type="xs:string" use="required"/>
+					<xs:attribute name="output_every" type="xs:int" use="required"/>			
+				</xs:complexType>
+			</xs:element>	
+		</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	</xs:sequence>
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+</xs:element>
+</xs:schema>
+	
+	
+	
+	
+	
+	
+	
+	
+	
