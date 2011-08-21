@@ -32,10 +32,14 @@ public:
   double
   draw(Random *rand0);
 
-  int startgeneration, endgeneration;
+  bool checkGeneration(int generation) {
+    return (startgeneration <= generation
+        && endgeneration >= generation);
+  }
 
 private:
 
+  int startgeneration, endgeneration;
   std::vector<double> _outcomes, _probabilities;
 };
 

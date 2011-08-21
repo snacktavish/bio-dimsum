@@ -273,39 +273,58 @@ Config::readConfig(const char* file)
 int
 Config::getNOffspring(int generation, Random *rand)
 {
-  Pfunction *thefunc = NULL;
-  for (unsigned int i = 0; i < noffspring.size(); i++)
-    if (noffspring[i]->startgeneration == -1 && noffspring[i]->endgeneration
-        == -1)
-      {
-        thefunc = noffspring[i];
-        break;
-      }
-  for (unsigned int i = 0; i < noffspring.size(); i++)
-    if (noffspring[i]->startgeneration <= generation
-        && noffspring[i]->endgeneration >= generation)
-      thefunc = noffspring[i];
-
+  Pfunction *thefunc = getPFunction(generation, noffspring);
   return (int) thefunc->draw(rand);
 }
 
 double
 Config::getDispersalRadius(int generation, Random *rand)
 {
+  Pfunction *thefunc = getPFunction(generation, dispersalradius);
+  return thefunc->draw(rand);
+}
+
+Pfunction*
+Config::getPFunction(int generation, std::vector<Pfunction*>& pf)
+{
   Pfunction *thefunc = NULL;
-  for (unsigned int i = 0; i < dispersalradius.size(); i++)
-    if (dispersalradius[i]->startgeneration == -1
-        && dispersalradius[i]->endgeneration == -1)
+  for (unsigned int i = 0; i < pf.size(); i++)
+    if (pf[i]->checkGeneration(-1))
       {
-        thefunc = dispersalradius[i];
+        thefunc = pf[i];
         break;
       }
-  for (unsigned int i = 0; i < dispersalradius.size(); i++)
-    if (dispersalradius[i]->startgeneration <= generation
-        && dispersalradius[i]->endgeneration >= generation)
-      thefunc = dispersalradius[i];
+  for (unsigned int i = 0; i < pf.size(); i++)
+    if (pf[i]->checkGeneration(generation))
+      thefunc = pf[i];
+  return thefunc;
+}
 
-  return thefunc->draw(rand);
+int
+Config::calcIndex(int generation, std::vector<XYFunction*>& xyf)
+{
+
+  int ind = -1;
+  for (unsigned int i = 0; i < xyf.size(); i++)
+    if (xyf[i]->checkGeneration(generation))
+      ind = i;
+  ;
+  if (ind == -1)
+    {
+      for (unsigned int i = 0; i < xyf.size(); i++)
+        if (xyf[i]->checkGeneration(-1))
+          {
+            ind = i;
+            break;
+          }
+    }
+  if (ind < 0)
+    {
+      std::cerr << "Config::calcIndex(): " << ind << " " << generation
+          << std::endl;
+      return 0;
+    }
+  return ind;
 }
 
 std::vector<Node*>

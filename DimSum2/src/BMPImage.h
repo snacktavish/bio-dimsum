@@ -18,30 +18,36 @@
 #define BMPIMAGE_H_
 #include "BMPHeader.h"
 
-class BMPImage {
+class BMPImage
+{
 
 public:
 
+  BMPImage(const char* filename, double maxValue, int color);
+  virtual
+  ~BMPImage();
 
-	BMPImage(const char* filename, double maxValue, int color);
-	virtual ~BMPImage();
+  const float*
+  getF()
+  {
+    return f;
+  }
 
-	const float* getF() {
-		return f;
-	}
+  int
+  getMaxX()
+  {
+    return maxX;
+  }
 
-	int getMaxX() {
-		return maxX;
-	}
-
-	int getMaxY() {
-			return maxY;
-		}
-
+  int
+  getMaxY()
+  {
+    return maxY;
+  }
 
 private:
-	float *f;
-	int maxX,maxY;
+  float *f;
+  int maxX, maxY;
 
 };
 

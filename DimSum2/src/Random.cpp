@@ -38,7 +38,6 @@ Random::~Random()
 float
 Random::nextFloat()
 {
-  //todo: use rand()  or mersenne twister
   _seed = (_seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
   float r = (int) (_seed >> 24);
   r = r / ((float) (1 << 24));
@@ -49,5 +48,5 @@ long
 Random::nextLong()
 {
   _seed = (_seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-  return _seed; // rand()
+  return _seed;
 }

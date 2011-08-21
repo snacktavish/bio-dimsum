@@ -58,7 +58,6 @@ BMPOutput::~BMPOutput()
 void
 BMPOutput::writeImage(const char* filename, float* image, double maxValue)
 {
-  //std::cout << "writing " << filename << std::endl;
   FILE *file;
   file = fopen(filename, "wb");
   int res;

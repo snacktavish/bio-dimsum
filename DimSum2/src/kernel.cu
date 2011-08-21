@@ -444,8 +444,6 @@ extern "C"
                   {
                     lld_d = hb_dd+step_d;
                     d-=lld_d;
-                    //TODO: check lat1 = toDeg(lld_latf);
-                    //TODO: check lon1 = toDeg(lld_lonf);
                     lat1 = setX(lld_latf,hb_lat_bt,geq(lat1,hb_lat_bt),hb_dy);
                     lon1 = setX(lld_lonf,hb_lon_bt,geq(lon1,hb_lon_bt),hb_dx);
                   }
