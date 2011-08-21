@@ -23,6 +23,7 @@ import jcuda.driver.CUmemorytype;
 import jcuda.driver.CUmodule;
 import jcuda.driver.CUtexref;
 import jcuda.driver.JCudaDriver;
+import jcuda.runtime.JCuda;
 
 
 public class GPU {

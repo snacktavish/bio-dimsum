@@ -38,7 +38,7 @@ public class Dispersion {
     	
     	if( args.length == 1 ) {
     		settings = new DispersalSettings(args[0]);
-    		settings.mode = DispersalSettings.MODE_CPP;}
+    		settings.mode = DispersalSettings.MODE_CUDA;}
     	else if( args.length == 2 ) {
     		settings = new DispersalSettings(args[1]);
     		if(args[0].charAt(1) == 'c') {
