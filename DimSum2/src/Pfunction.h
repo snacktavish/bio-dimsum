@@ -29,6 +29,9 @@ public:
   virtual
   ~Pfunction();
 
+  /**
+   * Draws a random value from the PFunction
+   */
   double
   draw(Random *rand0);
 

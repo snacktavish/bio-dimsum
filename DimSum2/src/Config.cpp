@@ -33,18 +33,25 @@ Config::~Config()
 {
   for (unsigned int i = 0; i < carryingcapacity.size(); i++)
     delete carryingcapacity[i];
+  carryingcapacity.clear();
   for (unsigned int i = 0; i < hardborders.size(); i++)
     delete hardborders[i];
+  hardborders.clear();
   for (unsigned int i = 0; i < softborders.size(); i++)
     delete softborders[i];
+  softborders.clear();
   for (unsigned int i = 0; i < dispersalradius.size(); i++)
     delete dispersalradius[i];
+  dispersalradius.clear();
   for (unsigned int i = 0; i < noffspring.size(); i++)
     delete noffspring[i];
+  noffspring.clear();
   for (unsigned int i = 0; i < initialpopulation.size(); i++)
     delete initialpopulation[i];
+  initialpopulation.clear();
   for (unsigned int i = 0; i < outputfunctions.size(); i++)
     delete outputfunctions[i];
+  outputfunctions.clear();
 }
 
 void

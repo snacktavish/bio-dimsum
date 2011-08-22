@@ -26,26 +26,39 @@ public:
   XYFunction(std::string imagename, double maxValue, int sgen, int egen,
       int color);
 
-  float*
-  readBMP(const char* filename, double maxValue, int color);
 
   virtual
   ~XYFunction();
 
+  /**
+   * Return the value of the XYFunction at (x,y)
+   */
   double
   f(int x, int y);
 
+  /**
+   * Transforms lat/lon on x/y xORy should be 0 for x and 1 for y
+   */
   int
-  getMaxX();
+  toX(double lon, double minlon, double maxlon, int xORy);
 
   int
-  getMaxY();
+  getMaxX()
+  {
+    return maxX;
+  }
+
+  int
+  getMaxY()
+  {
+    return maxY;
+  }
 
   double
-  fmax();
-
-  int
-  toX(double lon, double minlon, double maxlon, int maxX);
+  fmax()
+  {
+    return _fmax;
+  }
 
   const float*
   getF() const
@@ -53,18 +66,10 @@ public:
     return _f;
   }
 
-  BMPImage*
-  getImage()
-  {
-    return image;
-  }
-
   bool checkGeneration(int generation) {
     return (startgeneration <= generation
         && endgeneration >= generation);
   }
-
-
 
 private:
   int startgeneration, endgeneration;
@@ -72,6 +77,10 @@ private:
   int maxX, maxY;
   double _fmax;
   BMPImage *image;
+
+
+  float*
+  readBMP(const char* filename, double maxValue, int color);
 };
 
 #endif /* XYFUNCTION_H_ */

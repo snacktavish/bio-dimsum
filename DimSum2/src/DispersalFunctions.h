@@ -29,17 +29,29 @@ public:
   virtual
   ~DispersalFunctions();
 
-  void
-  prune(std::vector<Node*> thisGeneration, int generation);
-
-  std::vector<Node*>
-  migrate4GPU(std::vector<Node*> thisGeneration, int generation, int end_gen);
-
+  /**
+   * Generates the children of thisGeneration according to the offspring
+   */
   std::vector<Node*>
   populate(std::vector<Node*> thisGeneration, int generation);
 
+  /**
+   * Moves the Nodes of thisGneration
+   */
+  std::vector<Node*>
+  migrate4GPU(std::vector<Node*> thisGeneration, int generation, int end_gen);
+
+  /**
+   * Enforces that there arn't more nodes on the map than the carrying capacity allows
+   */
   std::vector<Node*>
   checkCarryingCapacity(std::vector<Node*> children, int end_gen);
+
+  /**
+   * Removes all Nodes with with one or less children
+   */
+  void
+  prune(std::vector<Node*> thisGeneration, int generation);
 
 private:
   XYFunction* sb;

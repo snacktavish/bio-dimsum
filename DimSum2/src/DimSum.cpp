@@ -31,7 +31,7 @@ static std::vector<Node*>
 simulate(std::vector<Node*> initialGeneration)
 {
   std::vector<Node*> thisGeneration(initialGeneration);
-
+  Timer::enabled = true;
   Timer migrateTimer("migrate()", false);
   Timer cccTimer("checkCarryingCapacity()", false);
   Timer pruneTimer("prune()", false);

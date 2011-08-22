@@ -27,6 +27,9 @@ public:
   virtual
   ~BMPOutput();
 
+  /**
+   * Writes the image as a bmp file with the name filename to the hd
+   */
   void
   writeImage(const char* filename, float* image, double maxValue);
 

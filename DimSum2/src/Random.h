@@ -30,7 +30,7 @@ public:
   float
   nextFloat();
 
-  long
+  unsigned long
   nextLong();
 
 private:
