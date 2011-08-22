@@ -146,7 +146,7 @@ public class DispersalDisplay extends Thread
 	
 	public void drawBackground(XYFunction cc, XYFunction hb, XYFunction sb)
 	{
-		background = new BufferedImage(cc.getMaxX(),cc.getMaxY(),BufferedImage.TYPE_INT_ARGB);
+		background = new BufferedImage(800,600,BufferedImage.TYPE_INT_ARGB);
 				
 	//	Graphics2D g2d = background.createGraphics();
 
@@ -158,13 +158,13 @@ public class DispersalDisplay extends Thread
 				
 				
 				if( bcc ) {
-					g = (int)(255.0*cc.f(x,y)/cc.fmax());
+					g = (int)(255.0*cc.f((int)((double)cc.getMaxX()*x/background.getWidth()),(int)((double)cc.getMaxY()*y/background.getHeight()))/cc.fmax());
 				} else g = 0;
 				if( bhb ) {
-					r = (int)(255.0*hb.f(x,y)/hb.fmax());
+					r = (int)(255.0*hb.f((int)((double)hb.getMaxX()*x/background.getWidth()),(int)((double)hb.getMaxY()*y/background.getHeight()))/hb.fmax());
 				} else r = 0;
 				if( bsb ) {
-					b = (int)(255.0*sb.f(x,y)/sb.fmax());
+					b = (int)(255.0*sb.f((int)((double)sb.getMaxX()*x/background.getWidth()),(int)((double)sb.getMaxY()*y/background.getHeight()))/sb.fmax());
 				} else b = 0;
 				
 				color = (0xFF << 24 )+ ((b & 0xFF) << 16) + ((g & 0xFF) << 8) + (r & 0xFF);

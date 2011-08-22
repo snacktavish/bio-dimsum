@@ -115,23 +115,46 @@ double abs(double x) {
 
 
 
-	float sb_f(int x,int y) {
-	#ifdef __CUDA_ARCH__
-		return tex2D(softborderDATA,x,y);
-	#else
-		return _sb_DATA[x+y*_sbx];
-	#endif
-	}
+    /**
+     * Return the value of the softborder at (x,y)
+     */
+    float sb_f(int x,int y)
+      {
+#ifdef __CUDA_ARCH__
+        return tex2D(softborderDATA,x,y);
+#else
 
+        if (x < _sbx && y < _sby && x > -1 && y > -1)
+          {
+            return _sb_DATA[y * _sbx + x];
+          }
+        else
+          {
+            //std::cout << x << " " << y << std::endl;
+            return 0;
+          }
+#endif
+      }
 
-
-	float hb_f(int x,int y) {
-	#ifdef __CUDA_ARCH__
-		return tex2D(hardborderDATA,x,y);
-	#else
-		return _hb_DATA[x+y*_hbx];
-	#endif
-	}
+    /**
+     * Return the value of the hardborder at (x,y)
+     */
+    float hb_f(int x,int y)
+      {
+#ifdef __CUDA_ARCH__
+        return tex2D(hardborderDATA,x,y);
+#else
+        if (x < _hbx && y < _hby && x > -1 && y > -1)
+          {
+            return _hb_DATA[y * _hbx + x];
+          }
+        else
+          {
+            //std::cout << x << " " << y << std::endl;
+            return 0;
+          }
+#endif
+      }
 
 
 	/**
