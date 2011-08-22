@@ -32,35 +32,36 @@ public:
   Config();
   virtual
   ~Config();
+
+  /**
+   * Parses the config file
+   */
   void
   readConfig(const char* file);
 
+  /**
+   * Returns the offspring for the generation
+   */
   int
   getNOffspring(int generation, Random *rand);
 
-  int
-  getNOffspring(int generation, double rand);
-
+  /**
+   * Returns the dispersal radius for the generation
+   */
   double
   getDispersalRadius(int generation, Random *rand);
 
-  double
-  getDispersalRadius(int generation, double rand);
-
+  /**
+   * Returns the initial population
+   */
   std::vector<Node*>
   getInitialPopulation();
 
+  /**
+   * Writes all the output files defined in the config
+   */
   void
   doOutput(std::vector<Node*> generation, int gen_num);
-
-  void
-  parseXYtype(xyType::data_sequence& dataSequence,
-      std::vector<XYFunction*> &list, int color);
-  void
-  parsePtype(pType::distribution_sequence& dataSequence,
-      std::vector<Pfunction*> &list);
-  void
-  readBMP(char* filename);
 
   XYFunction*
   getCC(int generation)
@@ -123,6 +124,7 @@ public:
   }
 
 private:
+
   std::vector<Node*> initialpopulation;
   std::vector<XYFunction*> carryingcapacity, hardborders, softborders;
   std::vector<Pfunction*> noffspring, dispersalradius;
@@ -135,11 +137,22 @@ private:
   std::string edges;
   std::string name;
 
+  void
+  readBMP(char* filename);
+
   int
   calcIndex(int generation, std::vector<XYFunction*>& xyf);
 
   Pfunction*
   getPFunction(int generation, std::vector<Pfunction*>& pf);
+
+  void
+  parseXYtype(xyType::data_sequence& dataSequence,
+      std::vector<XYFunction*> &list, int color);
+
+  void
+  parsePtype(pType::distribution_sequence& dataSequence,
+      std::vector<Pfunction*> &list);
 };
 
 #endif /* CONFIG_H_ */

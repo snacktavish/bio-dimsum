@@ -49,24 +49,6 @@ XYFunction::f(int x, int y)
 }
 
 int
-XYFunction::getMaxX()
-{
-  return maxX;
-}
-
-int
-XYFunction::getMaxY()
-{
-  return maxY;
-}
-
-double
-XYFunction::fmax()
-{
-  return _fmax;
-}
-
-int
 XYFunction::toX(double lon, double minlon, double maxlon, int xORy)
 {
   int max = xORy == 0 ? maxX : maxY;

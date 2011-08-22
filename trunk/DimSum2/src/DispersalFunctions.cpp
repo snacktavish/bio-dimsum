@@ -72,8 +72,6 @@ DispersalFunctions::migrate4GPU(std::vector<Node*> children, int generation,
     int end_gen)
 {
 
-  Random rand2(_rand->nextLong());
-
   long *parami = new long[DIMSUM_PARAMI_RANDINDEX + children.size()];
   hb = 0;
   if (children[0]->generation - 1 == end_gen) // JMB -- Added to make sure that children of the final generation get the right hard borders
@@ -146,7 +144,7 @@ DispersalFunctions::migrate4GPU(std::vector<Node*> children, int generation,
   for (unsigned int i = 0; i < children.size(); i++)
     {
       d[i] = settings->getDispersalRadius(
-          (int) parami[DIMSUM_PARAMI_GENERATION], &rand2);
+          (int) parami[DIMSUM_PARAMI_GENERATION], _rand);
       children[i]->d = d[i];
     }
 
@@ -155,7 +153,7 @@ DispersalFunctions::migrate4GPU(std::vector<Node*> children, int generation,
   for (unsigned int i = DIMSUM_PARAMI_RANDINDEX; i < DIMSUM_PARAMI_RANDINDEX
       + children.size(); i++)
     {
-      parami[i] = rand2.nextLong();
+      parami[i] = _rand->nextLong();
     }
 
   for (unsigned int i = 0; i < children.size(); i++)

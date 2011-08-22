@@ -17,6 +17,8 @@
 #include "Timer.h"
 #include <iostream>
 
+bool Timer::enabled = false;
+
 Timer::Timer(std::string name0, bool v) :
   name(name0), running(false), verbose(v), overallTime(0)
 {

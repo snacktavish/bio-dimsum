@@ -31,21 +31,33 @@ public:
   virtual
   ~Node();
 
+  /**
+   * Removes Node n from the children list.
+   */
   void
   remove(Node *n);
 
+  /**
+   * Return the generation and the unique id of the Node
+   */
   std::string
   getName();
 
-  std::string
-  toString();
-
+  /**
+   * Returns the distance of the Node to the Node parent
+   */
   double
   getDistance(Node& parent);
 
+  /**
+   * Returns a tree with the name of all children
+   */
   std::string
   printTreeStructure(std::string delimeter, int curr_gen, bool resolve);
 
+  /**
+   * Returns a tree with the distance of all children
+   */
   std::string
   printDistance(std::string delimeter, double mutationrate, int curr_gen,
       bool resolve);

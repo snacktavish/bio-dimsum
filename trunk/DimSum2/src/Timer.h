@@ -27,17 +27,27 @@ public:
   virtual
   ~Timer();
 
+  /**
+   * Starts the timer
+   */
   void
   start();
 
+  /**
+   * Stops the times
+   */
   clock_t
   stop();
 
+  /**
+   * Prints the measured time
+   */
   void
   print();
 
+  static bool enabled;
+
 private:
-  static const bool enabled = true;
   std::string name;
   bool running;
   bool verbose;

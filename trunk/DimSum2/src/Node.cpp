@@ -74,13 +74,7 @@ Node::getName()
   tmp << generation << "_" << unique;
   return tmp.str();
 }
-std::string
-Node::toString()
-{
-  std::stringstream tmp;
-  tmp << getName() << " " << lat << " " << lon;
-  return tmp.str();
-}
+
 double
 Node::getDistance(Node &parent)
 {

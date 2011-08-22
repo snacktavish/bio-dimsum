@@ -28,7 +28,7 @@ Random::Random()
 Random::Random(long seed) :
   _seed(seed)
 {
-  //	srand(seed);
+ // srand(seed);
 }
 
 Random::~Random()
@@ -42,11 +42,17 @@ Random::nextFloat()
   float r = (int) (_seed >> 24);
   r = r / ((float) (1 << 24));
   return r;
+  //return (float)rand()/(float)RAND_MAX;
 }
 
-long
+unsigned long
 Random::nextLong()
 {
   _seed = (_seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-  return _seed;
+  unsigned long r = (_seed >> 16);
+  r = r << 32;
+  _seed = (_seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+  r  = r + (_seed >> 16);
+  return r;
+  //return rand();
 }
