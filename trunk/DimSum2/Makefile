@@ -7,7 +7,7 @@ TARGET =	DimSum
 
 $(TARGET):	$(OBJS)
 	/usr/local/cuda/bin/nvcc -m64 -arch sm_21 -o src/kernel.o -c src/kernel.cu 
-	$(CXX) -o $(TARGET) $(OBJS) src/kernel.o -L/usr/local/cuda/lib64 $(LDFLAGS)
+	$(CXX) -o $(TARGET) $(OBJS) src/kernel.o -L/usr/local/cuda/lib -L/opt/local/lib $(LDFLAGS)
 
 all:	$(TARGET)
 
