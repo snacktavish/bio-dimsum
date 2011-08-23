@@ -1,4 +1,4 @@
-CXXFLAGS =	-m64 -O3 -g -Wall -Werror -pedantic -pedantic-errors -Wstrict-aliasing -fno-rtti -I/usr/local/cuda/include
+CXXFLAGS =	-m64 -O3 -g -Wall -Wstrict-aliasing -fno-rtti -I/opt/local/include -Ilibxsd -I/usr/local/cuda/include
 LDFLAGS =	-lxerces-c -lcudart -lcuda
 OBJS =		src/DimSum.o src/Node.o src/XYFunction.o src/Pfunction.o src/DispersalFunctions.o src/ConfigFile.o\
 			src/Config.o src/Random.o src/BMPImage.o src/OutputFunction.o src/VisualOutput.o src/TreeOutput.o\
