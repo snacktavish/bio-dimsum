@@ -101,7 +101,7 @@ namespace xml_schema
   //
   typedef int int_;
   typedef unsigned int unsigned_int;
-/*
+
   // 64-bit
   //
   typedef long long long_;
@@ -114,7 +114,7 @@ namespace xml_schema
   typedef unsigned long long non_negative_integer;
   typedef unsigned long long positive_integer;
   typedef long long negative_integer;
-*/
+
   // Boolean.
   //
   typedef bool boolean;
@@ -224,9 +224,11 @@ namespace xml_schema
 class edgeType;
 class fileType;
 class treeType;
+class sexType;
 class locType;
 class xyType;
-class intlist;
+class floatlist;
+class integerlist;
 class pType;
 class data;
 class distribution;
@@ -234,12 +236,14 @@ class simulation;
 class latitude;
 class longitude;
 class edges;
+class loci;
 class initialpopulation;
 class output;
 class node;
 class visual;
 class treestructure;
 class locations;
+class ndna;
 
 #include <memory>    // std::auto_ptr
 #include <limits>    // std::numeric_limits
@@ -422,6 +426,62 @@ class treeType: public ::xml_schema::string
   static const value _xsd_treeType_indexes_[2];
 };
 
+class sexType: public ::xml_schema::string
+{
+  public:
+  enum value
+  {
+    male,
+    female
+  };
+
+  sexType (value v);
+
+  sexType (const char* v);
+
+  sexType (const ::std::string& v);
+
+  sexType (const ::xml_schema::string& v);
+
+  sexType (const ::xercesc::DOMElement& e,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
+
+  sexType (const ::xercesc::DOMAttr& a,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
+
+  sexType (const ::std::string& s,
+           const ::xercesc::DOMElement* e,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
+
+  sexType (const sexType& x,
+           ::xml_schema::flags f = 0,
+           ::xml_schema::container* c = 0);
+
+  virtual sexType*
+  _clone (::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0) const;
+
+  sexType&
+  operator= (value v);
+
+  virtual
+  operator value () const
+  {
+    return _xsd_sexType_convert ();
+  }
+
+  protected:
+  value
+  _xsd_sexType_convert () const;
+
+  public:
+  static const char* const _xsd_sexType_literals_[2];
+  static const value _xsd_sexType_indexes_[2];
+};
+
 class locType: public ::xml_schema::string
 {
   public:
@@ -528,43 +588,82 @@ class xyType: public ::xml_schema::type
   data_sequence data_;
 };
 
-class intlist: public ::xml_schema::simple_type,
+class floatlist: public ::xml_schema::simple_type,
   public ::xsd::cxx::tree::list< ::xml_schema::float_, char >
 {
   public:
-  intlist ();
+  floatlist ();
 
-  intlist (size_type n, const ::xml_schema::float_& x);
+  floatlist (size_type n, const ::xml_schema::float_& x);
 
   template < typename I >
-  intlist (const I& begin, const I& end)
+  floatlist (const I& begin, const I& end)
   : ::xsd::cxx::tree::list< ::xml_schema::float_, char > (begin, end, this)
   {
   }
 
-  intlist (const ::xercesc::DOMElement& e,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+  floatlist (const ::xercesc::DOMElement& e,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-  intlist (const ::xercesc::DOMAttr& a,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+  floatlist (const ::xercesc::DOMAttr& a,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-  intlist (const ::std::string& s,
-           const ::xercesc::DOMElement* e,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+  floatlist (const ::std::string& s,
+             const ::xercesc::DOMElement* e,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-  intlist (const intlist& x,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+  floatlist (const floatlist& x,
+             ::xml_schema::flags f = 0,
+             ::xml_schema::container* c = 0);
 
-  virtual intlist*
+  virtual floatlist*
   _clone (::xml_schema::flags f = 0,
           ::xml_schema::container* c = 0) const;
 
   virtual 
-  ~intlist ();
+  ~floatlist ();
+};
+
+class integerlist: public ::xml_schema::simple_type,
+  public ::xsd::cxx::tree::list< ::xml_schema::int_, char >
+{
+  public:
+  integerlist ();
+
+  integerlist (size_type n, const ::xml_schema::int_& x);
+
+  template < typename I >
+  integerlist (const I& begin, const I& end)
+  : ::xsd::cxx::tree::list< ::xml_schema::int_, char > (begin, end, this)
+  {
+  }
+
+  integerlist (const ::xercesc::DOMElement& e,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
+
+  integerlist (const ::xercesc::DOMAttr& a,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
+
+  integerlist (const ::std::string& s,
+               const ::xercesc::DOMElement* e,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
+
+  integerlist (const integerlist& x,
+               ::xml_schema::flags f = 0,
+               ::xml_schema::container* c = 0);
+
+  virtual integerlist*
+  _clone (::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0) const;
+
+  virtual 
+  ~integerlist ();
 };
 
 class pType: public ::xml_schema::type
@@ -745,7 +844,7 @@ class distribution: public ::xml_schema::type
   public:
   // p
   // 
-  typedef ::intlist p_type;
+  typedef ::floatlist p_type;
   typedef ::xsd::cxx::tree::traits< p_type, char > p_traits;
 
   const p_type&
@@ -762,7 +861,7 @@ class distribution: public ::xml_schema::type
 
   // offspring
   // 
-  typedef ::intlist offspring_type;
+  typedef ::floatlist offspring_type;
   typedef ::xsd::cxx::tree::traits< offspring_type, char > offspring_traits;
 
   const offspring_type&
@@ -1014,6 +1113,23 @@ class simulation: public ::xml_schema::type
   void
   dispersalradius (::std::auto_ptr< dispersalradius_type > p);
 
+  // loci
+  // 
+  typedef ::loci loci_type;
+  typedef ::xsd::cxx::tree::traits< loci_type, char > loci_traits;
+
+  const loci_type&
+  loci () const;
+
+  loci_type&
+  loci ();
+
+  void
+  loci (const loci_type& x);
+
+  void
+  loci (::std::auto_ptr< loci_type > p);
+
   // initialpopulation
   // 
   typedef ::initialpopulation initialpopulation_type;
@@ -1077,6 +1193,7 @@ class simulation: public ::xml_schema::type
               const softborders_type&,
               const reproductiveability_type&,
               const dispersalradius_type&,
+              const loci_type&,
               const initialpopulation_type&,
               const output_type&,
               const name_type&);
@@ -1091,6 +1208,7 @@ class simulation: public ::xml_schema::type
               ::std::auto_ptr< softborders_type >&,
               ::std::auto_ptr< reproductiveability_type >&,
               ::std::auto_ptr< dispersalradius_type >&,
+              ::std::auto_ptr< loci_type >&,
               ::std::auto_ptr< initialpopulation_type >&,
               ::std::auto_ptr< output_type >&,
               const name_type&);
@@ -1128,6 +1246,7 @@ class simulation: public ::xml_schema::type
   ::xsd::cxx::tree::one< softborders_type > softborders_;
   ::xsd::cxx::tree::one< reproductiveability_type > reproductiveability_;
   ::xsd::cxx::tree::one< dispersalradius_type > dispersalradius_;
+  ::xsd::cxx::tree::one< loci_type > loci_;
   ::xsd::cxx::tree::one< initialpopulation_type > initialpopulation_;
   ::xsd::cxx::tree::one< output_type > output_;
   ::xsd::cxx::tree::one< name_type > name_;
@@ -1309,6 +1428,72 @@ class edges: public ::xml_schema::type
   ::xsd::cxx::tree::one< type_type > type_;
 };
 
+class loci: public ::xml_schema::type
+{
+  public:
+  // numloci
+  // 
+  typedef ::xml_schema::int_ numloci_type;
+  typedef ::xsd::cxx::tree::traits< numloci_type, char > numloci_traits;
+
+  const numloci_type&
+  numloci () const;
+
+  numloci_type&
+  numloci ();
+
+  void
+  numloci (const numloci_type& x);
+
+  // recombinationrate
+  // 
+  typedef ::floatlist recombinationrate_type;
+  typedef ::xsd::cxx::tree::traits< recombinationrate_type, char > recombinationrate_traits;
+
+  const recombinationrate_type&
+  recombinationrate () const;
+
+  recombinationrate_type&
+  recombinationrate ();
+
+  void
+  recombinationrate (const recombinationrate_type& x);
+
+  void
+  recombinationrate (::std::auto_ptr< recombinationrate_type > p);
+
+  // Constructors.
+  //
+  loci (const numloci_type&,
+        const recombinationrate_type&);
+
+  loci (const ::xercesc::DOMElement& e,
+        ::xml_schema::flags f = 0,
+        ::xml_schema::container* c = 0);
+
+  loci (const loci& x,
+        ::xml_schema::flags f = 0,
+        ::xml_schema::container* c = 0);
+
+  virtual loci*
+  _clone (::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0) const;
+
+  virtual 
+  ~loci ();
+
+  // Implementation.
+  //
+  protected:
+  void
+  parse (::xsd::cxx::xml::dom::parser< char >&,
+         ::xml_schema::flags);
+
+  protected:
+  ::xsd::cxx::tree::one< numloci_type > numloci_;
+  ::xsd::cxx::tree::one< recombinationrate_type > recombinationrate_;
+};
+
 class initialpopulation: public ::xml_schema::type
 {
   public:
@@ -1417,6 +1602,23 @@ class output: public ::xml_schema::type
   void
   locations (const locations_sequence& s);
 
+  // ndna
+  // 
+  typedef ::ndna ndna_type;
+  typedef ::xsd::cxx::tree::sequence< ndna_type > ndna_sequence;
+  typedef ndna_sequence::iterator ndna_iterator;
+  typedef ndna_sequence::const_iterator ndna_const_iterator;
+  typedef ::xsd::cxx::tree::traits< ndna_type, char > ndna_traits;
+
+  const ndna_sequence&
+  ndna () const;
+
+  ndna_sequence&
+  ndna ();
+
+  void
+  ndna (const ndna_sequence& s);
+
   // Constructors.
   //
   output ();
@@ -1447,6 +1649,7 @@ class output: public ::xml_schema::type
   visual_optional visual_;
   treestructure_sequence treestructure_;
   locations_sequence locations_;
+  ndna_sequence ndna_;
 };
 
 class node: public ::xml_schema::type
@@ -1536,6 +1739,57 @@ class node: public ::xml_schema::type
   void
   b (const b_type& x);
 
+  // sex
+  // 
+  typedef ::sexType sex_type;
+  typedef ::xsd::cxx::tree::traits< sex_type, char > sex_traits;
+
+  const sex_type&
+  sex () const;
+
+  sex_type&
+  sex ();
+
+  void
+  sex (const sex_type& x);
+
+  void
+  sex (::std::auto_ptr< sex_type > p);
+
+  // mloci
+  // 
+  typedef ::integerlist mloci_type;
+  typedef ::xsd::cxx::tree::traits< mloci_type, char > mloci_traits;
+
+  const mloci_type&
+  mloci () const;
+
+  mloci_type&
+  mloci ();
+
+  void
+  mloci (const mloci_type& x);
+
+  void
+  mloci (::std::auto_ptr< mloci_type > p);
+
+  // floci
+  // 
+  typedef ::integerlist floci_type;
+  typedef ::xsd::cxx::tree::traits< floci_type, char > floci_traits;
+
+  const floci_type&
+  floci () const;
+
+  floci_type&
+  floci ();
+
+  void
+  floci (const floci_type& x);
+
+  void
+  floci (::std::auto_ptr< floci_type > p);
+
   // Constructors.
   //
   node (const lat_type&,
@@ -1543,7 +1797,10 @@ class node: public ::xml_schema::type
         const n_type&,
         const r_type&,
         const g_type&,
-        const b_type&);
+        const b_type&,
+        const sex_type&,
+        const mloci_type&,
+        const floci_type&);
 
   node (const ::xercesc::DOMElement& e,
         ::xml_schema::flags f = 0,
@@ -1574,6 +1831,9 @@ class node: public ::xml_schema::type
   ::xsd::cxx::tree::one< r_type > r_;
   ::xsd::cxx::tree::one< g_type > g_;
   ::xsd::cxx::tree::one< b_type > b_;
+  ::xsd::cxx::tree::one< sex_type > sex_;
+  ::xsd::cxx::tree::one< mloci_type > mloci_;
+  ::xsd::cxx::tree::one< floci_type > floci_;
 };
 
 class visual: public ::xml_schema::type
@@ -1907,6 +2167,113 @@ class locations: public ::xml_schema::type
   protected:
   ::xsd::cxx::tree::one< generation_type > generation_;
   ::xsd::cxx::tree::one< file_type > file_;
+  ::xsd::cxx::tree::one< output_every_type > output_every_;
+};
+
+class ndna: public ::xml_schema::type
+{
+  public:
+  // delimeter
+  // 
+  typedef ::xml_schema::string delimeter_type;
+  typedef ::xsd::cxx::tree::optional< delimeter_type > delimeter_optional;
+  typedef ::xsd::cxx::tree::traits< delimeter_type, char > delimeter_traits;
+
+  const delimeter_optional&
+  delimeter () const;
+
+  delimeter_optional&
+  delimeter ();
+
+  void
+  delimeter (const delimeter_type& x);
+
+  void
+  delimeter (const delimeter_optional& x);
+
+  void
+  delimeter (::std::auto_ptr< delimeter_type > p);
+
+  // file
+  // 
+  typedef ::xml_schema::string file_type;
+  typedef ::xsd::cxx::tree::traits< file_type, char > file_traits;
+
+  const file_type&
+  file () const;
+
+  file_type&
+  file ();
+
+  void
+  file (const file_type& x);
+
+  void
+  file (::std::auto_ptr< file_type > p);
+
+  // trim
+  // 
+  typedef ::xml_schema::boolean trim_type;
+  typedef ::xsd::cxx::tree::optional< trim_type > trim_optional;
+  typedef ::xsd::cxx::tree::traits< trim_type, char > trim_traits;
+
+  const trim_optional&
+  trim () const;
+
+  trim_optional&
+  trim ();
+
+  void
+  trim (const trim_type& x);
+
+  void
+  trim (const trim_optional& x);
+
+  // output_every
+  // 
+  typedef ::xml_schema::int_ output_every_type;
+  typedef ::xsd::cxx::tree::traits< output_every_type, char > output_every_traits;
+
+  const output_every_type&
+  output_every () const;
+
+  output_every_type&
+  output_every ();
+
+  void
+  output_every (const output_every_type& x);
+
+  // Constructors.
+  //
+  ndna (const file_type&,
+        const output_every_type&);
+
+  ndna (const ::xercesc::DOMElement& e,
+        ::xml_schema::flags f = 0,
+        ::xml_schema::container* c = 0);
+
+  ndna (const ndna& x,
+        ::xml_schema::flags f = 0,
+        ::xml_schema::container* c = 0);
+
+  virtual ndna*
+  _clone (::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0) const;
+
+  virtual 
+  ~ndna ();
+
+  // Implementation.
+  //
+  protected:
+  void
+  parse (::xsd::cxx::xml::dom::parser< char >&,
+         ::xml_schema::flags);
+
+  protected:
+  delimeter_optional delimeter_;
+  ::xsd::cxx::tree::one< file_type > file_;
+  trim_optional trim_;
   ::xsd::cxx::tree::one< output_every_type > output_every_;
 };
 

@@ -19,35 +19,120 @@
 #include <sstream>
 
 int Node::lastUnique = 0;
+int Node::numLoci = 1;
+float *Node::_recombinationRate = NULL;
+
 
 Node::~Node()
 {
+	delete[] _motherChrom;
+	delete[] _fatherChrom;
 }
 
-Node::Node(int gen, Node *par)
+Node::Node(int gen, Node *par, Node *father)
 {
   unique = Node::lastUnique++;
   generation = gen;
   parent = par;
+  _father = father;
   lat = par->lat;
   lon = par->lon;
   _r = par->_r;
   _g = par->_g;
   _b = par->_b;
+  _male = (float)rand()/(float)RAND_MAX < 0.5f;
+  _motherChrom = new int[numLoci];
+  _fatherChrom = new int[numLoci];
+  bool lastAllelMale = true;
+  bool recombine = false;
+
+  for(int i=0;i<Node::numLoci;i++) {
+	  recombine = (float)rand()/(float)RAND_MAX < _recombinationRate[i];
+	  if((recombine && lastAllelMale) || (!recombine && !lastAllelMale)) {
+		  _motherChrom[i] = par->_motherChrom[i];
+		  lastAllelMale = false;
+	  } else {
+		  _motherChrom[i] = par->_fatherChrom[i];
+		  lastAllelMale = true;
+	  }
+  }
+
+
+  lastAllelMale = false;
+  recombine = false;
+
+  for(int i=0;i<Node::numLoci;i++) {
+ 	  recombine = (float)rand()/(float)RAND_MAX < _recombinationRate[i];
+ 	  if((recombine && lastAllelMale) || (!recombine && !lastAllelMale)) {
+ 		  _fatherChrom[i] = _father->_motherChrom[i];
+ 		  lastAllelMale = false;
+ 	  } else {
+ 		  _fatherChrom[i] = _father->_fatherChrom[i];
+ 		  lastAllelMale = true;
+ 	  }
+   }
+
+
+
 }
 
-Node::Node(double lat0, double lon0, int r, int g, int b)
+Node::Node(Node *from, int genNum, std::vector<Node*> newLastGen)
+{
+		unique = from->unique;
+		generation = from->generation;
+
+
+		lat = from->lat;
+		lon = from->lon;
+		  _r = from->_r;
+		  _g = from->_g;
+		  _b = from->_b;
+
+			parent = NULL;
+		_father = NULL;
+		  _male = from->_male;
+		  _motherChrom = new int[numLoci];
+		  _fatherChrom = new int[numLoci];
+
+		  for(int i=0;i<numLoci;i++) {
+			  _motherChrom[i] = from->_motherChrom[i];
+			  _fatherChrom[i] = from->_fatherChrom[i];
+		  }
+
+
+			for (int i=0; i<from->children.size(); i++)
+			{
+				children.push_back(new Node(from->children[i],genNum,newLastGen ) );	// Recursively adding children, as needed
+			}
+
+		for (int i=0; i<children.size(); i++)	// Setting parent for all newly created children
+		{
+			children[i]->parent = this;
+		}
+		if (generation == genNum)	// Populating new ArrayList of nodes in the final generation
+			newLastGen.push_back(this);
+}
+
+Node::Node(double lat0, double lon0, int r, int g, int b, bool male, std::vector<int> motherL, std::vector<int> fatherL)
 {
   if (Node::lastUnique == 0)
     Node::lastUnique = 1;
   unique = Node::lastUnique++;
   generation = 1;
   parent = NULL;
+  _father = NULL;
   lat = lat0;
   lon = lon0;
   _r = r;
   _g = g;
   _b = b;
+  _male = male;
+  _motherChrom = new int[numLoci];
+  _fatherChrom = new int[numLoci];
+  for(int i=0;i<numLoci;i++) {
+	  _motherChrom[i] = motherL[i];
+	  _fatherChrom[i] = fatherL[i];
+  }
 }
 
 void
@@ -75,16 +160,58 @@ Node::getName()
   return tmp.str();
 }
 
+
+std::string
+Node::getString()
+{
+  std::stringstream tmp;
+  if(_male)
+  tmp << generation << "_M" << unique << "@" << lat << "," << lon;
+  else
+	  tmp << generation << "_F" << unique << "@" << lat << "," << lon;
+
+  return tmp.str();
+}
+
+
 double
 Node::getDistance(Node &parent)
 {
   return (double) (this->generation - parent.generation);
 }
+
+std::string Node::printAlleleTree(std::string delimeter, int curr_gen, int loci, int allel) {
+	if (_motherChrom[loci] == allel || _fatherChrom[loci] == allel) {
+
+		if (children.size() == 0) {
+			return getName();
+		}
+
+		std::stringstream ret;
+		ret << "(";
+		for (unsigned int i = 0; i < children.size(); i++) {
+			std::string tmp = children[i]->printAlleleTree(delimeter, curr_gen,
+					loci, allel);
+
+			if(tmp != "") {
+				ret << tmp;
+				if(i <children.size() -1 ) //todo
+					ret<< ",";
+			}
+
+		}
+		ret << (")" + delimeter + getName());
+
+		return ret.str();
+	} else
+		return "";
+}
+
 std::string
 Node::printTreeStructure(std::string delimeter, int curr_gen, bool resolve)
 {
 
-  if (children.size() == 0)
+  if (children.size() == 0 || _male)
     return getName();
 
   std::stringstream ret;
@@ -121,6 +248,7 @@ Node::printTreeStructure(std::string delimeter, int curr_gen, bool resolve)
   ret << (")" + delimeter + getName());
 
   return ret.str();
+
 }
 
 std::string
@@ -128,7 +256,7 @@ Node::printDistance(std::string delimeter, double mutationrate, int curr_gen,
     bool resolve)
 {
 
-  if (children.size() == 0)
+  if (children.size() == 0 || _male)
     return getName();
   std::stringstream ret;
   ret << "(";

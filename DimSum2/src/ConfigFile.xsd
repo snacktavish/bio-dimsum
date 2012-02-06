@@ -23,6 +23,13 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
+	<xs:simpleType name="sexType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="male"/>
+			<xs:enumeration value="female"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
 	<xs:simpleType name="locType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="all"/>
@@ -44,16 +51,20 @@
 		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:simpleType name="intlist">
+	<xs:simpleType name="floatlist">
     	<xs:list itemType="xs:float"/>
+	</xs:simpleType>
+	
+	<xs:simpleType name="integerlist">
+    	<xs:list itemType="xs:int"/>
 	</xs:simpleType>
 	
 	<xs:complexType name="pType">
 		<xs:sequence>
 		<xs:element name="distribution" minOccurs="1" maxOccurs="unbounded">
 			<xs:complexType>
-			<xs:attribute name="p" type="intlist" use="required"/>
-			<xs:attribute name="offspring" type="intlist" use="required"/>	
+			<xs:attribute name="p" type="floatlist" use="required"/>
+			<xs:attribute name="offspring" type="floatlist" use="required"/>	
 			<xs:attribute name="startgeneration" type="xs:int"/>
 			<xs:attribute name="endgeneration" type="xs:int"/>
 			</xs:complexType>
@@ -98,6 +109,14 @@
 	<xs:element name="reproductiveability" type="pType" />
 	<xs:element name="dispersalradius" type="pType" />
 	
+	<xs:element name="loci">
+		<xs:complexType>
+		<xs:attribute name="numloci" type="xs:int" use="required"/>
+		<xs:attribute name="recombinationrate" type="floatlist" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	
+	
 	<xs:element name="initialpopulation">
 		<xs:complexType>
 		<xs:sequence>
@@ -109,6 +128,9 @@
 			<xs:attribute name="r" type="xs:int" use="required"/>
 			<xs:attribute name="g" type="xs:int" use="required"/>
 			<xs:attribute name="b" type="xs:int" use="required"/>
+			<xs:attribute name="sex" type="sexType" use="required"/>
+			<xs:attribute name="mloci" type="integerlist" use="required"/>
+			<xs:attribute name="floci" type="integerlist" use="required"/>
 			</xs:complexType>
 		</xs:element>
 		</xs:sequence>
@@ -142,7 +164,15 @@
 					<xs:attribute name="file" type="xs:string" use="required"/>
 					<xs:attribute name="output_every" type="xs:int" use="required"/>			
 				</xs:complexType>
-			</xs:element>	
+			</xs:element>
+			<xs:element name="ndna" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="delimeter" type="xs:string"/>
+					<xs:attribute name="file" type="xs:string" use="required"/>
+					<xs:attribute name="trim" type="xs:boolean"/>
+					<xs:attribute name="output_every" type="xs:int" use="required"/>			
+				</xs:complexType>
+			</xs:element>		
 		</xs:sequence>
 		</xs:complexType>
 	</xs:element>

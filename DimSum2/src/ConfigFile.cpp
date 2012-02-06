@@ -175,6 +175,51 @@ operator= (value v)
 }
 
 
+// sexType
+// 
+
+sexType::
+sexType (value v)
+: ::xml_schema::string (_xsd_sexType_literals_[v])
+{
+}
+
+sexType::
+sexType (const char* v)
+: ::xml_schema::string (v)
+{
+}
+
+sexType::
+sexType (const ::std::string& v)
+: ::xml_schema::string (v)
+{
+}
+
+sexType::
+sexType (const ::xml_schema::string& v)
+: ::xml_schema::string (v)
+{
+}
+
+sexType::
+sexType (const sexType& v,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
+: ::xml_schema::string (v, f, c)
+{
+}
+
+sexType& sexType::
+operator= (value v)
+{
+  static_cast< ::xml_schema::string& > (*this) = 
+  ::xml_schema::string (_xsd_sexType_literals_[v]);
+
+  return *this;
+}
+
+
 // locType
 // 
 
@@ -242,27 +287,51 @@ data (const data_sequence& s)
 }
 
 
-// intlist
+// floatlist
 //
 
-intlist::
-intlist ()
+floatlist::
+floatlist ()
 : ::xsd::cxx::tree::list< ::xml_schema::float_, char > ( ::xml_schema::flags (0), this)
 {
 }
 
-intlist::
-intlist (size_type n, const ::xml_schema::float_& x)
+floatlist::
+floatlist (size_type n, const ::xml_schema::float_& x)
 : ::xsd::cxx::tree::list< ::xml_schema::float_, char > (n, x, this)
 {
 }
 
-intlist::
-intlist (const intlist& o,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+floatlist::
+floatlist (const floatlist& o,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
 : ::xml_schema::simple_type (o, f, c),
   ::xsd::cxx::tree::list< ::xml_schema::float_, char > (o, f, this)
+{
+}
+
+// integerlist
+//
+
+integerlist::
+integerlist ()
+: ::xsd::cxx::tree::list< ::xml_schema::int_, char > ( ::xml_schema::flags (0), this)
+{
+}
+
+integerlist::
+integerlist (size_type n, const ::xml_schema::int_& x)
+: ::xsd::cxx::tree::list< ::xml_schema::int_, char > (n, x, this)
+{
+}
+
+integerlist::
+integerlist (const integerlist& o,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
+: ::xml_schema::simple_type (o, f, c),
+  ::xsd::cxx::tree::list< ::xml_schema::int_, char > (o, f, this)
 {
 }
 
@@ -737,6 +806,30 @@ dispersalradius (::std::auto_ptr< dispersalradius_type > x)
   this->dispersalradius_.set (x);
 }
 
+const simulation::loci_type& simulation::
+loci () const
+{
+  return this->loci_.get ();
+}
+
+simulation::loci_type& simulation::
+loci ()
+{
+  return this->loci_.get ();
+}
+
+void simulation::
+loci (const loci_type& x)
+{
+  this->loci_.set (x);
+}
+
+void simulation::
+loci (::std::auto_ptr< loci_type > x)
+{
+  this->loci_.set (x);
+}
+
 const simulation::initialpopulation_type& simulation::
 initialpopulation () const
 {
@@ -918,6 +1011,52 @@ type (::std::auto_ptr< type_type > x)
 }
 
 
+// loci
+// 
+
+const loci::numloci_type& loci::
+numloci () const
+{
+  return this->numloci_.get ();
+}
+
+loci::numloci_type& loci::
+numloci ()
+{
+  return this->numloci_.get ();
+}
+
+void loci::
+numloci (const numloci_type& x)
+{
+  this->numloci_.set (x);
+}
+
+const loci::recombinationrate_type& loci::
+recombinationrate () const
+{
+  return this->recombinationrate_.get ();
+}
+
+loci::recombinationrate_type& loci::
+recombinationrate ()
+{
+  return this->recombinationrate_.get ();
+}
+
+void loci::
+recombinationrate (const recombinationrate_type& x)
+{
+  this->recombinationrate_.set (x);
+}
+
+void loci::
+recombinationrate (::std::auto_ptr< recombinationrate_type > x)
+{
+  this->recombinationrate_.set (x);
+}
+
+
 // initialpopulation
 // 
 
@@ -1007,6 +1146,24 @@ void output::
 locations (const locations_sequence& s)
 {
   this->locations_ = s;
+}
+
+const output::ndna_sequence& output::
+ndna () const
+{
+  return this->ndna_;
+}
+
+output::ndna_sequence& output::
+ndna ()
+{
+  return this->ndna_;
+}
+
+void output::
+ndna (const ndna_sequence& s)
+{
+  this->ndna_ = s;
 }
 
 
@@ -1119,6 +1276,78 @@ void node::
 b (const b_type& x)
 {
   this->b_.set (x);
+}
+
+const node::sex_type& node::
+sex () const
+{
+  return this->sex_.get ();
+}
+
+node::sex_type& node::
+sex ()
+{
+  return this->sex_.get ();
+}
+
+void node::
+sex (const sex_type& x)
+{
+  this->sex_.set (x);
+}
+
+void node::
+sex (::std::auto_ptr< sex_type > x)
+{
+  this->sex_.set (x);
+}
+
+const node::mloci_type& node::
+mloci () const
+{
+  return this->mloci_.get ();
+}
+
+node::mloci_type& node::
+mloci ()
+{
+  return this->mloci_.get ();
+}
+
+void node::
+mloci (const mloci_type& x)
+{
+  this->mloci_.set (x);
+}
+
+void node::
+mloci (::std::auto_ptr< mloci_type > x)
+{
+  this->mloci_.set (x);
+}
+
+const node::floci_type& node::
+floci () const
+{
+  return this->floci_.get ();
+}
+
+node::floci_type& node::
+floci ()
+{
+  return this->floci_.get ();
+}
+
+void node::
+floci (const floci_type& x)
+{
+  this->floci_.set (x);
+}
+
+void node::
+floci (::std::auto_ptr< floci_type > x)
+{
+  this->floci_.set (x);
 }
 
 
@@ -1434,6 +1663,106 @@ output_every (const output_every_type& x)
 }
 
 
+// ndna
+// 
+
+const ndna::delimeter_optional& ndna::
+delimeter () const
+{
+  return this->delimeter_;
+}
+
+ndna::delimeter_optional& ndna::
+delimeter ()
+{
+  return this->delimeter_;
+}
+
+void ndna::
+delimeter (const delimeter_type& x)
+{
+  this->delimeter_.set (x);
+}
+
+void ndna::
+delimeter (const delimeter_optional& x)
+{
+  this->delimeter_ = x;
+}
+
+void ndna::
+delimeter (::std::auto_ptr< delimeter_type > x)
+{
+  this->delimeter_.set (x);
+}
+
+const ndna::file_type& ndna::
+file () const
+{
+  return this->file_.get ();
+}
+
+ndna::file_type& ndna::
+file ()
+{
+  return this->file_.get ();
+}
+
+void ndna::
+file (const file_type& x)
+{
+  this->file_.set (x);
+}
+
+void ndna::
+file (::std::auto_ptr< file_type > x)
+{
+  this->file_.set (x);
+}
+
+const ndna::trim_optional& ndna::
+trim () const
+{
+  return this->trim_;
+}
+
+ndna::trim_optional& ndna::
+trim ()
+{
+  return this->trim_;
+}
+
+void ndna::
+trim (const trim_type& x)
+{
+  this->trim_.set (x);
+}
+
+void ndna::
+trim (const trim_optional& x)
+{
+  this->trim_ = x;
+}
+
+const ndna::output_every_type& ndna::
+output_every () const
+{
+  return this->output_every_.get ();
+}
+
+ndna::output_every_type& ndna::
+output_every ()
+{
+  return this->output_every_.get ();
+}
+
+void ndna::
+output_every (const output_every_type& x)
+{
+  this->output_every_.set (x);
+}
+
+
 #include <xsd/cxx/xml/dom/parsing-source.hxx>
 
 // edgeType
@@ -1646,6 +1975,76 @@ _xsd_treeType_indexes_[2] =
   ::treeType::parent
 };
 
+// sexType
+//
+
+sexType::
+sexType (const ::xercesc::DOMElement& e,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
+: ::xml_schema::string (e, f, c)
+{
+  _xsd_sexType_convert ();
+}
+
+sexType::
+sexType (const ::xercesc::DOMAttr& a,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
+: ::xml_schema::string (a, f, c)
+{
+  _xsd_sexType_convert ();
+}
+
+sexType::
+sexType (const ::std::string& s,
+         const ::xercesc::DOMElement* e,
+         ::xml_schema::flags f,
+         ::xml_schema::container* c)
+: ::xml_schema::string (s, e, f, c)
+{
+  _xsd_sexType_convert ();
+}
+
+sexType* sexType::
+_clone (::xml_schema::flags f,
+        ::xml_schema::container* c) const
+{
+  return new class sexType (*this, f, c);
+}
+
+sexType::value sexType::
+_xsd_sexType_convert () const
+{
+  ::xsd::cxx::tree::enum_comparator< char > c (_xsd_sexType_literals_);
+  const value* i (::std::lower_bound (
+                    _xsd_sexType_indexes_,
+                    _xsd_sexType_indexes_ + 2,
+                    *this,
+                    c));
+
+  if (i == _xsd_sexType_indexes_ + 2 || _xsd_sexType_literals_[*i] != *this)
+  {
+    throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
+  }
+
+  return *i;
+}
+
+const char* const sexType::
+_xsd_sexType_literals_[2] =
+{
+  "male",
+  "female"
+};
+
+const sexType::value sexType::
+_xsd_sexType_indexes_[2] =
+{
+  ::sexType::female,
+  ::sexType::male
+};
+
 // locType
 //
 
@@ -1786,46 +2185,89 @@ xyType::
 {
 }
 
-// intlist
+// floatlist
 //
 
-intlist::
-intlist (const ::xercesc::DOMElement& e,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+floatlist::
+floatlist (const ::xercesc::DOMElement& e,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
 : ::xml_schema::simple_type (e, f, c),
   ::xsd::cxx::tree::list< ::xml_schema::float_, char > (e, f, this)
 {
 }
 
-intlist::
-intlist (const ::xercesc::DOMAttr& a,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+floatlist::
+floatlist (const ::xercesc::DOMAttr& a,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
 : ::xml_schema::simple_type (a, f, c),
   ::xsd::cxx::tree::list< ::xml_schema::float_, char > (a, f, this)
 {
 }
 
-intlist::
-intlist (const ::std::string& s,
-         const ::xercesc::DOMElement* e,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+floatlist::
+floatlist (const ::std::string& s,
+           const ::xercesc::DOMElement* e,
+           ::xml_schema::flags f,
+           ::xml_schema::container* c)
 : ::xml_schema::simple_type (s, e, f, c),
   ::xsd::cxx::tree::list< ::xml_schema::float_, char > (s, e, f, this)
 {
 }
 
-intlist* intlist::
+floatlist* floatlist::
 _clone (::xml_schema::flags f,
         ::xml_schema::container* c) const
 {
-  return new class intlist (*this, f, c);
+  return new class floatlist (*this, f, c);
 }
 
-intlist::
-~intlist ()
+floatlist::
+~floatlist ()
+{
+}
+
+// integerlist
+//
+
+integerlist::
+integerlist (const ::xercesc::DOMElement& e,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
+: ::xml_schema::simple_type (e, f, c),
+  ::xsd::cxx::tree::list< ::xml_schema::int_, char > (e, f, this)
+{
+}
+
+integerlist::
+integerlist (const ::xercesc::DOMAttr& a,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
+: ::xml_schema::simple_type (a, f, c),
+  ::xsd::cxx::tree::list< ::xml_schema::int_, char > (a, f, this)
+{
+}
+
+integerlist::
+integerlist (const ::std::string& s,
+             const ::xercesc::DOMElement* e,
+             ::xml_schema::flags f,
+             ::xml_schema::container* c)
+: ::xml_schema::simple_type (s, e, f, c),
+  ::xsd::cxx::tree::list< ::xml_schema::int_, char > (s, e, f, this)
+{
+}
+
+integerlist* integerlist::
+_clone (::xml_schema::flags f,
+        ::xml_schema::container* c) const
+{
+  return new class integerlist (*this, f, c);
+}
+
+integerlist::
+~integerlist ()
 {
 }
 
@@ -2152,6 +2594,7 @@ simulation (const seed_type& seed,
             const softborders_type& softborders,
             const reproductiveability_type& reproductiveability,
             const dispersalradius_type& dispersalradius,
+            const loci_type& loci,
             const initialpopulation_type& initialpopulation,
             const output_type& output,
             const name_type& name)
@@ -2166,6 +2609,7 @@ simulation (const seed_type& seed,
   softborders_ (softborders, ::xml_schema::flags (), this),
   reproductiveability_ (reproductiveability, ::xml_schema::flags (), this),
   dispersalradius_ (dispersalradius, ::xml_schema::flags (), this),
+  loci_ (loci, ::xml_schema::flags (), this),
   initialpopulation_ (initialpopulation, ::xml_schema::flags (), this),
   output_ (output, ::xml_schema::flags (), this),
   name_ (name, ::xml_schema::flags (), this)
@@ -2183,6 +2627,7 @@ simulation (const seed_type& seed,
             ::std::auto_ptr< softborders_type >& softborders,
             ::std::auto_ptr< reproductiveability_type >& reproductiveability,
             ::std::auto_ptr< dispersalradius_type >& dispersalradius,
+            ::std::auto_ptr< loci_type >& loci,
             ::std::auto_ptr< initialpopulation_type >& initialpopulation,
             ::std::auto_ptr< output_type >& output,
             const name_type& name)
@@ -2197,6 +2642,7 @@ simulation (const seed_type& seed,
   softborders_ (softborders, ::xml_schema::flags (), this),
   reproductiveability_ (reproductiveability, ::xml_schema::flags (), this),
   dispersalradius_ (dispersalradius, ::xml_schema::flags (), this),
+  loci_ (loci, ::xml_schema::flags (), this),
   initialpopulation_ (initialpopulation, ::xml_schema::flags (), this),
   output_ (output, ::xml_schema::flags (), this),
   name_ (name, ::xml_schema::flags (), this)
@@ -2218,6 +2664,7 @@ simulation (const simulation& x,
   softborders_ (x.softborders_, f, this),
   reproductiveability_ (x.reproductiveability_, f, this),
   dispersalradius_ (x.dispersalradius_, f, this),
+  loci_ (x.loci_, f, this),
   initialpopulation_ (x.initialpopulation_, f, this),
   output_ (x.output_, f, this),
   name_ (x.name_, f, this)
@@ -2239,6 +2686,7 @@ simulation (const ::xercesc::DOMElement& e,
   softborders_ (f, this),
   reproductiveability_ (f, this),
   dispersalradius_ (f, this),
+  loci_ (f, this),
   initialpopulation_ (f, this),
   output_ (f, this),
   name_ (f, this)
@@ -2394,6 +2842,20 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
       }
     }
 
+    // loci
+    //
+    if (n.name () == "loci" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< loci_type > r (
+        loci_traits::create (i, f, this));
+
+      if (!loci_.present ())
+      {
+        this->loci_.set (r);
+        continue;
+      }
+    }
+
     // initialpopulation
     //
     if (n.name () == "initialpopulation" && n.namespace_ ().empty ())
@@ -2492,6 +2954,13 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
   {
     throw ::xsd::cxx::tree::expected_element< char > (
       "dispersalradius",
+      "");
+  }
+
+  if (!loci_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_element< char > (
+      "loci",
       "");
   }
 
@@ -2792,6 +3261,96 @@ edges::
 {
 }
 
+// loci
+//
+
+loci::
+loci (const numloci_type& numloci,
+      const recombinationrate_type& recombinationrate)
+: ::xml_schema::type (),
+  numloci_ (numloci, ::xml_schema::flags (), this),
+  recombinationrate_ (recombinationrate, ::xml_schema::flags (), this)
+{
+}
+
+loci::
+loci (const loci& x,
+      ::xml_schema::flags f,
+      ::xml_schema::container* c)
+: ::xml_schema::type (x, f, c),
+  numloci_ (x.numloci_, f, this),
+  recombinationrate_ (x.recombinationrate_, f, this)
+{
+}
+
+loci::
+loci (const ::xercesc::DOMElement& e,
+      ::xml_schema::flags f,
+      ::xml_schema::container* c)
+: ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
+  numloci_ (f, this),
+  recombinationrate_ (f, this)
+{
+  if ((f & ::xml_schema::flags::base) == 0)
+  {
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
+    this->parse (p, f);
+  }
+}
+
+void loci::
+parse (::xsd::cxx::xml::dom::parser< char >& p,
+       ::xml_schema::flags f)
+{
+  while (p.more_attributes ())
+  {
+    const ::xercesc::DOMAttr& i (p.next_attribute ());
+    const ::xsd::cxx::xml::qualified_name< char > n (
+      ::xsd::cxx::xml::dom::name< char > (i));
+
+    if (n.name () == "numloci" && n.namespace_ ().empty ())
+    {
+      this->numloci_.set (numloci_traits::create (i, f, this));
+      continue;
+    }
+
+    if (n.name () == "recombinationrate" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< recombinationrate_type > r (
+        recombinationrate_traits::create (i, f, this));
+
+      this->recombinationrate_.set (r);
+      continue;
+    }
+  }
+
+  if (!numloci_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "numloci",
+      "");
+  }
+
+  if (!recombinationrate_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "recombinationrate",
+      "");
+  }
+}
+
+loci* loci::
+_clone (::xml_schema::flags f,
+        ::xml_schema::container* c) const
+{
+  return new class loci (*this, f, c);
+}
+
+loci::
+~loci ()
+{
+}
+
 // initialpopulation
 //
 
@@ -2870,7 +3429,8 @@ output ()
 : ::xml_schema::type (),
   visual_ (::xml_schema::flags (), this),
   treestructure_ (::xml_schema::flags (), this),
-  locations_ (::xml_schema::flags (), this)
+  locations_ (::xml_schema::flags (), this),
+  ndna_ (::xml_schema::flags (), this)
 {
 }
 
@@ -2881,7 +3441,8 @@ output (const output& x,
 : ::xml_schema::type (x, f, c),
   visual_ (x.visual_, f, this),
   treestructure_ (x.treestructure_, f, this),
-  locations_ (x.locations_, f, this)
+  locations_ (x.locations_, f, this),
+  ndna_ (x.ndna_, f, this)
 {
 }
 
@@ -2892,7 +3453,8 @@ output (const ::xercesc::DOMElement& e,
 : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
   visual_ (f, this),
   treestructure_ (f, this),
-  locations_ (f, this)
+  locations_ (f, this),
+  ndna_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
@@ -2947,6 +3509,17 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
       continue;
     }
 
+    // ndna
+    //
+    if (n.name () == "ndna" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< ndna_type > r (
+        ndna_traits::create (i, f, this));
+
+      this->ndna_.push_back (r);
+      continue;
+    }
+
     break;
   }
 }
@@ -2972,14 +3545,20 @@ node (const lat_type& lat,
       const n_type& n,
       const r_type& r,
       const g_type& g,
-      const b_type& b)
+      const b_type& b,
+      const sex_type& sex,
+      const mloci_type& mloci,
+      const floci_type& floci)
 : ::xml_schema::type (),
   lat_ (lat, ::xml_schema::flags (), this),
   lon_ (lon, ::xml_schema::flags (), this),
   n_ (n, ::xml_schema::flags (), this),
   r_ (r, ::xml_schema::flags (), this),
   g_ (g, ::xml_schema::flags (), this),
-  b_ (b, ::xml_schema::flags (), this)
+  b_ (b, ::xml_schema::flags (), this),
+  sex_ (sex, ::xml_schema::flags (), this),
+  mloci_ (mloci, ::xml_schema::flags (), this),
+  floci_ (floci, ::xml_schema::flags (), this)
 {
 }
 
@@ -2993,7 +3572,10 @@ node (const node& x,
   n_ (x.n_, f, this),
   r_ (x.r_, f, this),
   g_ (x.g_, f, this),
-  b_ (x.b_, f, this)
+  b_ (x.b_, f, this),
+  sex_ (x.sex_, f, this),
+  mloci_ (x.mloci_, f, this),
+  floci_ (x.floci_, f, this)
 {
 }
 
@@ -3007,7 +3589,10 @@ node (const ::xercesc::DOMElement& e,
   n_ (f, this),
   r_ (f, this),
   g_ (f, this),
-  b_ (f, this)
+  b_ (f, this),
+  sex_ (f, this),
+  mloci_ (f, this),
+  floci_ (f, this)
 {
   if ((f & ::xml_schema::flags::base) == 0)
   {
@@ -3061,6 +3646,33 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
       this->b_.set (b_traits::create (i, f, this));
       continue;
     }
+
+    if (n.name () == "sex" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< sex_type > r (
+        sex_traits::create (i, f, this));
+
+      this->sex_.set (r);
+      continue;
+    }
+
+    if (n.name () == "mloci" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< mloci_type > r (
+        mloci_traits::create (i, f, this));
+
+      this->mloci_.set (r);
+      continue;
+    }
+
+    if (n.name () == "floci" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< floci_type > r (
+        floci_traits::create (i, f, this));
+
+      this->floci_.set (r);
+      continue;
+    }
   }
 
   if (!lat_.present ())
@@ -3102,6 +3714,27 @@ parse (::xsd::cxx::xml::dom::parser< char >& p,
   {
     throw ::xsd::cxx::tree::expected_attribute< char > (
       "b",
+      "");
+  }
+
+  if (!sex_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "sex",
+      "");
+  }
+
+  if (!mloci_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "mloci",
+      "");
+  }
+
+  if (!floci_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "floci",
       "");
   }
 }
@@ -3462,6 +4095,117 @@ _clone (::xml_schema::flags f,
 
 locations::
 ~locations ()
+{
+}
+
+// ndna
+//
+
+ndna::
+ndna (const file_type& file,
+      const output_every_type& output_every)
+: ::xml_schema::type (),
+  delimeter_ (::xml_schema::flags (), this),
+  file_ (file, ::xml_schema::flags (), this),
+  trim_ (::xml_schema::flags (), this),
+  output_every_ (output_every, ::xml_schema::flags (), this)
+{
+}
+
+ndna::
+ndna (const ndna& x,
+      ::xml_schema::flags f,
+      ::xml_schema::container* c)
+: ::xml_schema::type (x, f, c),
+  delimeter_ (x.delimeter_, f, this),
+  file_ (x.file_, f, this),
+  trim_ (x.trim_, f, this),
+  output_every_ (x.output_every_, f, this)
+{
+}
+
+ndna::
+ndna (const ::xercesc::DOMElement& e,
+      ::xml_schema::flags f,
+      ::xml_schema::container* c)
+: ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
+  delimeter_ (f, this),
+  file_ (f, this),
+  trim_ (f, this),
+  output_every_ (f, this)
+{
+  if ((f & ::xml_schema::flags::base) == 0)
+  {
+    ::xsd::cxx::xml::dom::parser< char > p (e, false, true);
+    this->parse (p, f);
+  }
+}
+
+void ndna::
+parse (::xsd::cxx::xml::dom::parser< char >& p,
+       ::xml_schema::flags f)
+{
+  while (p.more_attributes ())
+  {
+    const ::xercesc::DOMAttr& i (p.next_attribute ());
+    const ::xsd::cxx::xml::qualified_name< char > n (
+      ::xsd::cxx::xml::dom::name< char > (i));
+
+    if (n.name () == "delimeter" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< delimeter_type > r (
+        delimeter_traits::create (i, f, this));
+
+      this->delimeter_.set (r);
+      continue;
+    }
+
+    if (n.name () == "file" && n.namespace_ ().empty ())
+    {
+      ::std::auto_ptr< file_type > r (
+        file_traits::create (i, f, this));
+
+      this->file_.set (r);
+      continue;
+    }
+
+    if (n.name () == "trim" && n.namespace_ ().empty ())
+    {
+      this->trim_.set (trim_traits::create (i, f, this));
+      continue;
+    }
+
+    if (n.name () == "output_every" && n.namespace_ ().empty ())
+    {
+      this->output_every_.set (output_every_traits::create (i, f, this));
+      continue;
+    }
+  }
+
+  if (!file_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "file",
+      "");
+  }
+
+  if (!output_every_.present ())
+  {
+    throw ::xsd::cxx::tree::expected_attribute< char > (
+      "output_every",
+      "");
+  }
+}
+
+ndna* ndna::
+_clone (::xml_schema::flags f,
+        ::xml_schema::container* c) const
+{
+  return new class ndna (*this, f, c);
+}
+
+ndna::
+~ndna ()
 {
 }
 

@@ -37,6 +37,7 @@ simulate(std::vector<Node*> initialGeneration)
   Timer pruneTimer("prune()", false);
   Timer outputTimer("output()", false);
   Timer simulateTimer("simulate()", false);
+  Timer distanceTimer("populate",false);
 
   for (generation = 1; generation <= config.getNGenerations()
       && thisGeneration.size() != 0; generation++)
@@ -52,11 +53,14 @@ simulate(std::vector<Node*> initialGeneration)
 
       std::vector<Node*> nextGeneration;
 
-      migrateTimer.start();
+      distanceTimer.start();
       nextGeneration = functions->populate(thisGeneration, generation);
+      distanceTimer.stop();
 
-      nextGeneration = functions->migrate4GPU(nextGeneration, generation,
-          config.getNGenerations());
+      migrateTimer.start();
+      if(nextGeneration.size() > 0)
+		  nextGeneration = functions->migrate4GPU(nextGeneration, generation,
+			  config.getNGenerations());
       migrateTimer.stop();
 
       cccTimer.start();
@@ -81,6 +85,7 @@ simulate(std::vector<Node*> initialGeneration)
   pruneTimer.print();
   outputTimer.print();
   simulateTimer.print();
+  distanceTimer.print();
 
   return thisGeneration;
 }
@@ -96,12 +101,12 @@ main(int argc, const char* argv[])
     std::cerr << "More than one command line parameter! Abort!" << std::endl;
 
   config.readConfig(argv[1]);
-
+std::cout << " read conf" << std::endl;
   if (config.getSeed() == -1)
     random = new Random();
   else
     random = new Random(config.getSeed());
-  functions = new DispersalFunctions(&config, random, true);
+  functions = new DispersalFunctions(&config, random, false);
   std::cout << "Running Simulation: " << config.getSimName() << std::endl;
 
   std::vector<Node*> lastGeneration = simulate(config.getInitialPopulation());

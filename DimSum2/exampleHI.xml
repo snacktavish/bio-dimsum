@@ -23,7 +23,7 @@
     </softborders>
 	
 	<reproductiveability>
-		<distribution offspring="1 2" p=".3 .7"/>
+		<distribution offspring="2 4 6 8 10" p=".1 .2 .4 .2 .1"/>
 	</reproductiveability>
 	
 	
@@ -31,11 +31,17 @@
 		<distribution offspring="1 7 50 70 " p=".8 .1 .05 .05"/>
 	</dispersalradius>
 
+	<loci numloci="5" recombinationrate="0.5 0.5 0.5 0.5"/>
+
 	<initialpopulation>
-        <node lat="21.9" lon="-159.5" n="1" r="255" g="255" b="0"/>
-        <node lat="21.4" lon="-158" n="1" r="255" g="0" b="0"/>
-        <node lat="20.8" lon="-156.3" n="1" r="255" g="90" b="255"/>
-        <node lat="19.5" lon="-155.5" n="1" r="30" g="144" b="255"/>
+        <node lat="21.9" lon="-159.5" n="1" r="255" g="255" b="0" sex="female" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>
+        <node lat="20.9" lon="-159.5" n="1" r="255" g="255" b="0" sex="male" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>
+        <node lat="21.4" lon="-158" n="1" r="255" g="0" b="0" sex="female" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>
+        <node lat="21.4" lon="-157" n="1" r="255" g="0" b="0" sex="male" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>     
+        <node lat="20.8" lon="-156.3" n="1" r="255" g="90" b="255" sex="female" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>
+        <node lat="20.8" lon="-155.3" n="1" r="255" g="90" b="255" sex="male" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>       
+        <node lat="19.5" lon="-155.5" n="1" r="30" g="144" b="255" sex="female" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>
+        <node lat="19.5" lon="-154.5" n="1" r="30" g="144" b="255" sex="male" floci="1 1 1 1 1" mloci="0 0 0 0 0"/>      
 	</initialpopulation>
 	
 	<output>

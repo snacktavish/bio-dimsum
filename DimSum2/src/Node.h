@@ -24,9 +24,11 @@ class Node
 
 public:
 
-  Node(int gen, Node *par);
+  Node(int gen, Node *par, Node *father);
 
-  Node(double lat0, double lon0, int r, int g, int b);
+  Node(double lat0, double lon0, int r, int g, int b, bool male, std::vector<int> motherL, std::vector<int> fatherL);
+
+  Node(Node *from, int genNum, std::vector<Node*> newLastGen);
 
   virtual
   ~Node();
@@ -43,11 +45,18 @@ public:
   std::string
   getName();
 
+  std::string
+  getString();
+
   /**
    * Returns the distance of the Node to the Node parent
    */
   double
   getDistance(Node& parent);
+
+
+  std::string
+  printAlleleTree(std::string delimeter, int curr_gen, int loci, int allele);
 
   /**
    * Returns a tree with the name of all children
@@ -65,10 +74,16 @@ public:
   //todo: -> private
   std::vector<Node*> children;
   static int lastUnique;
+  static int numLoci;
   int generation, unique;
   double lat, lon, d;
   Node* parent;
+  Node* _father;
   int _r, _g, _b;
+  bool _male;
+  int* _motherChrom;
+  int* _fatherChrom;
+  static float *_recombinationRate;
 };
 
 #endif /* NODE_H_ */

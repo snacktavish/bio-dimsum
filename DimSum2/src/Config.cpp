@@ -23,6 +23,8 @@
 #include "VisualOutput.h"
 #include "TreeOutput.h"
 #include "LocationsOutput.h"
+#include "NDNAOutput.h"
+#include "Node.h"
 
 Config::Config() :
   simulationname("")
@@ -162,14 +164,55 @@ Config::readConfig(const char* file)
       distSequence = simulation->reproductiveability().distribution();
       parsePtype(distSequence, noffspring);
 
+
+
+      Node::numLoci = simulation->loci().numloci();
+      Node::_recombinationRate = new float[Node::numLoci];
+
+      floatlist ratelist = simulation->loci().recombinationrate();
+      std::vector<float, std::allocator<float> >::iterator rateIter = ratelist.begin();
+      Node::_recombinationRate[0] = 0.5;
+
+	   for (int i=1; rateIter != ratelist.end() && i < Node::numLoci; i++) {
+		   Node::_recombinationRate[i] = *rateIter;
+		 rateIter++;
+	   }
+
+
       simulation::initialpopulation_type::node_sequence nodes =
           simulation->initialpopulation().node();
       simulation::initialpopulation_type::node_sequence::iterator nIter =
           nodes.begin();
+
+      bool male=false;
+
       for (; nIter != nodes.end(); nIter++)
         {
+    	  male = true;
+    	  if(nIter->sex() == sexType::female)
+    		  male = false;
+
+          std::vector<int> motherL;
+          std::vector<int> fatherL;
+
+    	  integerlist locilist = nIter->mloci();
+			std::vector<int, std::allocator<int> >::iterator lociIter = locilist.begin();
+			Node::_recombinationRate[0] = 0.5;
+
+		   for (; lociIter != locilist.end(); lociIter++) {
+			   motherL.push_back(*lociIter);
+		   }
+
+		   locilist= nIter->floci();
+		   lociIter = locilist.begin();
+
+		   for (; lociIter != locilist.end(); lociIter++) {
+			   fatherL.push_back(*lociIter);
+		   }
+
+
           initialpopulation.push_back(new Node(nIter->lat(), nIter->lon(),
-              nIter->r(), nIter->b(), nIter->g()));
+              nIter->r(), nIter->b(), nIter->g(), male,motherL, fatherL));
         }
 
       //visualfreq = 0;
@@ -225,6 +268,7 @@ Config::readConfig(const char* file)
           treeIterator++;
         }
 
+
       simulation::output_type::locations_sequence locseq =
           outputcfg.locations();
 
@@ -251,6 +295,28 @@ Config::readConfig(const char* file)
               file, outputrate, outputall));
           locIterator++;
         }
+
+      simulation::output_type::ndna_sequence ndnsseq = outputcfg.ndna();
+      simulation::output_type::ndna_const_iterator ndnsIterator =
+    		  ndnsseq.begin();
+      while(ndnsIterator != ndnsseq.end())
+      {
+    	  std::string delimeter = "#";
+    	           if (ndnsIterator->delimeter().present())
+    	             delimeter = ndnsIterator->delimeter().get();
+          std::string file = ndnsIterator->file();
+          bool trim = false;
+           if (ndnsIterator->trim().present())
+             trim = ndnsIterator->trim().get();
+          int outputrate = ndnsIterator->output_every();
+
+
+
+          outputfunctions.push_back(new NDNAOutput(initialpopulation,file,outputrate,delimeter,trim));   //todo:
+          ndnsIterator++;
+      }
+
+
 
     }
   catch (const xml_schema::exception& e)
