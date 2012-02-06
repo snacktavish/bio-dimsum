@@ -18,6 +18,7 @@
 #include "kernel.cuh"
 #include <iostream>
 #include <cstdio>
+#include <queue>
 
 bool
 comp(const Node* a, const Node* b)
@@ -53,16 +54,54 @@ DispersalFunctions::populate(std::vector<Node*> thisGeneration, int generation)
 {
   std::vector<Node*> children;
 
+  float x,y,mindistance;
+  int j_x;
+  float distance;
+  int numberOfChildren;
+  bool ismin;
+  bool *paired = new bool[thisGeneration.size()];
+
+
   for (unsigned int i = 0; i < thisGeneration.size(); i++)
-    {
-      int numberOfChildren = settings->getNOffspring(generation, _rand);
-      for (int j = 0; j < numberOfChildren; j++)
-        {
-          Node *child = new Node(generation + 1, thisGeneration[i]);
-          (thisGeneration[i])->children.push_back(child);
-          children.push_back(child);
-        }
-    }
+	  paired[i] = false;
+
+  for (unsigned int i = 0; i < thisGeneration.size(); i++) {
+	  mindistance =std::numeric_limits<float>::max();
+	  ismin = false;
+	  j_x = 0;
+	  if(paired[i] == false && thisGeneration[i]->_male == false) {
+		  for (unsigned int j = 0; j < thisGeneration.size(); j++) {
+			  if(paired[j] == false && thisGeneration[j]->_male == true) {
+				 x= (thisGeneration[i])->lat -(thisGeneration[j])->lat;
+				 y= (thisGeneration[i])->lon - (thisGeneration[j])->lon;
+				 distance = x*x+y*y;
+				 if(distance < mindistance) {
+					 mindistance = distance;
+					 j_x = j;
+					 ismin = true;
+				 }
+			  }
+		  }
+		  if(ismin) {
+			  paired[i] = true;
+			  paired[j_x] = true;
+
+			  numberOfChildren = settings->getNOffspring(generation, _rand);
+			for (int j = 0; j < numberOfChildren; j++)
+			  {
+				Node *child = new Node(generation + 1, thisGeneration[i], thisGeneration[j_x]);
+				(thisGeneration[i])->children.push_back(child);
+				(thisGeneration[j_x])->children.push_back(child);
+				children.push_back(child);
+			  }
+		  }
+
+	  }
+
+
+  }
+
+  delete[] paired;
 
   return children;
 }
@@ -291,6 +330,8 @@ DispersalFunctions::checkCarryingCapacity(std::vector<Node*> children,
             {
               if (children[i]->parent != NULL)
                 children[i]->parent->remove(children[i]);
+              if(children[i]->_father != NULL)
+                  children[i]->_father->remove(children[i]);
 
               delete children[i];
 
@@ -315,35 +356,55 @@ DispersalFunctions::prune(std::vector<Node*> thisGeneration, int generation)
   for (unsigned int i = 0; i < thisGeneration.size(); i++)
     rm[i] = false;
 
+
+  std::queue<Node*> nextNode;
+  Node *current;
+
   for (unsigned int i = 0; i < thisGeneration.size(); i++)
     {
-      Node *current = thisGeneration[i];
+     // Node *current = thisGeneration[i];
+	  nextNode.push(thisGeneration[i]);
       // If a member of this generation is pruned, it might make a member of the last generation eligible for pruning.
       // Hence, the while loop.
-      while (current != NULL && current->parent != NULL)
+
+	  current = nextNode.front();
+      while (nextNode.empty() && current != NULL && current->parent != NULL)
         {
+    	  current = nextNode.front();
+    	  nextNode.pop();
           if (current->children.size() == 0)
             {
               current->parent->remove(current);
+              current->_father->remove(current);
               if (current->generation == generation)
                 {
                   rm[i] = true;
                 }
-              current = current->parent;
+              current = NULL;
+              nextNode.push(current->_father);
+              nextNode.push(current->parent);
             }
           else if (current->children.size() == 1 && current->generation != 1)
             {
 
-              current->children[0]->parent = current->parent;
+        	  if(current->_male)
+        		  current->children[0]->_father = current->_father;
+        	  else
+        		  current->children[0]->parent = current->parent;
               current->parent->remove(current);
               current->parent->children.push_back(current->children[0]);
+
+              current->_father->remove(current);
+              current->_father->children.push_back(current->children[0]);
 
               if (current->generation == generation)
                 {
                   rm[i] = true;
                 }
 
-              current = current->parent;
+              current = NULL;
+			nextNode.push(current->_father);
+			nextNode.push(current->parent);
             }
           else
             break;

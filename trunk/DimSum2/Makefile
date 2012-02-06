@@ -2,7 +2,7 @@ CXXFLAGS =	-m64 -O3 -g -Wall -Wstrict-aliasing -fno-rtti -I/opt/local/include -I
 LDFLAGS =	-lxerces-c -lcudart -lcuda
 OBJS =		src/DimSum.o src/Node.o src/XYFunction.o src/Pfunction.o src/DispersalFunctions.o src/ConfigFile.o\
 			src/Config.o src/Random.o src/BMPImage.o src/OutputFunction.o src/VisualOutput.o src/TreeOutput.o\
-			src/LocationsOutput.o src/Timer.o src/BMPOutput.o
+			src/LocationsOutput.o src/Timer.o src/BMPOutput.o src/NDNAOutput.o
 TARGET =	DimSum
 
 $(TARGET):	$(OBJS)

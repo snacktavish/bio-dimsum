@@ -33,8 +33,14 @@ BMPImage::BMPImage(const char* filename, double maxValue, int color)
   res = fread(&bitmapFileHeader, sizeof(bmpfile_header), 1, file);
   res = fread(&bitmapInfoHeader, sizeof(bmpinfo_header), 1, file);
 
+  if(bitmapInfoHeader.width < 0)
+	  bitmapInfoHeader.width = -bitmapInfoHeader.width;
+  if(bitmapInfoHeader.height < 0)
+	  bitmapInfoHeader.height = -bitmapInfoHeader.height;
+
   int xlength = (bitmapInfoHeader.width * 3 + 3) & ~3;
   unsigned int length = xlength * bitmapInfoHeader.height;
+
 
   _image = new unsigned char[length];
 

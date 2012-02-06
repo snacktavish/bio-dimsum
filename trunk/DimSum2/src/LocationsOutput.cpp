@@ -47,9 +47,10 @@ LocationsOutput::doOutput(std::string filename, std::vector<Node*> nodes,
         {
           Node *tmp = relevantNodes.front();
           relevantNodes.pop();
-          fout << spacer << tmp;
-          for (unsigned int i = 0; i < tmp->children.size(); i++)
-            relevantNodes.push(tmp->children[i]);
+          fout << spacer << tmp->getString();
+          if(!tmp->_male)
+        	  for (unsigned int i = 0; i < tmp->children.size(); i++)
+        		  relevantNodes.push(tmp->children[i]);
 
           spacer = "\n";
         }
@@ -59,7 +60,7 @@ LocationsOutput::doOutput(std::string filename, std::vector<Node*> nodes,
       spacer = "";
       for (unsigned int i = 0; i < nodes.size(); i++)
         {
-          fout << spacer << nodes[i];
+          fout << spacer << nodes[i]->getString();
           spacer = "\n";
         }
     }
