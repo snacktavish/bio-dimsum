@@ -18,6 +18,7 @@
 #include "kernel.cuh"
 #include <iostream>
 #include <cstdio>
+#include "NodePair.h""
 #include <queue>
 
 bool
@@ -54,35 +55,44 @@ DispersalFunctions::populate(std::vector<Node*> thisGeneration, int generation)
 {
   std::vector<Node*> children;
 
-  float x,y,mindistance;
-  int j_x;
+  float x,y;//,mindistance;
+  //int j_x;
   float distance;
   int numberOfChildren;
-  bool ismin;
+ // bool ismin;
   bool *paired = new bool[thisGeneration.size()];
+  std::vector<NodePair> pairs;
+  float cutoff = 90;
+  int numFemale = 0;
+
 
 
   for (unsigned int i = 0; i < thisGeneration.size(); i++)
 	  paired[i] = false;
 
-  for (unsigned int i = 0; i < thisGeneration.size(); i++) {
-	  mindistance =std::numeric_limits<float>::max();
-	  ismin = false;
-	  j_x = 0;
-	  if(paired[i] == false && thisGeneration[i]->_male == false) {
-		  for (unsigned int j = 0; j < thisGeneration.size(); j++) {
-			  if(paired[j] == false && thisGeneration[j]->_male == true) {
+  for (unsigned int i = 0; i < thisGeneration.size(); i++)
+  {
+	//  mindistance =std::numeric_limits<float>::max();
+	  //ismin = false;
+	  //j_x = 0;
+	  if( thisGeneration[i]->_male == false)
+	  {
+		  numFemale++;
+		  for (unsigned int j = 0; j < thisGeneration.size(); j++)
+		  {
+			  if(thisGeneration[j]->_male == true)
+			  {
 				 x= (thisGeneration[i])->lat -(thisGeneration[j])->lat;
 				 y= (thisGeneration[i])->lon - (thisGeneration[j])->lon;
 				 distance = x*x+y*y;
-				 if(distance < mindistance) {
-					 mindistance = distance;
-					 j_x = j;
-					 ismin = true;
+				 if(distance < cutoff) {
+					 NodePair x(i,j,distance);
+					 x._tmpDistance = 1.0/distance;
+					 pairs.push_back(x);
 				 }
 			  }
 		  }
-		  if(ismin) {
+		 /* if(ismin) {
 			  paired[i] = true;
 			  paired[j_x] = true;
 
@@ -94,11 +104,60 @@ DispersalFunctions::populate(std::vector<Node*> thisGeneration, int generation)
 				(thisGeneration[j_x])->children.push_back(child);
 				children.push_back(child);
 			  }
-		  }
+		  }*/
 
 	  }
 
 
+  }
+
+  Random rand0(42);
+
+
+
+  for(int j=1;j<pairs.size();j++)
+  {
+	  pairs[j]._tmpDistance += pairs[j-1]._tmpDistance;
+  }
+  double sum = pairs[pairs.size()-1]._tmpDistance;
+
+
+  for(int i=0;i< 10000 && numFemale > 0 && pairs.size() > 0;i++) {
+
+
+	NodePair asdasd(0,0,0);
+	asdasd._tmpDistance =rand0.nextFloat()*sum;
+	std::vector<NodePair>::iterator tmp = std::lower_bound(pairs.begin(), pairs.end(),asdasd);
+
+
+	paired[tmp->indexFemale] = true;
+	paired[tmp->indexMale] = true;
+	numFemale--;
+	numberOfChildren = settings->getNOffspring(generation, _rand);
+
+	for (int j = 0; j < numberOfChildren; j++)
+	{
+		Node *child = new Node(generation + 1, thisGeneration[tmp->indexFemale], thisGeneration[tmp->indexMale]);
+		(thisGeneration[tmp->indexFemale])->children.push_back(child);
+		(thisGeneration[tmp->indexMale])->children.push_back(child);
+		children.push_back(child);
+	}
+
+	std::vector<NodePair> newPairs;
+	for(int j=0;j<pairs.size();j++) {
+	  if(paired[pairs[j].indexFemale] == false && paired[pairs[j].indexMale] == false) {
+		  if(!newPairs.empty())
+			  pairs[j]._tmpDistance = 1.0/pairs[j]._distance + newPairs[newPairs.size()-1]._tmpDistance;
+		  else pairs[j]._tmpDistance = 1.0/pairs[j]._distance;
+		  newPairs.push_back(pairs[j]);
+
+	  }
+	}
+
+
+	pairs.clear();
+	pairs = newPairs;
+	sum = pairs[pairs.size()-1]._tmpDistance;
   }
 
   delete[] paired;
