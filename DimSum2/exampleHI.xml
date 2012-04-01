@@ -23,7 +23,7 @@
     </softborders>
 	
 	<reproductiveability>
-		<distribution offspring="2 4 6 8 10" p=".1 .2 .4 .2 .1"/>
+		<distribution offspring="2 4 8 16 32" p=".1 .2 .4 .2 .1"/>
 	</reproductiveability>
 	
 	

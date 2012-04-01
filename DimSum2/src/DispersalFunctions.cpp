@@ -20,6 +20,8 @@
 #include <cstdio>
 #include "NodePair.h""
 #include <queue>
+#include <math.h>
+
 
 bool
 comp(const Node* a, const Node* b)
@@ -75,12 +77,12 @@ DispersalFunctions::populate(std::vector<Node*> thisGeneration, int generation)
 	//  mindistance =std::numeric_limits<float>::max();
 	  //ismin = false;
 	  //j_x = 0;
-	  if( thisGeneration[i]->_male == false)
+	  if( thisGeneration[i]->_male == false && paired[i] == false)
 	  {
 		  numFemale++;
 		  for (unsigned int j = 0; j < thisGeneration.size(); j++)
 		  {
-			  if(thisGeneration[j]->_male == true)
+			  if(thisGeneration[j]->_male == true && paired[j] == false)
 			  {
 				 x= (thisGeneration[i])->lat -(thisGeneration[j])->lat;
 				 y= (thisGeneration[i])->lon - (thisGeneration[j])->lon;
@@ -142,22 +144,23 @@ DispersalFunctions::populate(std::vector<Node*> thisGeneration, int generation)
 		(thisGeneration[tmp->indexMale])->children.push_back(child);
 		children.push_back(child);
 	}
+	if(i%(int)(log(thisGeneration.size())*log(thisGeneration.size())) == 0) { //todo:
+		std::vector<NodePair> newPairs;
+		for(int j=0;j<pairs.size();j++) {
+		  if(paired[pairs[j].indexFemale] == false && paired[pairs[j].indexMale] == false) {
+			  if(!newPairs.empty())
+				  pairs[j]._tmpDistance = 1.0/pairs[j]._distance + newPairs[newPairs.size()-1]._tmpDistance;
+			  else pairs[j]._tmpDistance = 1.0/pairs[j]._distance;
+			  newPairs.push_back(pairs[j]);
 
-	std::vector<NodePair> newPairs;
-	for(int j=0;j<pairs.size();j++) {
-	  if(paired[pairs[j].indexFemale] == false && paired[pairs[j].indexMale] == false) {
-		  if(!newPairs.empty())
-			  pairs[j]._tmpDistance = 1.0/pairs[j]._distance + newPairs[newPairs.size()-1]._tmpDistance;
-		  else pairs[j]._tmpDistance = 1.0/pairs[j]._distance;
-		  newPairs.push_back(pairs[j]);
+		  }
+		}
 
-	  }
+
+		pairs.clear();
+		pairs = newPairs;
+		sum = pairs[pairs.size()-1]._tmpDistance;
 	}
-
-
-	pairs.clear();
-	pairs = newPairs;
-	sum = pairs[pairs.size()-1]._tmpDistance;
   }
 
   delete[] paired;
