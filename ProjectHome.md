@@ -1,0 +1,8 @@
+![http://webspace.utexas.edu/jmb2239/dimsum_icon1.jpg](http://webspace.utexas.edu/jmb2239/dimsum_icon1.jpg)
+# DIM SUM: **_D_**emography and **_I_**ndividual **_M_**igration **_S_**imulated **_U_**sing a **_M_**arkov chain #
+
+DIM SUM (Demography and Individual Migration Simulated Using a Markov chain) is a stand-alone Java program for the simulation of population demography and individual migration, while keeping track of genetic relationships.  It does not rely on assumptions of the coalescent or of discrete population boundaries.  It is extremely flexible, allowing the user to set the positions of borders, the reaction of an organism to a border, local and global carrying capacities, individual dispersal kernels, rates of reproduction, and strategies for sampling individuals.  Spatial variables may be specified using image files (e.g., as exported from GIS software) and may vary through time.  DIM SUM will be useful for testing of phylogeographic methods (e.g., nested clade phylogeographic analysis, coalescent-based tests, and continuous-landscape frameworks), landscape-genetic methods, and specific violations of coalescent assumptions, as well as visualizing hypotheses of biological invasions, and as a pedagogical tool.
+
+If you use DIM SUM, please cite:
+
+Brown, J.M., K. Savidge, and E. McTavish. 2009. DIM SUM: Demography and Individual Migration Simulated Using a Markov chain. _Molecular Ecology Resources_. Submitted.
